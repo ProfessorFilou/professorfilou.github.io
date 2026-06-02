@@ -135,113 +135,43 @@ h1{
     font-size:14px;
 }
 
+/* ══ Footer-Infos: Besucher + Alter ══ */
+.footer-info{
+    margin-top:14px;
+    color:#777;
+    font-size:13px;
+    line-height:1.9;
+}
+.footer-info b{
+    color:#00ffcc;
+    font-weight:700;
+}
+
 @keyframes glow{
     from{text-shadow:0 0 10px #00ffcc,0 0 20px #00ffcc;}
     to{text-shadow:0 0 20px #00ffcc,0 0 40px #00ffcc,0 0 80px #00ffcc;}
 }
 
-/* ══════════════════════════════
-   KLICKER (oben links)
-   ══════════════════════════════ */
-#clicker-box{
+/* ══ Konfetti ══ */
+#confetti-layer{
     position:fixed;
-    top:20px;
-    left:20px;
-    z-index:300;
-    width:190px;
-    background:rgba(3,16,12,0.85);
-    border:1px solid rgba(0,255,204,0.30);
-    border-radius:16px;
-    padding:12px 12px 14px;
-    backdrop-filter:blur(14px);
-    box-shadow:0 8px 28px rgba(0,0,0,0.5),0 0 18px rgba(0,255,204,0.1);
+    inset:0;
+    pointer-events:none;
+    z-index:9999;
+    overflow:hidden;
 }
-
-#clicker-box h3{
-    color:#00ffcc;
-    font-size:13px;
-    letter-spacing:1px;
-    text-transform:uppercase;
-    margin-bottom:8px;
-    text-align:center;
+.confetti-piece{
+    position:absolute;
+    top:-20px;
+    width:10px;
+    height:14px;
+    border-radius:2px;
+    opacity:0.9;
+    animation:conffall linear forwards;
 }
-
-#click-btn{
-    width:100%;
-    padding:14px 0;
-    border:none;
-    border-radius:12px;
-    background:rgba(0,255,204,0.12);
-    border:1px solid rgba(0,255,204,0.4);
-    color:#00ffcc;
-    font-size:18px;
-    font-weight:700;
-    cursor:pointer;
-    user-select:none;
-    -webkit-tap-highlight-color:transparent;
-    transition:transform 0.05s, background 0.2s;
-}
-
-#click-btn:active{
-    transform:scale(0.95);
-    background:rgba(0,255,204,0.25);
-}
-
-#click-btn:disabled{
-    opacity:0.5;
-    cursor:default;
-}
-
-#click-status{
-    text-align:center;
-    font-size:12px;
-    color:#bfbfbf;
-    margin-top:8px;
-    min-height:16px;
-}
-
-#click-count{
-    color:#00ffcc;
-    font-weight:700;
-}
-
-.lb-title{
-    margin-top:12px;
-    color:rgba(0,255,204,0.7);
-    font-size:11px;
-    letter-spacing:1px;
-    text-transform:uppercase;
-    text-align:center;
-    border-top:1px solid rgba(0,255,204,0.15);
-    padding-top:8px;
-}
-
-#leaderboard{
-    list-style:none;
-    margin-top:6px;
-}
-
-#leaderboard li{
-    display:flex;
-    justify-content:space-between;
-    font-size:12px;
-    padding:3px 4px;
-    color:#cfcfcf;
-}
-
-#leaderboard li .rank{
-    color:#00ffcc;
-    font-weight:700;
-    margin-right:6px;
-}
-
-/* Auf Handy: Klicker zentriert über den Inhalt statt fixiert */
-@media (max-width: 600px) {
-    #clicker-box{
-        position:static;
-        width:min(280px,90%);
-        margin:0 auto 10px;
-    }
+@keyframes conffall{
+    0%   { transform:translateY(-20px) rotate(0deg);   opacity:1; }
+    100% { transform:translateY(105vh) rotate(720deg); opacity:1; }
 }
 
 /* ════════════════════════════════
@@ -427,19 +357,7 @@ h1{
 <body>
 
 <canvas id="bg"></canvas>
-
-<!-- ══ KLICKER (oben links) ══ -->
-<div id="clicker-box">
-    <h3>⚡ 5-Sek-Klicker</h3>
-    <button id="click-btn">START</button>
-    <div id="click-status">Klicks: <span id="click-count">0</span></div>
-    <div class="lb-title">🏆 Top 3</div>
-    <ol id="leaderboard">
-        <li><span class="rank">1.</span><span>–</span></li>
-        <li><span class="rank">2.</span><span>–</span></li>
-        <li><span class="rank">3.</span><span>–</span></li>
-    </ol>
-</div>
+<div id="confetti-layer"></div>
 
 <!-- ══ DESKTOP plant (fixed top-right) ══ -->
 <div id="plant-fixed">
@@ -529,6 +447,10 @@ h1{
     </div>
 
     <div class="footer">© ProfessorFilou</div>
+    <div class="footer-info">
+        👀 <b id="visit-count">…</b> Besuche<br>
+        🎂 Seite ist <b id="site-age">…</b> online
+    </div>
 
     <!-- ══ MOBILE plant (inline after footer) ══ -->
     <div id="plant-inline" style="position:relative;">
@@ -547,7 +469,7 @@ h1{
 
 import { initializeApp }
     from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getDatabase, ref, runTransaction, onValue, query, orderByChild, limitToLast, push }
+import { getDatabase, ref, runTransaction, onValue, get, remove }
     from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 const firebaseConfig = {
@@ -563,13 +485,73 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db  = getDatabase(app);
 
-/* ═══════════════ PFLANZE ═══════════════ */
+
+/* ═══════════════ BESUCHERZÄHLER + SEITEN-ALTER + KONFETTI ═══════════════ */
+
+const SITE_BORN = new Date("2026-05-31T00:00:00");   // Seite online seit 31.5.2026
+
+const visitsRef = ref(db, "visits/total");
+const visitEl   = document.getElementById("visit-count");
+
+runTransaction(visitsRef, cur => (cur || 0) + 1);
+onValue(visitsRef, snap => {
+    const n = snap.val() || 0;
+    visitEl.textContent = n.toLocaleString("de-DE");
+});
+
+function updateAge() {
+    const now  = new Date();
+    const days = Math.floor((now - SITE_BORN) / 86400000);
+    const ageEl = document.getElementById("site-age");
+    if (days < 0)        ageEl.textContent = "bald";
+    else if (days === 0) ageEl.textContent = "seit heute";
+    else if (days === 1) ageEl.textContent = "1 Tag";
+    else                 ageEl.textContent = days + " Tage";
+}
+updateAge();
+
+function launchConfetti(amount = 80) {
+    const layer  = document.getElementById("confetti-layer");
+    const colors = ["#00ffcc","#f06292","#fff176","#66bb6a","#42a5f5","#ffffff"];
+    for (let i = 0; i < amount; i++) {
+        const piece = document.createElement("div");
+        piece.className = "confetti-piece";
+        piece.style.left             = Math.random() * 100 + "vw";
+        piece.style.background        = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDuration = (2.5 + Math.random() * 2) + "s";
+        piece.style.animationDelay    = (Math.random() * 0.6) + "s";
+        layer.appendChild(piece);
+        piece.addEventListener("animationend", () => piece.remove());
+    }
+}
+
+// Konfetti NUR am 31. Mai
+const today = new Date();
+const isBirthday = today.getDate() === 31 && today.getMonth() === 4; // Mai = Monat 4
+if (isBirthday) {
+    setTimeout(() => launchConfetti(160), 600);
+    setTimeout(() => launchConfetti(160), 1800);
+}
+
+
+/* ═══════════════ PFLANZE (nur heutiger Tag in Firebase) ═══════════════ */
 
 function todayKey() {
     return "plant_" + new Date().toISOString().slice(0, 10);
 }
 
-const plantRef = ref(db, "easter_egg/" + todayKey());
+const TODAY_KEY = todayKey();
+const plantRef  = ref(db, "easter_egg/" + TODAY_KEY);
+
+/* Alte Tage automatisch aufräumen – nur der heutige Eintrag bleibt übrig */
+get(ref(db, "easter_egg")).then(snap => {
+    if (!snap.exists()) return;
+    snap.forEach(child => {
+        if (child.key !== TODAY_KEY) {
+            remove(ref(db, "easter_egg/" + child.key)).catch(() => {});
+        }
+    });
+}).catch(() => {});
 
 const hitDesktop = document.getElementById("hit-desktop");
 const hitMobile  = document.getElementById("hit-mobile");
@@ -590,14 +572,10 @@ let toastTimer = null;
 let everClicked = false;
 let drownPlayed = false;
 
-/* FIX: hoher Wert blockiert nicht mehr – per Modulo auf 0–99 abbilden,
-   nur exakt am Vielfachen von 100 spielt die Ertrink-Animation. */
 onValue(plantRef, snap => {
     const raw = snap.val() || 0;
 
-    // genau bei 100, 200, ... ertrinken + neu
     const atDrownPoint = raw > 0 && raw % DROWN_AT === 0;
-    // sichtbarer Wachstumswert: 0–99
     waterCount = raw % DROWN_AT;
 
     if (atDrownPoint && !drownPlayed) {
@@ -758,77 +736,6 @@ function bounce(anchor) {
     svg.addEventListener("animationend",
         () => svg.classList.remove("bouncing"), { once: true });
 }
-
-
-/* ═══════════════ 5-SEK-KLICKER ═══════════════ */
-
-const clickBtn   = document.getElementById("click-btn");
-const clickCount = document.getElementById("click-count");
-const clickStat  = document.getElementById("click-status");
-const lbList     = document.getElementById("leaderboard");
-
-const scoresRef = ref(db, "clicker/scores");
-
-let playing = false;
-let count   = 0;
-let timer   = null;
-
-clickBtn.addEventListener("click", () => {
-    if (!playing) {
-        // Spiel starten
-        playing = true;
-        count = 0;
-        clickCount.textContent = "0";
-        clickBtn.textContent = "KLICK! 🔥";
-        clickStat.innerHTML = 'Klicks: <span id="click-count">0</span> · ⏱ 5.0s';
-
-        const start = Date.now();
-        const tick = setInterval(() => {
-            const left = Math.max(0, 5 - (Date.now() - start) / 1000);
-            clickStat.innerHTML =
-                'Klicks: <span id="click-count">' + count + '</span> · ⏱ ' + left.toFixed(1) + 's';
-        }, 100);
-
-        timer = setTimeout(() => {
-            clearInterval(tick);
-            endGame();
-        }, 5000);
-    } else {
-        // während des Spiels: zählt als Klick
-        count++;
-        clickStat.querySelector("#click-count").textContent = count;
-    }
-});
-
-function endGame() {
-    playing = false;
-    clickBtn.textContent = "NOCHMAL";
-    clickStat.innerHTML = "Ergebnis: <span id='click-count'>" + count + "</span> Klicks!";
-
-    // Score speichern (nur wenn > 0)
-    if (count > 0) {
-        push(scoresRef, { score: count, t: Date.now() })
-            .catch(() => { /* falls Regeln blockieren, einfach ignorieren */ });
-    }
-}
-
-/* Live Top-3 anzeigen */
-const topQuery = query(scoresRef, orderByChild("score"), limitToLast(3));
-
-onValue(topQuery, snap => {
-    const arr = [];
-    snap.forEach(child => {
-        const v = child.val();
-        if (v && typeof v.score === "number") arr.push(v.score);
-    });
-    arr.sort((a, b) => b - a);   // höchster zuerst
-
-    const items = lbList.querySelectorAll("li");
-    items.forEach((li, i) => {
-        const valSpan = li.querySelector("span:last-child");
-        valSpan.textContent = (arr[i] !== undefined) ? (arr[i] + " Klicks") : "–";
-    });
-});
 
 </script>
 
