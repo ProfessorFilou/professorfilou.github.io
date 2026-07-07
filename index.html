@@ -289,8 +289,8 @@ h1{
 .bouncing{ animation:pbounce 0.48s ease; }
 
 @keyframes pdrown{
-    0%  { transform:scale(1) rotate(0deg);                   opacity:1; }
-    20% { transform:scale(1.05) rotate(3deg);                 opacity:1; }
+    0%  { transform:scale(1) rotate(0deg);                    opacity:1; }
+    20% { transform:scale(1.05) rotate(3deg);                  opacity:1; }
     45% { transform:scale(0.9) rotate(-8deg) translateY(6px);  opacity:0.85; }
     70% { transform:scale(0.75) rotate(14deg) translateY(18px); opacity:0.45; }
     100%{ transform:scale(0.6) rotate(22deg) translateY(34px);  opacity:0; }
@@ -468,6 +468,7 @@ h1{
     <div class="projects-title">My Projects</div>
 
     <div class="projects">
+        <a class="project-btn" href="https://professorfilou.de/BankingGame"   target="_blank">BankGame</a>
         <a class="project-btn" href="https://professorfilou.de/EmojiClick/"         target="_blank">EmojiClick</a>
         <a class="project-btn" href="https://professorfilou.de/DropDown/"           target="_blank">DropDown</a>
         <a class="project-btn" href="https://professorfilou.de/WhoAmIWeb/"          target="_blank">WhoAmIWeb</a>
@@ -544,7 +545,7 @@ function updateAge() {
 updateAge();
 
 function launchConfetti(amount = 80) {
-    const layer  = document.getElementById("confetti-layer");
+    const layer = document.getElementById("confetti-layer");
     const colors = ["#00ffcc","#f06292","#fff176","#66bb6a","#42a5f5","#ffffff"];
     for (let i = 0; i < amount; i++) {
         const piece = document.createElement("div");
