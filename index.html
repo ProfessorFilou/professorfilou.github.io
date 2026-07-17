@@ -7,11 +7,12 @@
     default-src 'self'; 
     script-src 'self' 'unsafe-inline' https://www.gstatic.com; 
     connect-src 'self' 
-        https://professorfilou-e8eea-default-rtdb.firebaseio.com 
-        wss://professorfilou-e8eea-default-rtdb.firebaseio.com 
+        https://*.firebaseio.com 
+        wss://*.firebaseio.com 
         https://*.firebasedatabase.app 
         wss://*.firebasedatabase.app 
-        wss://*.firebaseio.com; 
+        https://*.googleapis.com 
+        wss://*.googleapis.com; 
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
     font-src 'self' https://fonts.gstatic.com; 
     img-src 'self' data: https://upload.wikimedia.org https://cdn-icons-png.flaticon.com;
@@ -815,13 +816,14 @@ const firebaseConfig = {
     appId: "1:280418084891:web:1750e554b152810033f0be" 
 };
 
-// Initialisierung über CDN (Verhindert Absturz ohne Build-Tools!)
+// Initialisierung über verlässliche CDN-Pfade
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Event-Logger für unser Terminal-Display
+// Event-Logger für das Terminal-Display
 const logBox = document.getElementById("securityLog");
 function addSecurityLog(message, isWarning = false) {
+    if (!logBox) return;
     const entry = document.createElement("div");
     entry.className = `sec-log-entry ${isWarning ? 'warn' : ''}`;
     const time = new Date().toTimeString().split(' ')[0];
@@ -917,28 +919,7 @@ document.addEventListener("copy", (e) => {
     addSecurityLog("SYS: Kopierversuch abgefangen.", true);
 });
 
-const forbidConsole = () => {
-    const keys = ['log', 'debug', 'info', 'warn', 'error', 'dir', 'table', 'clear'];
-    keys.forEach(key => {
-        try {
-            Object.defineProperty(console, key, {
-                get: () => () => {
-                    triggerLockdown();
-                    return "Du kommst hier nicht rein!";
-                },
-                set: () => {}
-            });
-        } catch(e) {}
-    });
-};
-forbidConsole();
-
-setInterval(() => {
-    if (window.outerHeight - window.innerHeight > 160 || window.outerWidth - window.innerWidth > 160) {
-        console.clear();
-        console.warn("%c[ ACCESS DENIED ]", "color: red; font-size: 30px; font-weight: bold;");
-    }
-}, 1000);
+// VORHERIGE AGGRESSIVE KONSOLEN-SABOTAGE WURDE ENTFERNT, DAMIT FIREBASE NORMAL CONNECTEN KANN.
 
 /* ═══════════════ BESUCHERZÄHLER ═══════════════ */
 const SITE_BORN = new Date("2026-05-31T00:00:00");
@@ -950,12 +931,15 @@ set(visitsRef, ServerValue.increment(1)).catch(err => {
 });
 
 onValue(visitsRef, snap => {
-    visitEl.textContent = (snap.val() || 0).toLocaleString("de-DE");
+    if (visitEl) {
+        visitEl.textContent = (snap.val() || 0).toLocaleString("de-DE");
+    }
 });
 
 function updateAge() {
     const days = Math.floor((new Date() - SITE_BORN) / 86400000);
     const ageEl = document.getElementById("site-age");
+    if (!ageEl) return;
     if (days < 0) ageEl.textContent = "bald";
     else if (days === 0) ageEl.textContent = "seit heute";
     else if (days === 1) ageEl.textContent = "1 Tag";
@@ -965,6 +949,7 @@ updateAge();
 
 function launchConfetti(amount = 80) {
     const layer = document.getElementById("confetti-layer");
+    if (!layer) return;
     const colors = ["#00ffcc","#f06292","#fff176","#66bb6a","#42a5f5","#ffffff"];
     for (let i = 0; i < amount; i++) {
         const piece = document.createElement("div");
@@ -990,7 +975,6 @@ const connectedRef = ref(db, ".info/connected");
 const presenceRef = ref(db, "presence");
 const dot = document.getElementById("presence-dot");
 const countEl = document.getElementById("presence-count");
-const widget = document.getElementById("presence-fixed");
 
 onValue(connectedRef, snap => {
     if (!snap.val()) return;
@@ -1001,35 +985,45 @@ onValue(connectedRef, snap => {
 
 onValue(presenceRef, snap => {
     const count = snap.exists() ? Object.keys(snap.val()).length : 0;
-    if (count <= 1) {
-        countEl.textContent = "> SYSTEM: ALONE";
-        dot.style.background = "#777";
-        dot.style.animation = "pulse-dim 2s infinite";
-    } else {
-        countEl.textContent = `> USERS_ONLINE: ${count}`;
-        dot.style.background = "#00ffcc";
-        dot.style.animation = "pulse-green 1.6s infinite";
+    if (countEl && dot) {
+        if (count <= 1) {
+            countEl.textContent = "> SYSTEM: ALONE";
+            dot.style.background = "#777";
+            dot.style.animation = "pulse-dim 2s infinite";
+        } else {
+            countEl.textContent = `> USERS_ONLINE: ${count}`;
+            dot.style.background = "#00ffcc";
+            dot.style.animation = "pulse-green 1.6s infinite";
+        }
     }
 });
 
 const overlay = document.getElementById("statusOverlay");
 const openBtn = document.getElementById("presence-fixed");
 const closeBtn = document.getElementById("closeStatus");
-openBtn.addEventListener("click", () => {
-    overlay.classList.add("active");
-    addSecurityLog("Verbindung zum Sicherheits-Hub hergestellt.");
-    calcLatency();
-    updatePerformanceData();
-});
-closeBtn.addEventListener("click", () => {
-    overlay.classList.remove("active");
-});
 
-overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) {
-        overlay.classList.remove("active");
-    }
-});
+if (openBtn) {
+    openBtn.addEventListener("click", () => {
+        if (overlay) {
+            overlay.classList.add("active");
+            addSecurityLog("Verbindung zum Sicherheits-Hub hergestellt.");
+            calcLatency();
+            updatePerformanceData();
+        }
+    });
+}
+if (closeBtn) {
+    closeBtn.addEventListener("click", () => {
+        if (overlay) overlay.classList.remove("active");
+    });
+}
+if (overlay) {
+    overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) {
+            overlay.classList.remove("active");
+        }
+    });
+}
 
 function calcLatency() {
     const start = Date.now();
@@ -1038,26 +1032,32 @@ function calcLatency() {
         const end = Date.now();
         const latency = end - start;
         const pingEl = document.getElementById("db-ping");
-        pingEl.textContent = `${latency} ms`;
-        if (latency < 150) {
-            pingEl.style.color = "#00ffcc";
-        } else if (latency < 350) {
-            pingEl.style.color = "#ffaa00";
-        } else {
-            pingEl.style.color = "#ff4444";
+        if (pingEl) {
+            pingEl.textContent = `${latency} ms`;
+            if (latency < 150) {
+                pingEl.style.color = "#00ffcc";
+            } else if (latency < 350) {
+                pingEl.style.color = "#ffaa00";
+            } else {
+                pingEl.style.color = "#ff4444";
+            }
         }
     }).catch(() => {
-        document.getElementById("db-ping").textContent = "TIMEOUT";
+        const pingEl = document.getElementById("db-ping");
+        if (pingEl) pingEl.textContent = "TIMEOUT";
     });
 }
 
 function updatePerformanceData() {
     const cpu = Math.floor(Math.random() * 14) + 2;
     const ram = (Math.random() * 0.4 + 1.1).toFixed(2);
-    document.getElementById("server-load").textContent = `CPU: ${cpu}% | RAM: ${ram} GB`;
+    const serverLoadEl = document.getElementById("server-load");
+    if (serverLoadEl) {
+        serverLoadEl.textContent = `CPU: ${cpu}% | RAM: ${ram} GB`;
+    }
 }
 setInterval(() => {
-    if (overlay.classList.contains("active")) {
+    if (overlay && overlay.classList.contains("active")) {
         updatePerformanceData();
     }
 }, 3000);
@@ -1068,7 +1068,7 @@ let plant = {
     level: 1,
     waterCount: 0,
     lastWatered: null,
-    lastWateredDate: "" // Speichert das Datum als YYYY-MM-DD zur Erkennung eines neuen Tages
+    lastWateredDate: "" 
 };
 
 const levels = [
@@ -1082,13 +1082,13 @@ const levels = [
 
 function loadPlant() {
     const data = localStorage.getItem(STATE_KEY);
-    const todayStr = new Date().toISOString().split('T')[0]; // Aktuelles Datum (z.B. "2026-07-17")
+    const todayStr = new Date().toISOString().split('T')[0]; 
     
     if (data) {
         try {
             plant = JSON.parse(data);
             
-            // TÄGLICHER RESET: Prüfen, ob das gespeicherte Datum von gestern/früher ist
+            // TÄGLICHER RESET: Gieß-Fortschritt zurücksetzen, wenn neuer Tag angebrochen ist
             if (plant.lastWateredDate && plant.lastWateredDate !== todayStr) {
                 plant.waterCount = 0;
                 plant.lastWateredDate = todayStr;
@@ -1123,11 +1123,11 @@ function applyPlantState(withSproutEffect = false) {
     const tNum = document.getElementById("pt-num");
     const tSub = document.getElementById("pt-sub");
 
-    tNum.textContent = `${plant.waterCount}×`;
-    tSub.textContent = `Stufe: ${cur.name} 💧`;
+    if (tNum) tNum.textContent = `${plant.waterCount}×`;
+    if (tSub) tSub.textContent = `Stufe: ${cur.name} 💧`;
     
-    const svgD = hitD.querySelector(".plant-svg");
-    const svgM = hitM.querySelector(".plant-svg");
+    const svgD = hitD ? hitD.querySelector(".plant-svg") : null;
+    const svgM = hitM ? hitM.querySelector(".plant-svg") : null;
 
     [svgD, svgM].forEach(svg => {
         if (!svg) return;
@@ -1155,6 +1155,7 @@ function applyPlantState(withSproutEffect = false) {
 
 function showToast() {
     const toast = document.getElementById("plant-toast");
+    if (!toast) return;
     toast.classList.add("show");
     if (toast.timeout) clearTimeout(toast.timeout);
     toast.timeout = setTimeout(() => toast.classList.remove("show"), 2800);
@@ -1174,12 +1175,11 @@ let isDrowning = false;
 
 function waterPlant(e) {
     e.preventDefault();
-    if (isDrowning) return; // Klicks während des Sterbeprozesses sperren
+    if (isDrowning) return; 
 
     const hit = e.currentTarget;
     const rect = hit.getBoundingClientRect();
 
-    // 1. Wassertropfen spawnen
     const drop = document.createElement("div");
     drop.className = "wdrop";
     drop.textContent = "💧";
@@ -1192,13 +1192,15 @@ function waterPlant(e) {
     plant.lastWateredDate = new Date().toISOString().split('T')[0];
     savePlant();
 
-    // TOD BEI 200 BEWÄSSERUNGEN
+    // ERTRINK-LOGIK BEI 200 BEWÄSSERUNGEN
     if (plant.waterCount >= 200) {
         isDrowning = true;
         addSecurityLog("PFLANZE: Zu viel Wasser! Pflanze ertrinkt...", true);
         
-        const svgD = document.getElementById("hit-desktop").querySelector(".plant-svg");
-        const svgM = document.getElementById("hit-mobile").querySelector(".plant-svg");
+        const hitD = document.getElementById("hit-desktop");
+        const hitM = document.getElementById("hit-mobile");
+        const svgD = hitD ? hitD.querySelector(".plant-svg") : null;
+        const svgM = hitM ? hitM.querySelector(".plant-svg") : null;
         
         [svgD, svgM].forEach(svg => {
             if (svg) {
@@ -1207,7 +1209,6 @@ function waterPlant(e) {
         });
 
         setTimeout(() => {
-            // Vollständiger Reset von vorne
             plant.waterCount = 0;
             savePlant();
             
@@ -1217,7 +1218,7 @@ function waterPlant(e) {
                 }
             });
             
-            applyPlantState(true); // Pflanze spawnt wieder neu als Samenkorn
+            applyPlantState(true); 
             isDrowning = false;
             
             const popX = rect.left + rect.width / 2;
@@ -1257,8 +1258,11 @@ function bouncePlant(hit) {
     svg.addEventListener("animationend", () => svg.classList.remove("bouncing"), { once:true });
 }
 
-document.getElementById("hit-desktop").addEventListener("click", waterPlant);
-document.getElementById("hit-mobile").addEventListener("click", waterPlant);
+const hd = document.getElementById("hit-desktop");
+const hm = document.getElementById("hit-mobile");
+if (hd) hd.addEventListener("click", waterPlant);
+if (hm) hm.addEventListener("click", waterPlant);
+
 loadPlant();
 </script>
 
