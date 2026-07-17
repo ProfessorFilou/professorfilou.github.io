@@ -29,7 +29,6 @@ body{
     overflow-x:hidden;
     color:#00ffcc;
     min-height:100vh;
-    /* Verhindert das standardmäßige Markieren und Kopieren von Texten über CSS */
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -756,20 +755,13 @@ h1{
         <a class="social" href="https://github.com/professorfilou" target="_blank" rel="noopener noreferrer">
             <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" alt="GitHub">
         </a>
+        
         <a class="social" href="https://youtube.com/@professorfilou" target="_blank" rel="noopener noreferrer">
             <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" alt="YouTube">
         </a>
+        
         <a class="social" href="https://twitch.tv/professorfilou" target="_blank" rel="noopener noreferrer">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/d/dd/Twitch_logo.svg" alt="Twitch">
-        </a>
-        <a class="social" href="https://discord.gg/W98Z7xAsY9" target="_blank" rel="noopener noreferrer">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/1/18/Discord-Logo-Color.svg" alt="Discord">
-        </a>
-        <a class="social" href="https://instagram.com/professorfilou" target="_blank" rel="noopener noreferrer">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/Instagram_clogo.svg" alt="Instagram">
-        </a>
-        <a class="social" href="https://tiktok.com/@professorfilou" target="_blank" rel="noopener noreferrer">
-            <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" alt="TikTok">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/d/d3/Twitch_Glitch_Logo_Purple.svg" alt="Twitch">
         </a>
     </div>
 
@@ -810,13 +802,20 @@ h1{
 <script>
 /* ═══════════════════ FIREBASE CONFIGURATION ═══════════════════ */
 const firebaseConfig = {
-    databaseURL: "https://professorfilou-e8eea-default-rtdb.firebaseio.com"
+    apiKey: "AIzaSyCAh2AsbxLqU2Gx9s0YbZo8PR4fpG3WDw8",
+    authDomain: "professorfilou-e8eea.firebaseapp.com",
+    databaseURL: "https://professorfilou-e8eea-default-rtdb.firebaseio.com",
+    projectId: "professorfilou-e8eea",
+    storageBucket: "professorfilou-e8eea.firebasestorage.app",
+    messagingSenderId: "280418084891",
+    appId: "1:280418084891:web:1750e554b152810033f0be"
 };
+
+// Initialisiere Firebase im Browser
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 /* ═══════════════ PERSISTENT VISITOR ID & BAN SYSTEM ═══════════════ */
-// Generiert eine unlöschbare ID, falls nicht vorhanden, um den Browser zu identifizieren.
 if (!localStorage.getItem("visitor_id")) {
     localStorage.setItem("visitor_id", "usr_" + Math.random().toString(36).substring(2, 15) + Date.now().toString(36));
 }
