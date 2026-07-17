@@ -289,7 +289,7 @@ h1{
 .bouncing{ animation:pbounce 0.48s ease; }
 
 @keyframes pdrown{
-    0%  { transform:scale(1) rotate(0deg);                    opacity:1; }
+    0%  { transform:scale(1) rotate(0deg);                     opacity:1; }
     20% { transform:scale(1.05) rotate(3deg);                  opacity:1; }
     45% { transform:scale(0.9) rotate(-8deg) translateY(6px);  opacity:0.85; }
     70% { transform:scale(0.75) rotate(14deg) translateY(18px); opacity:0.45; }
@@ -470,10 +470,10 @@ h1{
     <div class="projects">
         <a class="project-btn" href="https://professorfilou.de/BankingGame"   target="_blank">BankGame</a>
         <a class="project-btn" href="https://professorfilou.de/EmojiClick/"         target="_blank">EmojiClick</a>
-        <a class="project-btn" href="https://professorfilou.de/DropDown/"           target="_blank">DropDown</a>
+        <a class="project-btn" href="https://professorfilou.de/DropDown/"            target="_blank">DropDown</a>
         <a class="project-btn" href="https://professorfilou.de/WhoAmIWeb/"          target="_blank">WhoAmIWeb</a>
         <a class="project-btn" href="https://professorfilou.de/WeatherWeb/"         target="_blank">WeatherWeb</a>
-        <a class="project-btn" href="https://professorfilou.de/Tycoon/"             target="_blank">Tycoon</a>
+        <a class="project-btn" href="https://professorfilou.de/Tycoon/"              target="_blank">Tycoon</a>
         <a class="project-btn" href="https://professorfilou.de/finn.fun/"           target="_blank">finn.fun</a>
         <a class="project-btn" href="https://professorfilou.de/Lade/"                target="_blank">Lade</a>
         <a class="project-btn" href="https://professorfilou.de/Search/"              target="_blank">Search</a>
@@ -482,6 +482,7 @@ h1{
         <a class="project-btn" href="https://professorfilou.de/Pong/"                target="_blank">Pong</a>
         <a class="project-btn" href="https://professorfilou.de/Windows/"             target="_blank">Windows</a>
         <a class="project-btn" href="https://professorfilou.de/Terminal/"            target="_blank">Terminal</a>
+        <a class="project-btn" href="https://professorfilou.de/SportRules"           target="_blank">SportRules</a>
     </div>
 
     <div class="footer">© ProfessorFilou</div>
@@ -637,7 +638,7 @@ const lf         = id => document.getElementById(id);
 const DROWN_AT = 100;
 let waterCount  = 0;
 let prevStage   = 0;
-let cooling     = false;
+let cooling      = false;
 let toastTimer  = null;
 let everClicked = false;
 let drownPlayed = false;
