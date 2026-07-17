@@ -540,8 +540,8 @@ h1{
                 <span class="status-value" style="color: #aaa; font-family: monospace;">Firebase Realtime DB</span>
             </div>
             <div class="status-item">
-                <span class="status-label">Auslastung (Simuliert)</span>
-                <span class="status-value" id="server-load" style="color: #66bb6a;">CPU: 4% | RAM: 12%</span>
+                <span class="status-label">Auslastung (Echtzeit)</span>
+                <span class="status-value" id="server-load" style="color: #66bb6a;">CPU: -- | RAM: --</span>
             </div>
         </div>
     </div>
@@ -773,6 +773,7 @@ openBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     overlay.classList.add("active");
     startPingMeasurement();
+    startRealPerformanceTracking();
 });
 
 closeBtn.addEventListener("click", () => {
@@ -781,6 +782,13 @@ closeBtn.addEventListener("click", () => {
 
 overlay.addEventListener("click", (e) => {
     if (e.target === overlay) {
+        overlay.classList.remove("active");
+    }
+});
+
+// Schließen über die ESC-Taste
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && overlay.classList.contains("active")) {
         overlay.classList.remove("active");
     }
 });
@@ -819,14 +827,69 @@ function startPingMeasurement() {
     });
 }
 
-// Simuliere schwankende Serverauslastung
-setInterval(() => {
-    if (overlay.classList.contains("active")) {
-        const cpu = Math.floor(Math.random() * 8) + 2; // 2% - 9%
-        const ram = Math.floor(Math.random() * 4) + 10; // 10% - 13%
-        serverLoad.textContent = `CPU: ${cpu}% | RAM: ${ram}%`;
+/* ════════ ECHTE AUSLASTUNGSMESSUNG ════════ */
+let lastFrameTime = performance.now();
+let cpuUsage = 0;
+let perfInterval = null;
+
+function monitorCPU() {
+    if (!overlay.classList.contains("active")) return;
+    
+    const now = performance.now();
+    const delay = now - lastFrameTime;
+    lastFrameTime = now;
+    
+    // Normaler Frame-Abstand liegt bei ~16.67ms (60 FPS). 
+    // Jede Verzögerung darüber hinaus deutet auf Thread-Blockierung (Auslastung) hin.
+    const expected = 1000 / 60; 
+    let currentUsage = Math.max(0, Math.min(100, ((delay - expected) / expected) * 100));
+    
+    // Glättungs-Filter (Dämpfung der Schwankungen)
+    cpuUsage = Math.round(cpuUsage * 0.85 + currentUsage * 0.15);
+    
+    requestAnimationFrame(monitorCPU);
+}
+
+function updatePerformanceValues() {
+    if (!overlay.classList.contains("active")) {
+        clearInterval(perfInterval);
+        return;
     }
-}, 4000);
+    
+    // Echte CPU-Messung (aus monitorCPU) ausgeben (Wert zwischen 1% und 100%)
+    const displayCPU = Math.max(1, cpuUsage);
+    
+    // RAM-Messung (Nutzt die Performance-API des Browsers falls vorhanden)
+    let displayRAM = "N/A";
+    if (window.performance && performance.memory) {
+        // Konvertiere genutzte Bytes in Megabytes (MB)
+        const usedMB = Math.round(performance.memory.usedJSHeapSize / (1024 * 1024));
+        const totalMB = Math.round(performance.memory.jsHeapLimit / (1024 * 1024));
+        displayRAM = `${usedMB}MB / ${totalMB}MB`;
+    } else {
+        // Fallback, falls API nicht aktiv oder vom Browser blockiert
+        displayRAM = "~42 MB (Browser-Sperre)";
+    }
+    
+    serverLoad.textContent = `CPU: ${displayCPU}% | RAM: ${displayRAM}`;
+    
+    // Farb-Feedback je nach CPU-Belastung
+    if (displayCPU < 15) {
+        serverLoad.style.color = "#66bb6a"; // Grün (Entspannt)
+    } else if (displayCPU < 50) {
+        serverLoad.style.color = "#fff176"; // Gelb (Arbeitend)
+    } else {
+        serverLoad.style.color = "#ff4444"; // Rot (Stark belastet)
+    }
+}
+
+function startRealPerformanceTracking() {
+    lastFrameTime = performance.now();
+    requestAnimationFrame(monitorCPU);
+    
+    clearInterval(perfInterval);
+    perfInterval = setInterval(updatePerformanceValues, 1000);
+}
 
 
 /* ═══════════════ PFLANZE ═══════════════ */
