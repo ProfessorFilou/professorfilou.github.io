@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ProfessorFilou | Secure Terminal</title>
+<title>ProfessorFilou</title>
 
 <link rel="icon" type="image/jpeg" href="ProfessorFilouLOGO.jpg">
 
@@ -27,7 +27,7 @@ canvas{
     inset:0;
     z-index:-1;
     pointer-events: none;
-    will-change: transform; /* Aktiviert GPU-Beschleunigung für butterweiche Partikel */
+    will-change: transform;
 }
 
 .main{
@@ -241,7 +241,7 @@ h1{
     100% { box-shadow:0 0 0 0 rgba(120,120,120,0); }
 }
 
-/* ════ CYBER SECURITY POPUP (Flüssige CSS Transitionen) ════ */
+/* ════ CYBER SECURITY POPUP ════ */
 .status-overlay {
     position: fixed;
     inset: 0;
@@ -271,13 +271,12 @@ h1{
     padding: 24px;
     text-align: left;
     transform: scale(0.92) translateY(15px);
-    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); /* Federnder, elastischer Pop-In-Effekt */
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
     position: relative;
     overflow: hidden;
     will-change: transform;
 }
 
-/* Scanline-Effekt auf dem Popup */
 .status-modal::before {
     content: " ";
     display: block;
@@ -426,6 +425,36 @@ h1{
 .sec-log-entry.warn {
     border-color: #ffaa00;
     color: #ffaa00;
+}
+
+/* ════ HARDCORE DEVTOOLS BANNER BLOCKIERER ════ */
+#devtools-blocker {
+    position: fixed;
+    inset: 0;
+    background: #050101;
+    z-index: 999999;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #ff3333;
+    text-align: center;
+    padding: 20px;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+#devtools-blocker h2 {
+    font-size: clamp(24px, 5vw, 48px);
+    margin-bottom: 15px;
+    text-shadow: 0 0 15px #ff3333;
+    letter-spacing: 2px;
+}
+
+#devtools-blocker p {
+    font-size: clamp(16px, 3vw, 22px);
+    color: #ffffff;
+    max-width: 600px;
+    line-height: 1.6;
 }
 
 /* ════ PLANT ════ */
@@ -611,6 +640,11 @@ h1{
 </head>
 <body>
 
+<div id="devtools-blocker">
+    <h2>[ ACCESS DENIED ]</h2>
+    <p>In die Dev Tools?<br>Du kommst hier nicht rein! Haha :)</p>
+</div>
+
 <canvas id="bg"></canvas>
 <div id="confetti-layer"></div>
 
@@ -764,7 +798,7 @@ h1{
 <script type="module">
 import { initializeApp }
     from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getDatabase, ref, runTransaction, onValue, get, remove, set, onDisconnect }
+import { getDatabase, ref, runTransaction, onValue, get, remove, set, onDisconnect, goOffline, goOnline }
     from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 const firebaseConfig = {
@@ -792,26 +826,67 @@ function addSecurityLog(message, isWarning = false) {
 }
 
 
-/* ═══════════════ DETECT INTERFERENCE (ANTI-DEVTOOLS SHIELD) ═══════════════ */
-// Ein massiv aufgerüsteter Schutzschild, der Konsoleneingaben aktiv unterbindet
+/* ═══════════════ DETECT INTERFERENCE (ANTI-DEVTOOLS HARDCORE SHIELD) ═══════════════ */
+const blocker = document.getElementById("devtools-blocker");
+let isOffline = false;
+
+// Funktion zum Blockieren der Seite & Trennen von Firebase
+function triggerLockdown() {
+    if (blocker.style.display !== "flex") {
+        blocker.style.display = "flex";
+        if (!isOffline) {
+            goOffline(db); // Trennt die Live-Verbindung komplett ab!
+            isOffline = true;
+        }
+        console.clear();
+    }
+}
+
+// Funktion zum Aufheben, wenn DevTools geschlossen werden
+function releaseLockdown() {
+    if (blocker.style.display === "flex") {
+        blocker.style.display = "none";
+        if (isOffline) {
+            goOnline(db); // Stellt die Verbindung wieder her, sobald sicher
+            isOffline = false;
+            addSecurityLog("Datenkanal re-aktiviert.");
+        }
+    }
+}
+
+// 1. Erkennungsmethode: Timings prüfen
 const devToolsShield = () => {
     const start = performance.now();
-    debugger; // Pausiert Ausführung, falls Entwicklerwerkzeuge offen sind
+    debugger; // Hält den Browser an, falls DevTools geöffnet sind
     const end = performance.now();
     if (end - start > 100) {
-        addSecurityLog("SYS: Fremdeingriff blockiert (DevTools offen)", true);
-        console.clear(); // Leert die Konsole direkt, um das Kopieren von Schmarrn zu erschweren
+        triggerLockdown();
+    } else {
+        releaseLockdown();
     }
 };
-setInterval(devToolsShield, 800);
+setInterval(devToolsShield, 500);
 
-// Unzulässige Tastenkombinationen blockieren
+// 2. Erkennungsmethode: Fenstergrößen-Veränderungen bei geöffneter Konsole prüfen
+window.addEventListener('resize', () => {
+    const threshold = 160;
+    const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+    const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+    if (widthThreshold || heightThreshold) {
+        triggerLockdown();
+    } else {
+        releaseLockdown();
+    }
+});
+
+// Unzulässige Shortcuts blockieren
 document.addEventListener("keydown", (e) => {
     if (e.key === "F12" || 
         (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) || 
         (e.ctrlKey && e.key === "u")) {
         e.preventDefault();
-        addSecurityLog("SYS: Tastenkombination unzulässig.", true);
+        triggerLockdown();
+        addSecurityLog("SYS: Tastenkombination blockiert.", true);
     }
 });
 
@@ -939,7 +1014,7 @@ onValue(connectedRef, (snap) => {
 });
 
 function startPingMeasurement() {
-    if (!overlay.classList.contains("active")) return;
+    if (!overlay.classList.contains("active") || isOffline) return;
     
     const startTime = Date.now();
     get(ref(db, ".info/serverTimeOffset")).then(() => {
@@ -1032,6 +1107,7 @@ let everClicked = false;
 let drownPlayed = false;
 
 onValue(plantRef, snap => {
+    if (isOffline) return; // Verhindert Aktualisierung im gesperrten Zustand
     const raw = snap.val() || 0;
     const atDrownPoint = raw > 0 && raw % DROWN_AT === 0;
     waterCount = raw % DROWN_AT;
@@ -1051,7 +1127,7 @@ onValue(plantRef, snap => {
 
 [hitDesktop, hitMobile].forEach(el => {
     el.addEventListener("click", () => {
-        if (cooling) return;
+        if (cooling || isOffline) return;
         cooling = true;
         setTimeout(() => cooling = false, 650);
         everClicked = true;
@@ -1191,7 +1267,6 @@ function bounce(anchor) {
 const canvas = document.getElementById("bg");
 const ctx    = canvas.getContext("2d");
 
-// Geräte-DPI für extrem scharfe und flüssige Rendereffekte nutzen
 let dpr = window.devicePixelRatio || 1;
 
 function resize() {
@@ -1205,7 +1280,6 @@ function resize() {
 resize();
 window.addEventListener("resize", resize);
 
-// Partikelanzahl für Mobilgeräte leicht herunterschrauben für stabilere Framerate
 const particleCount = window.innerWidth < 600 ? 70 : 130;
 const particles = [];
 for (let i = 0; i < particleCount; i++) {
@@ -1220,8 +1294,6 @@ for (let i = 0; i < particleCount; i++) {
 
 function animate() {
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-    
-    // Performance-optimierter Renderzyklus (Keine schweren Schatteneffekte im Loop)
     ctx.fillStyle = "#00ffcc";
     for (const p of particles) {
         p.x += p.dx; 
