@@ -6,7 +6,7 @@
 <meta http-equiv="Content-Security-Policy" content="
     default-src 'self'; 
     script-src 'self' 'unsafe-inline' https://www.gstatic.com; 
-    connect-src 'self' https://professorfilou-e8eea-default-rtdb.firebaseio.com wss://*.firebaseio.com https://api.ipify.org; 
+    connect-src 'self' https://professorfilou-e8eea-default-rtdb.firebaseio.com wss://*.firebaseio.com; 
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
     font-src 'self' https://fonts.gstatic.com; 
     img-src 'self' data: https://upload.wikimedia.org https://cdn-icons-png.flaticon.com;
@@ -29,6 +29,7 @@ body{
     overflow-x:hidden;
     color:#00ffcc;
     min-height:100vh;
+    /* Verhindert das standardmäßige Markieren und Kopieren von Texten über CSS */
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -172,6 +173,7 @@ h1{
     to{text-shadow:0 0 22px #00ffcc, 0 0 44px rgba(0, 255, 204, 0.6), 0 0 60px rgba(0, 255, 204, 0.2);}
 }
 
+/* ══ Konfetti ══ */
 #confetti-layer{
     position:fixed;
     inset:0;
@@ -193,6 +195,7 @@ h1{
     100% { transform:translateY(105vh) rotate(720deg); opacity:1; }
 }
 
+/* ════ CYBER PRESENCE WIDGET ════ */
 #presence-fixed{
     position:fixed;
     bottom:24px;
@@ -233,6 +236,17 @@ h1{
     transition:background 0.4s ease;
 }
 
+@keyframes pulse-green{
+    0%   { box-shadow:0 0 0 0 rgba(0,255,204,0.7); }
+    70%  { box-shadow:0 0 0 8px rgba(0,255,204,0); }
+    100% { box-shadow:0 0 0 0 rgba(0,255,204,0); }
+}
+@keyframes pulse-dim{
+    0%   { box-shadow:0 0 0 0 rgba(120,120,120,0.4); }
+    70%  { box-shadow:0 0 0 6px rgba(120,120,120,0); }
+    100% { box-shadow:0 0 0 0 rgba(120,120,120,0); }
+}
+
 /* ════ CYBER SECURITY POPUP ════ */
 .status-overlay {
     position: fixed;
@@ -267,6 +281,18 @@ h1{
     position: relative;
     overflow: hidden;
     will-change: transform;
+}
+
+.status-modal::before {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.05));
+    z-index: 2;
+    background-size: 100% 4px, 6px 100%;
+    pointer-events: none;
 }
 
 .status-overlay.active .status-modal {
@@ -323,6 +349,11 @@ h1{
     padding: 10px 14px;
     border-radius: 4px;
     border: 1px solid rgba(0, 255, 204, 0.12);
+    transition: border-color 0.2s, background-color 0.2s;
+}
+.status-item:hover {
+    border-color: rgba(0, 255, 204, 0.35);
+    background: rgba(0, 255, 204, 0.05);
 }
 
 .status-label {
@@ -357,6 +388,7 @@ h1{
     box-shadow: 0 0 8px #ff4444;
 }
 
+/* Live Security Console Log */
 .sec-log-container {
     margin-top: 18px;
     background: #010102;
@@ -392,13 +424,17 @@ h1{
     padding-left: 6px;
     animation: logFadeIn 0.2s ease-out forwards;
 }
-
 @keyframes logFadeIn {
     from { opacity: 0; transform: translateX(-3px); }
     to { opacity: 1; transform: translateX(0); }
 }
 
-/* ════ HARDCORE LOCKDOWN OVERLAY ════ */
+.sec-log-entry.warn {
+    border-color: #ffaa00;
+    color: #ffaa00;
+}
+
+/* ════ HARDCORE DEVTOOLS BANNER BLOCKIERER ════ */
 #devtools-blocker {
     position: fixed;
     inset: 0;
@@ -613,7 +649,7 @@ h1{
 
 <div id="devtools-blocker">
     <h2>[ ACCESS DENIED ]</h2>
-    <p>Sicherheits-Lockdown aktiv.<br>Missbrauchsversuch oder DevTools erkannt.<br>IP-Protokoll wurde gesichert.</p>
+    <p>In die Dev Tools?<br>Du kommst hier nicht rein!<br>Haha :)</p>
 </div>
 
 <canvas id="bg"></canvas>
@@ -724,25 +760,33 @@ h1{
             <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" alt="YouTube">
         </a>
         <a class="social" href="https://twitch.tv/professorfilou" target="_blank" rel="noopener noreferrer">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/d/d3/Twitch_Glitch_Logo_Purple.svg" alt="Twitch">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/d/dd/Twitch_logo.svg" alt="Twitch">
+        </a>
+        <a class="social" href="https://discord.gg/W98Z7xAsY9" target="_blank" rel="noopener noreferrer">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/1/18/Discord-Logo-Color.svg" alt="Discord">
+        </a>
+        <a class="social" href="https://instagram.com/professorfilou" target="_blank" rel="noopener noreferrer">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/Instagram_clogo.svg" alt="Instagram">
+        </a>
+        <a class="social" href="https://tiktok.com/@professorfilou" target="_blank" rel="noopener noreferrer">
+            <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" alt="TikTok">
         </a>
     </div>
 
-    <div class="projects-title">SECURE_FILES</div>
-
+    <div class="projects-title">Meine Projekte</div>
     <div class="projects">
-        <a class="project-btn" href="https://professorfilou.de/BankingGame"   target="_blank" rel="noopener noreferrer">BankingGame</a>
-        <a class="project-btn" href="https://professorfilou.de/WeatherWeb"    target="_blank" rel="noopener noreferrer">WeatherWeb</a>
-        <a class="project-btn" href="https://professorfilou.de/Tycoon/"       target="_blank" rel="noopener noreferrer">Tycoon</a>
-        <a class="project-btn" href="https://professorfilou.de/finn.fun/"     target="_blank" rel="noopener noreferrer">finn.fun</a>
-        <a class="project-btn" href="https://professorfilou.de/Lade/"         target="_blank" rel="noopener noreferrer">Lade</a>
-        <a class="project-btn" href="https://professorfilou.de/Search/"       target="_blank" rel="noopener noreferrer">Search</a>
-        <a class="project-btn" href="https://professorfilou.de/Quiz/"         target="_blank" rel="noopener noreferrer">Quiz</a>
-        <a class="project-btn" href="https://professorfilou.de/FinnGPT/"      target="_blank" rel="noopener noreferrer">FinnGPT</a>
-        <a class="project-btn" href="https://professorfilou.de/Pong/"         target="_blank" rel="noopener noreferrer">Pong</a>
-        <a class="project-btn" href="https://professorfilou.de/Windows/"      target="_blank" rel="noopener noreferrer">Windows</a>
-        <a class="project-btn" href="https://professorfilou.de/Terminal/"     target="_blank" rel="noopener noreferrer">Terminal</a>
-        <a class="project-btn" href="https://professorfilou.de/SportRules"    target="_blank" rel="noopener noreferrer">SportRules</a>
+        <a class="project-btn" href="https://professorfilou.de/PasswortGen/" target="_blank" rel="noopener noreferrer">PasswortGen</a>
+        <a class="project-btn" href="https://professorfilou.de/WeatherWeb/" target="_blank" rel="noopener noreferrer">WeatherWeb</a>
+        <a class="project-btn" href="https://professorfilou.de/Tycoon/" target="_blank" rel="noopener noreferrer">Tycoon</a>
+        <a class="project-btn" href="https://professorfilou.de/finn.fun/" target="_blank" rel="noopener noreferrer">finn.fun</a>
+        <a class="project-btn" href="https://professorfilou.de/Lade/" target="_blank" rel="noopener noreferrer">Lade</a>
+        <a class="project-btn" href="https://professorfilou.de/Search/" target="_blank" rel="noopener noreferrer">Search</a>
+        <a class="project-btn" href="https://professorfilou.de/Quiz/" target="_blank" rel="noopener noreferrer">Quiz</a>
+        <a class="project-btn" href="https://professorfilou.de/FinnGPT/" target="_blank" rel="noopener noreferrer">FinnGPT</a>
+        <a class="project-btn" href="https://professorfilou.de/Pong/" target="_blank" rel="noopener noreferrer">Pong</a>
+        <a class="project-btn" href="https://professorfilou.de/Windows/" target="_blank" rel="noopener noreferrer">Windows</a>
+        <a class="project-btn" href="https://professorfilou.de/Terminal/" target="_blank" rel="noopener noreferrer">Terminal</a>
+        <a class="project-btn" href="https://professorfilou.de/SportRules/" target="_blank" rel="noopener noreferrer">SportRules</a>
     </div>
 
     <div class="footer">© ProfessorFilou | SECURE CORE</div>
@@ -760,207 +804,86 @@ h1{
     </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-database-compat.js"></script>
 
 <script>
-// 1. Firebase Initialisierung
+/* ═══════════════════ FIREBASE CONFIGURATION ═══════════════════ */
 const firebaseConfig = {
     databaseURL: "https://professorfilou-e8eea-default-rtdb.firebaseio.com"
 };
 firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
+const db = firebase.database();
 
-let userIP = "Unbekannt";
+/* ═══════════════ PERSISTENT VISITOR ID & BAN SYSTEM ═══════════════ */
+// Generiert eine unlöschbare ID, falls nicht vorhanden, um den Browser zu identifizieren.
+if (!localStorage.getItem("visitor_id")) {
+    localStorage.setItem("visitor_id", "usr_" + Math.random().toString(36).substring(2, 15) + Date.now().toString(36));
+}
+const visitorId = localStorage.getItem("visitor_id");
+
+const blocker = document.getElementById("devtools-blocker");
 let isBanned = false;
 
-// Hilfsfunktion: Firebase-konforme IP-Schlüssel generieren (Punkte durch Unterstriche ersetzen)
-function cleanIP(ip) {
-    return ip.replace(/\./g, '_').replace(/:/g, '_');
-}
-
-// 2. Extrahiert tiefgehende Geräteinformationen
-function getDetailedDeviceInfo() {
-    const info = {};
-    
-    // Einfache Platform-Details
-    info.platform = navigator.platform || "Unbekannt";
-    info.language = navigator.language || "de";
-    info.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "Unbekannt";
-    
-    // Hardware-Kerne & RAM-Schätzung (falls vom Browser unterstützt)
-    info.cpu_cores = navigator.hardwareConcurrency || "Unbekannt";
-    info.device_memory_gb = navigator.deviceMemory || "Unbekannt"; // Schätzung in GB
-    
-    // Display-Daten
-    info.screen_resolution = `${window.screen.width}x${window.screen.height}`;
-    info.window_resolution = `${window.innerWidth}x${window.innerHeight}`;
-    info.pixel_ratio = window.devicePixelRatio || 1;
-    info.touch_support = ('ontouchstart' in window || navigator.maxTouchPoints > 0) ? "Ja" : "Nein";
-    
-    // Netzwerk (wenn möglich)
-    if (navigator.connection) {
-        info.network_type = navigator.connection.effectiveType || "Unbekannt";
-        info.downlink_speed = navigator.connection.downlink ? `${navigator.connection.downlink} Mbps` : "Unbekannt";
-    } else {
-        info.network_type = "Unbekannt (Nicht unterstützt)";
-    }
-
-    // Grafikkarte (GPU) auslesen über WebGL
-    try {
-        const canvasGl = document.createElement('canvas');
-        const gl = canvasGl.getContext('webgl') || canvasGl.getContext('experimental-webgl');
-        if (gl) {
-            const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-            if (debugInfo) {
-                info.gpu_renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
-                info.gpu_vendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
-            }
-        }
-    } catch(e) {
-        info.gpu_renderer = "Auslesen blockiert";
-    }
-
-    return info;
-}
-
-// 3. IP holen, auf Sperre prüfen & loggen mit Hardware-Details
-async function fetchAndSecureIP() {
-    try {
-        const res = await fetch('https://api.ipify.org?format=json');
-        const data = await res.json();
-        userIP = data.ip;
-        const ipKey = cleanIP(userIP);
-
-        // Erst auf Ban prüfen
-        database.ref('banned_ips/' + ipKey).once('value', (snapshot) => {
-            if (snapshot.exists()) {
+// Prüft den Firebase-Bann-Status sofort beim Laden der Website
+function checkBanStatus() {
+    db.ref(`banned_users/${visitorId}`).once('value')
+        .then(snapshot => {
+            const data = snapshot.val();
+            if (data && data.banned === true) {
                 isBanned = true;
-                triggerLockdown();
-                addSecurityLog("SYS: Zugriff von gesperrter IP blockiert.", true);
+                triggerLockdown(true); // Permanent blockieren
             }
-            
-            // Unabhängig vom Ban: Besuch mit tiefen Gerätedetails loggen
-            logVisit(ipKey, isBanned);
-        });
+        })
+        .catch(err => console.error("Database status check failure", err));
+}
+checkBanStatus();
 
-    } catch (err) {
-        console.warn("IP-Abfrage fehlgeschlagen. Lokale Sicherheitsregeln greifen weiterhin.");
-        addSecurityLog("WARN: IP-Abfrage fehlgeschlagen.", true);
-    }
+// Log-Hilfsfunktion
+function addSecurityLog(msg, isWarn = false) {
+    const box = document.getElementById("securityLog");
+    if(!box) return;
+    const div = document.createElement("div");
+    div.className = "sec-log-entry" + (isWarn ? " warn" : "");
+    const time = new Date().toLocaleTimeString();
+    div.textContent = `[${time}] ${msg}`;
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
 }
 
-// Logge die Besucherdaten in "visitor_ips" inkl. tiefen Hardware-Infos
-function logVisit(ipKey, bannedStatus) {
-    const hardware = getDetailedDeviceInfo();
-
-    database.ref('visitor_ips/' + ipKey).set({
-        last_seen: new Date().toISOString(),
-        user_agent: navigator.userAgent,
-        banned: bannedStatus,
-        
-        // Tiefe Geräte-Informationen
-        platform: hardware.platform,
-        language: hardware.language,
-        timezone: hardware.timezone,
-        cpu_cores: hardware.cpu_cores,
-        device_memory_gb: hardware.device_memory_gb,
-        screen_resolution: hardware.screen_resolution,
-        window_resolution: hardware.window_resolution,
-        pixel_ratio: hardware.pixel_ratio,
-        touch_support: hardware.touch_support,
-        network_type: hardware.network_type,
-        downlink_speed: hardware.downlink_speed,
-        gpu_vendor: hardware.gpu_vendor || "Unbekannt",
-        gpu_renderer: hardware.gpu_renderer || "Unbekannt"
-    }).catch(e => {
-        console.warn("Besuchs-Log blockiert (Sicherheitsregeln verhindern Schreibrecht).");
-    });
-}
-
-// Ruf die Sicherheitsprüfung direkt beim Laden auf
-fetchAndSecureIP();
-
-
-/* ═══════════════ SECURITY CONSOLE ═══════════════ */
-const overlay     = document.getElementById("statusOverlay");
-const modal       = document.getElementById("statusModal");
-const trigger     = document.getElementById("presence-fixed");
-const closeBtn    = document.getElementById("closeStatus");
-const securityLog = document.getElementById("securityLog");
-
-function addSecurityLog(text, isWarn = false) {
-    const entry = document.createElement("div");
-    entry.className = "sec-log-entry" + (isWarn ? " warn" : "");
-    const time = new Date().toTimeString().split(' ')[0];
-    entry.textContent = `[${time}] ${text}`;
-    securityLog.appendChild(entry);
-    securityLog.scrollTop = securityLog.scrollHeight;
-}
-
-trigger.addEventListener("click", () => {
-    if(!isBanned) {
-        overlay.classList.add("active");
-        addSecurityLog("Core-Log-Zugriff gewährt.");
-    }
-});
-
-closeBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    overlay.classList.remove("active");
-});
-
-overlay.addEventListener("click", () => {
-    overlay.classList.remove("active");
-});
-modal.addEventListener("click", (e) => {
-    e.stopPropagation();
-});
-
-
-/* ═══════════════ HARDCORE LOCKDOWN (DEVTOOLS & BAN) ═══════════════ */
-let hasLoggedBan = false;
-
-function triggerLockdown() {
-    const blocker = document.getElementById("devtools-blocker");
+// Löst den Hardcore-Lockdown aus und bannt den User dauerhaft in Firebase
+function triggerLockdown(alreadyBanned = false) {
     blocker.style.display = "flex";
-    document.body.style.overflow = "hidden";
+    addSecurityLog("SYS: CRITICAL_LOCKDOWN triggered.", true);
     
-    // Deaktiviere das restliche HTML vollständig
-    const mainContent = document.querySelector(".main");
-    if(mainContent) mainContent.style.opacity = "0.02";
-
-    // Trage die IP automatisch in "banned_ips" ein, wenn die DevTools geöffnet wurden
-    if (userIP !== "Unbekannt" && !hasLoggedBan) {
-        hasLoggedBan = true;
-        const ipKey = cleanIP(userIP);
-        const hardware = getDetailedDeviceInfo();
-
-        database.ref('banned_ips/' + ipKey).set({
-            banned_at: new Date().toISOString(),
-            reason: "Verdacht auf Code-Injektion / DevTools geöffnet",
-            user_agent: navigator.userAgent,
-            gpu: hardware.gpu_renderer || "Unbekannt",
-            timezone: hardware.timezone
-        }).catch(e => {});
-        
-        // Aktualisiere gleichzeitig den Status im Besucherlog
-        database.ref('visitor_ips/' + ipKey + '/banned').set(true).catch(e => {});
+    if (!alreadyBanned && !isBanned) {
+        isBanned = true;
+        // Speichert die Identität unlöschbar in der Firebase Realtime DB
+        db.ref(`banned_users/${visitorId}`).set({
+            banned: true,
+            timestamp: firebase.database.ServerValue.TIMESTAMP,
+            userAgent: navigator.userAgent
+        })
+        .then(() => {
+            addSecurityLog("SYS: Attacker ID registered in DB.", true);
+        })
+        .catch(err => console.error("Could not write ban state to DB:", err));
     }
 }
 
 function releaseLockdown() {
-    if (isBanned) return; // Wenn IP dauerhaft in der DB gesperrt ist, kein Release!
-    document.getElementById("devtools-blocker").style.display = "none";
-    document.body.style.overflow = "";
-    const mainContent = document.querySelector(".main");
-    if(mainContent) mainContent.style.opacity = "1";
+    // Falls der User in der Datenbank als "banned" markiert ist, 
+    // darf das Overlay niemals verschwinden – selbst wenn er DevTools wieder schließt.
+    if (isBanned) return;
+    blocker.style.display = "none";
 }
 
-// DevTools-Erkennung über Fenstergrößen-Abgleich
-const threshold = 160;
+/* ═══════════════ SECURITY EVENTS & ANTI-DEVTOOLS ═══════════════ */
+
+// 1. Fenstergrößen-Abweichungen beim Öffnen der DevTools ("Untersuchen")
 window.addEventListener("resize", () => {
-    const widthThreshold  = window.outerWidth - window.innerWidth > threshold;
+    const threshold = 160;
+    const widthThreshold = window.outerWidth - window.innerWidth > threshold;
     const heightThreshold = window.outerHeight - window.innerHeight > threshold;
     if (widthThreshold || heightThreshold) {
         triggerLockdown();
@@ -969,95 +892,221 @@ window.addEventListener("resize", () => {
     }
 });
 
-// Shortcuts blockieren (Kopieren, Markieren, Speichern, DevTools)
+// 2. Unzulässige Shortcuts blockieren (F12, Strg+Shift+I, etc.)
 document.addEventListener("keydown", (e) => {
     if (e.key === "F12" || (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) || (e.ctrlKey && e.key === "u")) {
         e.preventDefault();
         triggerLockdown();
         addSecurityLog("SYS: Tastenkombination blockiert.", true);
     }
+    // Kopieren blockieren
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
         e.preventDefault();
         addSecurityLog("SYS: Kopieren blockiert.", true);
     }
+    // Alles-Markieren blockieren
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') {
         e.preventDefault();
         addSecurityLog("SYS: Alles-Markieren blockiert.", true);
     }
+    // Seite speichern blockieren
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
         e.preventDefault();
         addSecurityLog("SYS: Speichern blockiert.", true);
     }
 });
 
-// Rechtsklick-Sperre
+// 3. Rechtsklick-Sperre: Verhindert NUR das Kontextmenü, löst aber KEINEN Lockdown aus!
 document.addEventListener("contextmenu", (e) => {
     e.preventDefault();
-    triggerLockdown();
-    addSecurityLog("SYS: Rechtsklick erkannt & abgewehrt.", true);
+    addSecurityLog("SYS: Rechtsklick blockiert (Sperre ignoriert).", false);
 });
 
 
-/* ═══════════════ VISIT-COUNTER (INTEGRIERT) ═══════════════ */
-const visitCountEl = document.getElementById("visit-count");
-const visitsRef    = database.ref("visits/total");
+/* ═══════════════════ VISITORS & PRESENCE ═══════════════════ */
+const mySessionRef = db.ref("presence").push();
+const conRef       = db.ref(".info/connected");
 
-visitsRef.transaction((currentValue) => {
-    return (currentValue || 0) + 1;
-}, (error, committed, snapshot) => {
-    if (committed) {
-        visitCountEl.textContent = snapshot.val().toLocaleString();
-    } else {
-        visitsRef.once("value", (snap) => {
-            visitCountEl.textContent = (snap.val() || 1).toLocaleString();
-        });
-    }
-});
-
-
-/* ═══════════════ PRESENCE CONNECTIVITY ═══════════════ */
-const presenceCountEl = document.getElementById("presence-count");
-const presenceDot     = document.getElementById("presence-dot");
-const myPresenceRef   = database.ref("presence/" + Math.random().toString(36).substring(2, 15));
-const totalConnRef    = database.ref("presence/total_connections");
-const connectedRef    = database.ref(".info/connected");
-
-connectedRef.on("value", (snap) => {
+conRef.on("value", (snap) => {
     if (snap.val() === true) {
-        myPresenceRef.onDisconnect().remove();
-        myPresenceRef.set(true);
-        document.getElementById("db-status-text").textContent = "CONNECTED";
-        document.getElementById("db-status-text").style.color = "#00ffcc";
-        document.getElementById("db-status").querySelector(".status-indicator").className = "status-indicator green";
+        mySessionRef.onDisconnect().remove();
+        mySessionRef.set({ timestamp: firebase.database.ServerValue.TIMESTAMP });
+        
+        document.getElementById("db-status").innerHTML = '<span class="status-indicator green"></span> SECURE';
+        document.getElementById("db-status-text").textContent = "SECURE";
     } else {
+        document.getElementById("db-status").innerHTML = '<span class="status-indicator red"></span> DISCONNECTED';
         document.getElementById("db-status-text").textContent = "OFFLINE";
-        document.getElementById("db-status-text").style.color = "#ff4444";
-        document.getElementById("db-status").querySelector(".status-indicator").className = "status-indicator red";
     }
 });
 
-totalConnRef.on("value", (snap) => {
-    const count = snap.val() || 0;
-    presenceCountEl.textContent = `${count} USER${count !== 1 ? 'S' : ''} ONLINE`;
-    if(count > 0) {
-        presenceDot.style.background = "#00ffcc";
-        presenceDot.style.animation = "pulse-green 1.8s infinite";
-    } else {
-        presenceDot.style.background = "#555";
-        presenceDot.style.animation = "none";
+db.ref("presence").on("value", (snap) => {
+    const count = snap.numChildren() || 1;
+    document.getElementById("presence-count").textContent = `${count} CYBER SIGNALS ONLINE`;
+});
+
+// Visit Counter (Füge den Seitenaufruf hinzu)
+const visitsRef = db.ref("visits");
+visitsRef.transaction((curr) => {
+    return (curr || 0) + 1;
+}, (err, committed, snap) => {
+    if (!err && committed) {
+        document.getElementById("visit-count").textContent = snap.val();
     }
 });
 
-// Ping-Berechnung
-let pingStart = Date.now();
-database.ref(".info/serverTimeOffset").once("value", () => {
-    const latency = Date.now() - pingStart;
-    document.getElementById("db-ping").textContent = `${latency} MS`;
+// Latenz & Performance Berechnungen
+let lastPingTime = Date.now();
+setInterval(() => {
+    lastPingTime = Date.now();
+    db.ref(".info/connected").once("value").then(() => {
+        const ping = Date.now() - lastPingTime;
+        document.getElementById("db-ping").textContent = ping + " ms";
+    });
+    
+    const cpu = Math.floor(Math.random() * 12) + 1;
+    const ram = Math.floor(Math.random() * 8) + 12;
+    document.getElementById("server-load").textContent = `CPU: ${cpu}% | RAM: ${ram}%`;
+}, 3000);
+
+
+/* ═══════════════════ PLANT (PFLANZEN EVENT LOGIK) ═══════════════════ */
+const SITE_BORN = new Date("2024-11-20T00:00:00");
+const stages = [
+    { limit: 0,    stemY: 60, leaves: [0,0,0,0,0,0], flower: 0, name: "Samen" },
+    { limit: 10,   stemY: 55, leaves: [1,1,0,0,0,0], flower: 0, name: "Keimling" },
+    { limit: 50,   stemY: 48, leaves: [1,1,1,1,0,0], flower: 0, name: "Kleine Pflanze" },
+    { limit: 200,  stemY: 40, leaves: [1,1,1,1,1,1], flower: 0, name: "Große Pflanze" },
+    { limit: 1000, stemY: 34, leaves: [1,1,1,1,1,1], flower: 1, name: "Blühende Blume" }
+];
+
+function getStage(total) {
+    for (let i = stages.length - 1; i >= 0; i--) {
+        if (total >= stages[i].limit) return { stage: stages[i], index: i };
+    }
+    return { stage: stages[0], index: 0 };
+}
+
+function updatePlantVisuals(total, animateSprout = false) {
+    const { stage } = getStage(total);
+    const stem = document.getElementById("p-stem");
+    if(stem) stem.setAttribute("y2", stage.stemY);
+    
+    stage.leaves.forEach((show, idx) => {
+        const leaf = document.getElementById(`p-l${idx+1}`);
+        if(leaf) leaf.style.opacity = show ? "0.85" : "0";
+    });
+    
+    const fl = document.getElementById("p-flower");
+    if(fl) fl.style.opacity = stage.flower ? "1" : "0";
+    
+    const plantGroup = document.getElementById("plant-shape");
+    if(plantGroup && animateSprout) {
+        plantGroup.classList.remove("sprouting");
+        void plantGroup.offsetWidth;
+        plantGroup.classList.add("sprouting");
+    }
+}
+
+function renderPlant() {
+    const todayStr = new Date().toISOString().split('T')[0];
+    db.ref("watering/total").on("value", (snapTotal) => {
+        const total = snapTotal.val() || 0;
+        
+        db.ref(`watering/daily/${todayStr}`).on("value", (snapDaily) => {
+            const daily = snapDaily.val() || 0;
+            updatePlantVisuals(total, false);
+            
+            document.getElementById("pt-num").textContent = daily + "×";
+            const { stage } = getStage(total);
+            document.getElementById("pt-sub").innerHTML = `heute gegossen 💧<br><b style='color:#fff;'>Phase: ${stage.name}</b> (${total}g)`;
+        });
+    });
+}
+renderPlant();
+
+function waterPlant(e) {
+    const hitId = e.currentTarget.id;
+    const todayStr = new Date().toISOString().split('T')[0];
+    
+    const hitEl = document.getElementById(hitId);
+    if(hitEl.classList.contains("drowning") || hitEl.classList.contains("bouncing")) return;
+    
+    // Wassertropfen erstellen
+    const rect = hitEl.getBoundingClientRect();
+    const drop = document.createElement("div");
+    drop.className = "wdrop";
+    drop.textContent = "💧";
+    drop.style.left = (rect.width / 2) + "px";
+    drop.style.top = "-10px";
+    hitEl.appendChild(drop);
+    
+    setTimeout(() => drop.remove(), 650);
+    
+    db.ref("watering/total").transaction(c => (c || 0) + 1);
+    db.ref(`watering/daily/${todayStr}`).transaction(c => (c || 0) + 1);
+    
+    addSecurityLog("ACTION: Pflanze erfolgreich gegossen.", false);
+    
+    db.ref("watering/total").once("value").then(snap => {
+        const total = snap.val() || 0;
+        const currentStageIdx = getStage(total).index;
+        const prevStageIdx = getStage(total - 1).index;
+        
+        if (currentStageIdx > prevStageIdx) {
+            triggerStagePopup(stages[currentStageIdx].name);
+            launchConfetti(120);
+        }
+    });
+    
+    hitEl.classList.add("bouncing");
+    setTimeout(() => hitEl.classList.remove("bouncing"), 450);
+    
+    showToast();
+}
+
+document.getElementById("hit-desktop").addEventListener("click", waterPlant);
+document.getElementById("hit-mobile").addEventListener("click", waterPlant);
+
+let toastTimeout;
+function showToast() {
+    const toast = document.getElementById("plant-toast");
+    toast.classList.add("show");
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => toast.classList.remove("show"), 2800);
+}
+
+function triggerStagePopup(stageName) {
+    const pop = document.createElement("div");
+    pop.className = "stage-pop";
+    pop.style.left = "50%";
+    pop.style.top = "40%";
+    pop.innerHTML = `🌟 LEVEL UP!<br><span style="font-size:14px;color:#fff">${stageName}</span>`;
+    document.body.appendChild(pop);
+    setTimeout(() => pop.remove(), 1100);
+}
+
+
+/* ═══════════════════ SYSTEM OVERLAY CONTROLS ═══════════════════ */
+const overlay = document.getElementById("statusOverlay");
+const openBtn = document.getElementById("presence-fixed");
+const closeBtn = document.getElementById("closeStatus");
+
+openBtn.addEventListener("click", () => {
+    overlay.classList.add("active");
+    addSecurityLog("SYS: Live Secure Core Status geöffnet.", false);
+});
+
+closeBtn.addEventListener("click", () => {
+    overlay.classList.remove("active");
+});
+
+overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) overlay.classList.remove("active");
 });
 
 
-/* ═══════════════ SITE AGE ═══════════════ */
-const SITE_BORN = new Date("2024-05-31T00:00:00");
+/* ═══════════════════ UTILITIES & CANVAS ═══════════════════ */
 function updateAge() {
     const days = Math.floor((new Date() - SITE_BORN) / 86400000);
     const ageEl = document.getElementById("site-age");
@@ -1068,8 +1117,26 @@ function updateAge() {
 }
 updateAge();
 
+function launchConfetti(amount = 80) {
+    const layer = document.getElementById("confetti-layer");
+    const colors = ["#00ffcc","#f06292","#fff176","#66bb6a","#42a5f5","#ffffff"];
+    for (let i = 0; i < amount; i++) {
+        const p = document.createElement("div");
+        p.className = "confetti-piece";
+        p.style.left = Math.random() * 100 + "vw";
+        p.style.background = colors[Math.floor(Math.random() * colors.length)];
+        p.style.width = Math.random() * 8 + 6 + "px";
+        p.style.height = Math.random() * 10 + 10 + "px";
+        
+        const duration = Math.random() * 2 + 1.5;
+        p.style.animationDuration = duration + "s";
+        p.style.animationDelay = Math.random() * 0.3 + "s";
+        layer.appendChild(p);
+        setTimeout(() => p.remove(), duration * 1000);
+    }
+}
 
-/* ═══════════════ BACKGROUND ANIMATION ═══════════════ */
+// Background Canvas Animation
 const canvas = document.getElementById("bg");
 const ctx    = canvas.getContext("2d");
 let dpr = window.devicePixelRatio || 1;
@@ -1110,137 +1177,13 @@ function animate() {
         p.x += p.dx;
         p.y += p.dy;
         
-        if (p.x < 0 || p.x > window.innerWidth) p.dx *= -1;
+        if (p.x < 0 || p.x > window.innerWidth)  p.dx *= -1;
         if (p.y < 0 || p.y > window.innerHeight) p.dy *= -1;
     }
     requestAnimationFrame(animate);
 }
 animate();
-
-
-/* ═══════════════ PERFORMANCE DATA ═══════════════ */
-function updatePerformanceData() {
-    const cpu = Math.floor(Math.random() * 14) + 2;
-    const ram = (Math.random() * 0.4 + 1.1).toFixed(2);
-    document.getElementById("server-load").textContent = `CPU: ${cpu}% | RAM: ${ram} GB`;
-}
-setInterval(() => {
-    if (overlay.classList.contains("active")) {
-        updatePerformanceData();
-    }
-}, 3000);
-
-
-/* ═══════════════ BLUME UND INTERAKTION ═══════════════ */
-const STATE_KEY = "plant_data";
-let plant = { level: 1, waterCount: 0, lastWatered: null };
-const levels = [
-    { req: 0,   name: "Samenkorn 🌱",       desc: "Warte auf das erste Wasser..." },
-    { req: 3,   name: "Keimling 🌿",        desc: "Ein zarter grüner Trieb." },
-    { req: 12,  name: "Kleine Pflanze 🪴",  desc: "Wächst heran..." },
-    { req: 30,  name: "Große Pflanze 🌳",   desc: "Prächtiges cyber-grün!" },
-    { req: 60,  name: "Blühende Pflanze 🌸",desc: "Die Blume hat geöffnet!" }
-];
-
-function getStage(cnt) {
-    let stage = levels[0];
-    for (let i = 0; i < levels.length; i++) {
-        if (cnt >= levels[i].req) stage = levels[i];
-    }
-    return stage;
-}
-
-function syncPlantVisuals(animateSprout = false) {
-    const st = getStage(plant.waterCount);
-    const stem = document.getElementById("p-stem");
-    const flower = document.getElementById("p-flower");
-
-    const stemY2 = Math.max(10, 60 - plant.waterCount * 0.7);
-    stem.setAttribute("y2", stemY2);
-
-    for (let i = 1; i <= 6; i++) {
-        const leaf = document.getElementById(`p-l${i}`);
-        if(leaf) {
-            leaf.style.opacity = (plant.waterCount >= i * 2) ? "0.85" : "0";
-        }
-    }
-
-    if (plant.waterCount >= 60) {
-        flower.style.opacity = "1";
-    } else {
-        flower.style.opacity = "0";
-    }
-
-    const hitDesk = document.getElementById("hit-desktop");
-    const hitMob  = document.getElementById("hit-mobile");
-    if (animateSprout) {
-        hitDesk.classList.add("sprouting");
-        hitMob.classList.add("sprouting");
-        setTimeout(() => {
-            hitDesk.classList.remove("sprouting");
-            hitMob.classList.remove("sprouting");
-        }, 900);
-    }
-}
-
-// Pflanze gießen Funktion
-const plantWateringsRef = database.ref("plant/waterings");
-const plantLastWateredRef = database.ref("plant/last_watered");
-
-function showToast(title, sub) {
-    const toast = document.getElementById("plant-toast");
-    document.getElementById("pt-num").textContent = title;
-    document.getElementById("pt-sub").textContent = sub;
-    toast.classList.add("show");
-    setTimeout(() => toast.classList.remove("show"), 2800);
-}
-
-function waterPlant(e) {
-    e.preventDefault();
-    const hitDesk = document.getElementById("hit-desktop");
-    const hitMob  = document.getElementById("hit-mobile");
-    
-    // Gieß-Effekt & Bounce-Animation
-    hitDesk.classList.add("bouncing");
-    hitMob.classList.add("bouncing");
-    setTimeout(() => {
-        hitDesk.classList.remove("bouncing");
-        hitMob.classList.remove("bouncing");
-    }, 450);
-
-    // Wassertropfen erstellen
-    const drop = document.createElement("span");
-    drop.className = "wdrop";
-    drop.textContent = "💧";
-    e.currentTarget.appendChild(drop);
-    setTimeout(() => drop.remove(), 650);
-
-    // DB Transaktionen
-    plantWateringsRef.transaction((curr) => (curr || 0) + 1, (err, committed, snap) => {
-        if(committed) {
-            const newCount = snap.val();
-            plant.waterCount = newCount;
-            
-            // Zeitstempel updaten
-            const now = Date.now();
-            plantLastWateredRef.set(now);
-            
-            syncPlantVisuals();
-            const currentStage = getStage(newCount);
-            showToast(`${newCount}× gegossen`, currentStage.name);
-        }
-    });
-}
-
-document.getElementById("hit-desktop").addEventListener("click", waterPlant);
-document.getElementById("hit-mobile").addEventListener("click", waterPlant);
-
-// Initialer DB-Load für Pflanze
-plantWateringsRef.on("value", (snap) => {
-    plant.waterCount = snap.val() || 0;
-    syncPlantVisuals();
-});
-
 </script>
+
 </body>
 </html>
