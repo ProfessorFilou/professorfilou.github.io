@@ -1,49 +1,1246 @@
-{
-  "rules": {
-    ".read": false,
-    ".write": false,
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="
+    default-src 'self'; 
+    script-src 'self' 'unsafe-inline' https://www.gstatic.com; 
+    connect-src 'self' https://professorfilou-e8eea-default-rtdb.firebaseio.com wss://*.firebaseio.com https://api.ipify.org; 
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
+    font-src 'self' https://fonts.gstatic.com; 
+    img-src 'self' data: https://upload.wikimedia.org https://cdn-icons-png.flaticon.com;
+    frame-ancestors 'none';
+">
+<title>ProfessorFilou</title>
 
-    "visits": {
-      "total": {
-        ".read": true,
-        ".write": "newData.isNumber() && (!data.exists() || newData.val() == data.val() + 1)"
-      }
-    },
+<link rel="icon" type="image/jpeg" href="ProfessorFilouLOGO.jpg">
 
-    "presence": {
-      "$user_id": {
-        ".read": true,
-        ".write": "newData.hasChildren(['state', 'last_changed']) || newData.isString() || newData.isNumber()"
-      },
-      "total_connections": {
-        ".read": true,
-        ".write": "newData.isNumber()"
-      }
-    },
-
-    "plant": {
-      "waterings": {
-        ".read": true,
-        ".write": "newData.isNumber() && (!data.exists() || newData.val() == data.val() + 1)"
-      },
-      "last_watered": {
-        ".read": true,
-        ".write": "newData.isNumber() && newData.val() <= now"
-      }
-    },
-
-    "visitor_ips": {
-      ".read": true,
-      "$ip_key": {
-        ".write": "true" 
-      }
-    },
-
-    "banned_ips": {
-      ".read": true,
-      "$banned_ip_key": {
-        ".write": "true"
-      }
-    }
-  }
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
+
+body{
+    background:#020204;
+    overflow-x:hidden;
+    color:#00ffcc;
+    min-height:100vh;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+canvas{
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    pointer-events: none;
+    will-change: transform;
+}
+
+.main{
+    width:100%;
+    min-height:100vh;
+    padding:60px 18px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+}
+
+h1{
+    font-size:clamp(38px,7vw,90px);
+    line-height:1;
+    letter-spacing:clamp(2px,0.8vw,8px);
+    color: #00ffcc;
+    text-shadow:0 0 10px #00ffcc, 0 0 30px rgba(0, 255, 204, 0.6);
+    animation:glow 3s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+    max-width:100%;
+    overflow-wrap:anywhere;
+    font-weight: 800;
+}
+
+.line{
+    width:min(320px,75vw);
+    height:2px;
+    background:#00ffcc;
+    margin:22px auto;
+    box-shadow:0 0 15px #00ffcc;
+}
+
+.socials{
+    margin-top:38px;
+    display:flex;
+    justify-content:center;
+    gap:18px;
+    flex-wrap:wrap;
+}
+
+.social{
+    width:74px;
+    height:74px;
+    border-radius:20px;
+    background:rgba(0, 255, 204, 0.02);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    border:1px solid rgba(0, 255, 204, 0.15);
+    transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                box-shadow 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                border-color 0.25s ease;
+    will-change: transform;
+}
+
+.social:hover{
+    transform:translateY(-6px) scale(1.04);
+    box-shadow:0 0 20px #00ffcc, 0 0 40px rgba(0,255,204,0.25);
+    border-color: #00ffcc;
+}
+
+.social img{
+    width:38px;
+    height:38px;
+    object-fit:contain;
+    filter: drop-shadow(0 0 5px rgba(0, 255, 204, 0.3));
+}
+
+.projects-title{
+    margin-top:65px;
+    font-size:clamp(26px,6vw,34px);
+    color:#00ffcc;
+    letter-spacing:2px;
+    text-shadow: 0 0 8px rgba(0,255,204,0.4);
+    font-weight: 700;
+}
+
+.projects{
+    margin-top:30px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+    gap:16px;
+    width:min(1100px,100%);
+}
+
+.project-btn{
+    padding:18px 16px;
+    border-radius:18px;
+    text-decoration:none;
+    color:white;
+    background:rgba(0, 255, 204, 0.02);
+    border:1px solid rgba(0, 255, 204, 0.15);
+    transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                box-shadow 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                color 0.2s ease, 
+                border-color 0.2s ease;
+    backdrop-filter:blur(8px);
+    font-size:17px;
+    font-weight: 600;
+    will-change: transform;
+}
+
+.project-btn:hover{
+    transform:translateY(-5px) scale(1.02);
+    border-color:#00ffcc;
+    box-shadow:0 0 20px #00ffcc, 0 0 40px rgba(0,255,204,0.3);
+    color:#00ffcc;
+}
+
+.footer{
+    margin-top:55px;
+    color:#555;
+    font-size:14px;
+}
+
+.footer-info{
+    margin-top:14px;
+    color:#666;
+    font-size:13px;
+    line-height:1.9;
+}
+.footer-info b{
+    color:#00ffcc;
+    font-weight:700;
+}
+
+@keyframes glow{
+    from{text-shadow:0 0 10px rgba(0, 255, 204, 0.8), 0 0 20px rgba(0, 255, 204, 0.3);}
+    to{text-shadow:0 0 22px #00ffcc, 0 0 44px rgba(0, 255, 204, 0.6), 0 0 60px rgba(0, 255, 204, 0.2);}
+}
+
+#confetti-layer{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:9999;
+    overflow:hidden;
+}
+.confetti-piece{
+    position:absolute;
+    top:-20px;
+    width:10px;
+    height:14px;
+    border-radius:2px;
+    opacity:0.9;
+    animation:conffall linear forwards;
+}
+@keyframes conffall{
+    0%   { transform:translateY(-20px) rotate(0deg);   opacity:1; }
+    100% { transform:translateY(105vh) rotate(720deg); opacity:1; }
+}
+
+#presence-fixed{
+    position:fixed;
+    bottom:24px;
+    right:24px;
+    z-index:300;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:rgba(2, 2, 4, 0.85);
+    border:1px dashed rgba(0, 255, 204, 0.3);
+    border-radius:4px;
+    padding:10px 18px;
+    backdrop-filter:blur(10px);
+    font-size:12px;
+    color:#00ffcc;
+    cursor:pointer;
+    user-select:none;
+    transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 0 10px rgba(0, 255, 204, 0.1);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    will-change: transform;
+}
+
+#presence-fixed:hover {
+    background:rgba(0, 255, 204, 0.1);
+    border:1px solid #00ffcc;
+    box-shadow: 0 0 25px rgba(0, 255, 204, 0.35);
+    transform:translateY(-3px) scale(1.02);
+}
+
+#presence-dot{
+    width:8px;
+    height:8px;
+    background:#444;
+    display:inline-block;
+    flex-shrink:0;
+    transition:background 0.4s ease;
+}
+
+/* ════ CYBER SECURITY POPUP ════ */
+.status-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(1, 1, 3, 0.94);
+    backdrop-filter: blur(15px);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: opacity;
+}
+
+.status-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.status-modal {
+    background: #040408;
+    border: 2px solid #00ffcc;
+    box-shadow: 0 0 50px rgba(0, 255, 204, 0.3), inset 0 0 20px rgba(0, 255, 204, 0.1);
+    width: min(500px, 95vw);
+    border-radius: 8px;
+    padding: 24px;
+    text-align: left;
+    transform: scale(0.92) translateY(15px);
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+    will-change: transform;
+}
+
+.status-overlay.active .status-modal {
+    transform: scale(1) translateY(0);
+}
+
+.status-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px double #00ffcc;
+    padding-bottom: 14px;
+    margin-bottom: 18px;
+}
+
+.status-title {
+    color: #00ffcc;
+    font-size: 15px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.status-close {
+    background: none;
+    border: 1px solid #00ffcc;
+    color: #00ffcc;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    text-transform: uppercase;
+    border-radius: 3px;
+}
+
+.status-close:hover {
+    background: #00ffcc;
+    color: #020204;
+    box-shadow: 0 0 12px #00ffcc;
+}
+
+.status-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 255, 204, 0.02);
+    padding: 10px 14px;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 255, 204, 0.12);
+}
+
+.status-label {
+    color: #8ab4f8;
+    font-size: 13px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.status-value {
+    color: white;
+    font-weight: bold;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-indicator {
+    width: 6px;
+    height: 6px;
+    display: inline-block;
+}
+
+.status-indicator.green {
+    background: #00ffcc;
+    box-shadow: 0 0 8px #00ffcc;
+}
+
+.status-indicator.red {
+    background: #ff4444;
+    box-shadow: 0 0 8px #ff4444;
+}
+
+.sec-log-container {
+    margin-top: 18px;
+    background: #010102;
+    border: 1px solid rgba(0, 255, 204, 0.25);
+    border-radius: 4px;
+    padding: 10px;
+}
+
+.sec-log-title {
+    font-size: 11px;
+    color: #ff4444;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.sec-log-box {
+    height: 90px;
+    overflow-y: auto;
+    font-size: 11px;
+    font-family: 'Courier New', Courier, monospace;
+    color: #a5d6a7;
+    line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    scroll-behavior: smooth;
+}
+
+.sec-log-entry {
+    border-left: 2px solid #00ffcc;
+    padding-left: 6px;
+    animation: logFadeIn 0.2s ease-out forwards;
+}
+
+@keyframes logFadeIn {
+    from { opacity: 0; transform: translateX(-3px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* ════ HARDCORE LOCKDOWN OVERLAY ════ */
+#devtools-blocker {
+    position: fixed;
+    inset: 0;
+    background: #050101;
+    z-index: 999999;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #ff3333;
+    text-align: center;
+    padding: 20px;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+#devtools-blocker h2 {
+    font-size: clamp(24px, 5vw, 48px);
+    margin-bottom: 15px;
+    text-shadow: 0 0 15px #ff3333;
+    letter-spacing: 2px;
+}
+
+#devtools-blocker p {
+    font-size: clamp(16px, 3vw, 22px);
+    color: #ffffff;
+    max-width: 600px;
+    line-height: 1.6;
+}
+
+/* ════ PLANT ════ */
+#plant-fixed{
+    position:fixed;
+    top:20px;
+    right:24px;
+    z-index:300;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+@media(max-width:600px){
+    #plant-fixed{ display:none; }
+    #presence-fixed{ top:auto; bottom:24px; left:50%; right:auto; transform:translateX(-50%); }
+    #presence-fixed:hover { transform:translateX(-50%) scale(1.02); }
+}
+
+#plant-inline{
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    margin-top:28px;
+}
+
+@media(max-width:600px){
+    #plant-inline{ display:flex; }
+}
+
+.plant-hit{
+    position:relative;
+    width:68px;
+    height:84px;
+    cursor:pointer;
+    user-select:none;
+    -webkit-tap-highlight-color:transparent;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    will-change: transform;
+}
+
+.plant-svg{
+    width:100%;
+    height:100%;
+    overflow:visible;
+    transition: filter 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                opacity 0.4s ease, 
+                transform 0.4s ease;
+}
+
+.plant-hit:hover .plant-svg,
+.plant-hit:active .plant-svg{
+    filter:drop-shadow(0 0 8px #00ffcc) drop-shadow(0 0 18px rgba(0,255,204,0.3));
+}
+
+.wdrop{
+    position:absolute;
+    font-size:18px;
+    top:2px;
+    left:50%;
+    transform:translateX(-50%);
+    pointer-events:none;
+    animation:wfall 0.65s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes wfall{
+    0%  { opacity:1; transform: translateX(-50%) translateY(0) scale(1); }
+    75% { opacity:1; transform: translateX(-50%) translateY(68px) scale(0.9); }
+    100%{ opacity:0; transform: translateX(-50%) translateY(78px) scale(0.4); }
+}
+
+@keyframes pbounce{
+    0%  { transform:scale(1) rotate(0deg); }
+    25% { transform:scale(1.16) rotate(-5deg); }
+    50% { transform:scale(0.94) rotate(3deg); }
+    75% { transform:scale(1.03) rotate(-1deg); }
+    100%{ transform:scale(1) rotate(0deg); }
+}
+.bouncing{ animation:pbounce 0.45s cubic-bezier(0.25, 1, 0.5, 1); }
+
+@keyframes pdrown{
+    0%  { transform:scale(1) rotate(0deg);                     opacity:1; }
+    20% { transform:scale(1.04) rotate(2deg);                  opacity:1; }
+    45% { transform:scale(0.88) rotate(-6deg) translateY(6px);  opacity:0.85; }
+    70% { transform:scale(0.72) rotate(12deg) translateY(18px); opacity:0.4; }
+    100%{ transform:scale(0.55) rotate(18deg) translateY(34px);  opacity:0; }
+}
+.drowning{ animation:pdrown 1.1s cubic-bezier(0.5, 0, 0.7, 1) forwards; }
+
+@keyframes psprout{
+    0%  { transform:scale(0.2) translateY(20px); opacity:0; }
+    50% { transform:scale(1.12) translateY(-4px); opacity:1; }
+    75% { transform:scale(0.96) translateY(2px); }
+    100%{ transform:scale(1) translateY(0);       opacity:1; }
+}
+.sprouting{ animation:psprout 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+.lf{ transition:opacity 0.5s cubic-bezier(0.25, 0.8, 0.25, 1); }
+
+#plant-toast{
+    position:fixed;
+    z-index:400;
+    top:112px;
+    right:12px;
+    left:auto;
+    background:rgba(3,16,12,0.94);
+    border:1px solid rgba(0,255,204,0.4);
+    border-radius:14px;
+    padding:9px 15px;
+    color:#00ffcc;
+    font-size:13px;
+    line-height:1.5;
+    text-align:center;
+    white-space:nowrap;
+    backdrop-filter:blur(16px);
+    box-shadow:0 0 0 1px rgba(0,255,204,0.06),
+               0 8px 28px rgba(0,0,0,0.55),
+               0 0 20px rgba(0,255,204,0.12);
+    opacity:0;
+    pointer-events:none;
+    transform:translateY(-8px) scale(0.93);
+    transition: opacity 0.25s cubic-bezier(0.25, 1, 0.5, 1), 
+                transform 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: transform, opacity;
+}
+
+#plant-toast.show{
+    opacity:1;
+    transform:translateY(0) scale(1);
+}
+
+@media(max-width:600px){
+    #plant-toast{
+        position:absolute;
+        top:auto;
+        right:auto;
+        left:50%;
+        bottom:calc(100% + 10px);
+        transform:translateX(-50%) translateY(8px) scale(0.93);
+        font-size:13px;
+        white-space:nowrap;
+    }
+    #plant-toast.show{
+        transform:translateX(-50%) translateY(0) scale(1);
+    }
+}
+
+#plant-toast strong{
+    display:block;
+    font-size:16px;
+    font-weight:700;
+    letter-spacing:0.3px;
+}
+
+#plant-toast .tsub{
+    color:rgba(0,255,204,0.65);
+    font-size:11.5px;
+}
+
+.stage-pop{
+    position:fixed;
+    z-index:500;
+    color:#00ffcc;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:1.2px;
+    text-transform:uppercase;
+    pointer-events:none;
+    text-shadow:0 0 8px #00ffcc;
+    animation:stagefloat 1.1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes stagefloat{
+    0%  { opacity:0; transform:translateY(0) translateX(-50%) scale(0.85); }
+    15% { opacity:1; transform:translateY(-4px) translateX(-50%) scale(1); }
+    80% { opacity:1; transform:translateY(-22px) translateX(-50%) scale(1); }
+    100%{ opacity:0; transform:translateY(-30px) translateX(-50%) scale(0.9); }
+}
+
+</style>
+</head>
+<body>
+
+<div id="devtools-blocker">
+    <h2>[ ACCESS DENIED ]</h2>
+    <p>Sicherheits-Lockdown aktiv.<br>Missbrauchsversuch oder DevTools erkannt.<br>IP-Protokoll wurde gesichert.</p>
+</div>
+
+<canvas id="bg"></canvas>
+<div id="confetti-layer"></div>
+
+<div id="presence-fixed">
+    <span id="presence-dot"></span>
+    <span id="presence-count">TERMINAL INITIALIZING...</span>
+</div>
+
+<div class="status-overlay" id="statusOverlay">
+    <div class="status-modal" id="statusModal">
+        <div class="status-header">
+            <div class="status-title">> SECURE_CORE_LIVE_STATUS</div>
+            <button class="status-close" id="closeStatus" aria-label="Abbrechen">EXIT</button>
+        </div>
+   
+        <div class="status-grid">
+            <div class="status-item">
+                <span class="status-label">DB CON_STATE</span>
+                <span class="status-value" id="db-status">
+                    <span class="status-indicator green"></span> <span id="db-status-text">SECURE</span>
+                </span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">SYS_LATENCY</span>
+                <span class="status-value" id="db-ping">CALCULATING...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">INTEGRITY_INDEX</span>
+                <span class="status-value" style="color: #00ffcc;">99.98% (ENCRYPTED)</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">HOST_PROVIDER</span>
+                <span class="status-value" style="color: #8ab4f8;">Firebase RT-DB v11</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">SYS_PERFORMANCE</span>
+                <span class="status-value" id="server-load" style="color: #00ffcc;">CPU: -- | RAM: --</span>
+            </div>
+        </div>
+
+        <div class="sec-log-container">
+            <div class="sec-log-title">> EVENT_SECURITY_LOG</div>
+            <div class="sec-log-box" id="securityLog">
+                <div class="sec-log-entry">[SYS] Sandbox-Verschlüsselung aktiv.</div>
+                <div class="sec-log-entry">[SYS] Firebase-Schnittstelle verriegelt.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="plant-fixed">
+    <div class="plant-hit" id="hit-desktop">
+        <svg class="plant-svg" viewBox="0 0 68 84" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+            <use href="#plant-shape"/>
+        </svg>
+    </div>
+</div>
+
+<div id="plant-toast">
+    <strong id="pt-num">1×</strong>
+    <div class="tsub" id="pt-sub">heute gegossen 💧</div>
+</div>
+
+<svg style="display:none">
+<defs>
+<g id="plant-shape">
+    <rect x="20" y="65" width="28" height="17" rx="4"   fill="#3a2517"/>
+    <rect x="15" y="60" width="38" height="8"  rx="1" fill="#4a311f"/>
+    <rect x="18" y="62" width="9"  height="3"  rx="1"   fill="rgba(0,255,204,0.25)"/>
+    <line id="p-stem" x1="34" y1="60" x2="34" y2="40"
+          stroke="#00ffcc" stroke-width="3" stroke-linecap="round"
+          style="transition:y2 0.7s cubic-bezier(0.25, 0.8, 0.25, 1);"/>
+    <ellipse class="lf" id="p-l1" cx="23" cy="54" rx="12" ry="5"
+             fill="#00e6b8" transform="rotate(-34 23 54)" opacity="0.42"/>
+    <ellipse class="lf" id="p-l2" cx="45" cy="50" rx="12" ry="5"
+             fill="#00c8a0" transform="rotate(34 45 50)"  opacity="0.42"/>
+    <ellipse class="lf" id="p-l3" cx="22" cy="46" rx="10" ry="4.2"
+             fill="#00b38f" transform="rotate(-24 22 46)" opacity="0"/>
+    <ellipse class="lf" id="p-l4" cx="46" cy="42" rx="10" ry="4.2"
+             fill="#00997a" transform="rotate(24 46 42)"  opacity="0"/>
+    <ellipse class="lf" id="p-l5" cx="25" cy="37" rx="8"  ry="3.5"
+             fill="#008066" transform="rotate(-17 25 37)" opacity="0"/>
+    <ellipse class="lf" id="p-l6" cx="43" cy="33" rx="8"  ry="3.5"
+             fill="#006652" transform="rotate(17 43 33)"  opacity="0"/>
+    <g id="p-flower" opacity="0" style="transition:opacity 0.7s ease;">
+        <circle cx="34" cy="25" r="4"   fill="#ff0055"/>
+        <circle cx="34" cy="17" r="4"   fill="#ff0055"/>
+        <circle cx="41" cy="21" r="4"   fill="#ff3377"/>
+        <circle cx="27" cy="21" r="4"   fill="#ff3377"/>
+        <circle cx="34" cy="21" r="5.5" fill="#fff176"/>
+        <circle cx="34" cy="21" r="2.5" fill="#f9a825"/>
+    </g>
+</g>
+</defs>
+</svg>
+
+<div class="main">
+    <h1>ProfessorFilou</h1>
+    <div class="line"></div>
+
+    <div class="socials">
+        <a class="social" href="https://github.com/professorfilou" target="_blank" rel="noopener noreferrer">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" alt="GitHub">
+        </a>
+        <a class="social" href="https://youtube.com/@professorfilou" target="_blank" rel="noopener noreferrer">
+            <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" alt="YouTube">
+        </a>
+        <a class="social" href="https://twitch.tv/professorfilou" target="_blank" rel="noopener noreferrer">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/d/d3/Twitch_Glitch_Logo_Purple.svg" alt="Twitch">
+        </a>
+    </div>
+
+    <div class="projects-title">SECURE_FILES</div>
+
+    <div class="projects">
+        <a class="project-btn" href="https://professorfilou.de/BankingGame"   target="_blank" rel="noopener noreferrer">BankingGame</a>
+        <a class="project-btn" href="https://professorfilou.de/WeatherWeb"    target="_blank" rel="noopener noreferrer">WeatherWeb</a>
+        <a class="project-btn" href="https://professorfilou.de/Tycoon/"       target="_blank" rel="noopener noreferrer">Tycoon</a>
+        <a class="project-btn" href="https://professorfilou.de/finn.fun/"     target="_blank" rel="noopener noreferrer">finn.fun</a>
+        <a class="project-btn" href="https://professorfilou.de/Lade/"         target="_blank" rel="noopener noreferrer">Lade</a>
+        <a class="project-btn" href="https://professorfilou.de/Search/"       target="_blank" rel="noopener noreferrer">Search</a>
+        <a class="project-btn" href="https://professorfilou.de/Quiz/"         target="_blank" rel="noopener noreferrer">Quiz</a>
+        <a class="project-btn" href="https://professorfilou.de/FinnGPT/"      target="_blank" rel="noopener noreferrer">FinnGPT</a>
+        <a class="project-btn" href="https://professorfilou.de/Pong/"         target="_blank" rel="noopener noreferrer">Pong</a>
+        <a class="project-btn" href="https://professorfilou.de/Windows/"      target="_blank" rel="noopener noreferrer">Windows</a>
+        <a class="project-btn" href="https://professorfilou.de/Terminal/"     target="_blank" rel="noopener noreferrer">Terminal</a>
+        <a class="project-btn" href="https://professorfilou.de/SportRules"    target="_blank" rel="noopener noreferrer">SportRules</a>
+    </div>
+
+    <div class="footer">© ProfessorFilou | SECURE CORE</div>
+    <div class="footer-info">
+        👀 <b id="visit-count">…</b> Besuche<br>
+        🎂 Seite ist <b id="site-age">…</b> online
+    </div>
+
+    <div id="plant-inline" style="position:relative;">
+        <div class="plant-hit" id="hit-mobile">
+            <svg class="plant-svg" viewBox="0 0 68 84" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+                <use href="#plant-shape"/>
+            </svg>
+        </div>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+<script>
+// 1. Firebase Initialisierung
+const firebaseConfig = {
+    databaseURL: "https://professorfilou-e8eea-default-rtdb.firebaseio.com"
+};
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
+let userIP = "Unbekannt";
+let isBanned = false;
+
+// Hilfsfunktion: Firebase-konforme IP-Schlüssel generieren (Punkte durch Unterstriche ersetzen)
+function cleanIP(ip) {
+    return ip.replace(/\./g, '_').replace(/:/g, '_');
+}
+
+// 2. Extrahiert tiefgehende Geräteinformationen
+function getDetailedDeviceInfo() {
+    const info = {};
+    
+    // Einfache Platform-Details
+    info.platform = navigator.platform || "Unbekannt";
+    info.language = navigator.language || "de";
+    info.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "Unbekannt";
+    
+    // Hardware-Kerne & RAM-Schätzung (falls vom Browser unterstützt)
+    info.cpu_cores = navigator.hardwareConcurrency || "Unbekannt";
+    info.device_memory_gb = navigator.deviceMemory || "Unbekannt"; // Schätzung in GB
+    
+    // Display-Daten
+    info.screen_resolution = `${window.screen.width}x${window.screen.height}`;
+    info.window_resolution = `${window.innerWidth}x${window.innerHeight}`;
+    info.pixel_ratio = window.devicePixelRatio || 1;
+    info.touch_support = ('ontouchstart' in window || navigator.maxTouchPoints > 0) ? "Ja" : "Nein";
+    
+    // Netzwerk (wenn möglich)
+    if (navigator.connection) {
+        info.network_type = navigator.connection.effectiveType || "Unbekannt";
+        info.downlink_speed = navigator.connection.downlink ? `${navigator.connection.downlink} Mbps` : "Unbekannt";
+    } else {
+        info.network_type = "Unbekannt (Nicht unterstützt)";
+    }
+
+    // Grafikkarte (GPU) auslesen über WebGL
+    try {
+        const canvasGl = document.createElement('canvas');
+        const gl = canvasGl.getContext('webgl') || canvasGl.getContext('experimental-webgl');
+        if (gl) {
+            const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+            if (debugInfo) {
+                info.gpu_renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+                info.gpu_vendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
+            }
+        }
+    } catch(e) {
+        info.gpu_renderer = "Auslesen blockiert";
+    }
+
+    return info;
+}
+
+// 3. IP holen, auf Sperre prüfen & loggen mit Hardware-Details
+async function fetchAndSecureIP() {
+    try {
+        const res = await fetch('https://api.ipify.org?format=json');
+        const data = await res.json();
+        userIP = data.ip;
+        const ipKey = cleanIP(userIP);
+
+        // Erst auf Ban prüfen
+        database.ref('banned_ips/' + ipKey).once('value', (snapshot) => {
+            if (snapshot.exists()) {
+                isBanned = true;
+                triggerLockdown();
+                addSecurityLog("SYS: Zugriff von gesperrter IP blockiert.", true);
+            }
+            
+            // Unabhängig vom Ban: Besuch mit tiefen Gerätedetails loggen
+            logVisit(ipKey, isBanned);
+        });
+
+    } catch (err) {
+        console.warn("IP-Abfrage fehlgeschlagen. Lokale Sicherheitsregeln greifen weiterhin.");
+        addSecurityLog("WARN: IP-Abfrage fehlgeschlagen.", true);
+    }
+}
+
+// Logge die Besucherdaten in "visitor_ips" inkl. tiefen Hardware-Infos
+function logVisit(ipKey, bannedStatus) {
+    const hardware = getDetailedDeviceInfo();
+
+    database.ref('visitor_ips/' + ipKey).set({
+        last_seen: new Date().toISOString(),
+        user_agent: navigator.userAgent,
+        banned: bannedStatus,
+        
+        // Tiefe Geräte-Informationen
+        platform: hardware.platform,
+        language: hardware.language,
+        timezone: hardware.timezone,
+        cpu_cores: hardware.cpu_cores,
+        device_memory_gb: hardware.device_memory_gb,
+        screen_resolution: hardware.screen_resolution,
+        window_resolution: hardware.window_resolution,
+        pixel_ratio: hardware.pixel_ratio,
+        touch_support: hardware.touch_support,
+        network_type: hardware.network_type,
+        downlink_speed: hardware.downlink_speed,
+        gpu_vendor: hardware.gpu_vendor || "Unbekannt",
+        gpu_renderer: hardware.gpu_renderer || "Unbekannt"
+    }).catch(e => {
+        console.warn("Besuchs-Log blockiert (Sicherheitsregeln verhindern Schreibrecht).");
+    });
+}
+
+// Ruf die Sicherheitsprüfung direkt beim Laden auf
+fetchAndSecureIP();
+
+
+/* ═══════════════ SECURITY CONSOLE ═══════════════ */
+const overlay     = document.getElementById("statusOverlay");
+const modal       = document.getElementById("statusModal");
+const trigger     = document.getElementById("presence-fixed");
+const closeBtn    = document.getElementById("closeStatus");
+const securityLog = document.getElementById("securityLog");
+
+function addSecurityLog(text, isWarn = false) {
+    const entry = document.createElement("div");
+    entry.className = "sec-log-entry" + (isWarn ? " warn" : "");
+    const time = new Date().toTimeString().split(' ')[0];
+    entry.textContent = `[${time}] ${text}`;
+    securityLog.appendChild(entry);
+    securityLog.scrollTop = securityLog.scrollHeight;
+}
+
+trigger.addEventListener("click", () => {
+    if(!isBanned) {
+        overlay.classList.add("active");
+        addSecurityLog("Core-Log-Zugriff gewährt.");
+    }
+});
+
+closeBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    overlay.classList.remove("active");
+});
+
+overlay.addEventListener("click", () => {
+    overlay.classList.remove("active");
+});
+modal.addEventListener("click", (e) => {
+    e.stopPropagation();
+});
+
+
+/* ═══════════════ HARDCORE LOCKDOWN (DEVTOOLS & BAN) ═══════════════ */
+let hasLoggedBan = false;
+
+function triggerLockdown() {
+    const blocker = document.getElementById("devtools-blocker");
+    blocker.style.display = "flex";
+    document.body.style.overflow = "hidden";
+    
+    // Deaktiviere das restliche HTML vollständig
+    const mainContent = document.querySelector(".main");
+    if(mainContent) mainContent.style.opacity = "0.02";
+
+    // Trage die IP automatisch in "banned_ips" ein, wenn die DevTools geöffnet wurden
+    if (userIP !== "Unbekannt" && !hasLoggedBan) {
+        hasLoggedBan = true;
+        const ipKey = cleanIP(userIP);
+        const hardware = getDetailedDeviceInfo();
+
+        database.ref('banned_ips/' + ipKey).set({
+            banned_at: new Date().toISOString(),
+            reason: "Verdacht auf Code-Injektion / DevTools geöffnet",
+            user_agent: navigator.userAgent,
+            gpu: hardware.gpu_renderer || "Unbekannt",
+            timezone: hardware.timezone
+        }).catch(e => {});
+        
+        // Aktualisiere gleichzeitig den Status im Besucherlog
+        database.ref('visitor_ips/' + ipKey + '/banned').set(true).catch(e => {});
+    }
+}
+
+function releaseLockdown() {
+    if (isBanned) return; // Wenn IP dauerhaft in der DB gesperrt ist, kein Release!
+    document.getElementById("devtools-blocker").style.display = "none";
+    document.body.style.overflow = "";
+    const mainContent = document.querySelector(".main");
+    if(mainContent) mainContent.style.opacity = "1";
+}
+
+// DevTools-Erkennung über Fenstergrößen-Abgleich
+const threshold = 160;
+window.addEventListener("resize", () => {
+    const widthThreshold  = window.outerWidth - window.innerWidth > threshold;
+    const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+    if (widthThreshold || heightThreshold) {
+        triggerLockdown();
+    } else {
+        releaseLockdown();
+    }
+});
+
+// Shortcuts blockieren (Kopieren, Markieren, Speichern, DevTools)
+document.addEventListener("keydown", (e) => {
+    if (e.key === "F12" || (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) || (e.ctrlKey && e.key === "u")) {
+        e.preventDefault();
+        triggerLockdown();
+        addSecurityLog("SYS: Tastenkombination blockiert.", true);
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        addSecurityLog("SYS: Kopieren blockiert.", true);
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') {
+        e.preventDefault();
+        addSecurityLog("SYS: Alles-Markieren blockiert.", true);
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        addSecurityLog("SYS: Speichern blockiert.", true);
+    }
+});
+
+// Rechtsklick-Sperre
+document.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    triggerLockdown();
+    addSecurityLog("SYS: Rechtsklick erkannt & abgewehrt.", true);
+});
+
+
+/* ═══════════════ VISIT-COUNTER (INTEGRIERT) ═══════════════ */
+const visitCountEl = document.getElementById("visit-count");
+const visitsRef    = database.ref("visits/total");
+
+visitsRef.transaction((currentValue) => {
+    return (currentValue || 0) + 1;
+}, (error, committed, snapshot) => {
+    if (committed) {
+        visitCountEl.textContent = snapshot.val().toLocaleString();
+    } else {
+        visitsRef.once("value", (snap) => {
+            visitCountEl.textContent = (snap.val() || 1).toLocaleString();
+        });
+    }
+});
+
+
+/* ═══════════════ PRESENCE CONNECTIVITY ═══════════════ */
+const presenceCountEl = document.getElementById("presence-count");
+const presenceDot     = document.getElementById("presence-dot");
+const myPresenceRef   = database.ref("presence/" + Math.random().toString(36).substring(2, 15));
+const totalConnRef    = database.ref("presence/total_connections");
+const connectedRef    = database.ref(".info/connected");
+
+connectedRef.on("value", (snap) => {
+    if (snap.val() === true) {
+        myPresenceRef.onDisconnect().remove();
+        myPresenceRef.set(true);
+        document.getElementById("db-status-text").textContent = "CONNECTED";
+        document.getElementById("db-status-text").style.color = "#00ffcc";
+        document.getElementById("db-status").querySelector(".status-indicator").className = "status-indicator green";
+    } else {
+        document.getElementById("db-status-text").textContent = "OFFLINE";
+        document.getElementById("db-status-text").style.color = "#ff4444";
+        document.getElementById("db-status").querySelector(".status-indicator").className = "status-indicator red";
+    }
+});
+
+totalConnRef.on("value", (snap) => {
+    const count = snap.val() || 0;
+    presenceCountEl.textContent = `${count} USER${count !== 1 ? 'S' : ''} ONLINE`;
+    if(count > 0) {
+        presenceDot.style.background = "#00ffcc";
+        presenceDot.style.animation = "pulse-green 1.8s infinite";
+    } else {
+        presenceDot.style.background = "#555";
+        presenceDot.style.animation = "none";
+    }
+});
+
+// Ping-Berechnung
+let pingStart = Date.now();
+database.ref(".info/serverTimeOffset").once("value", () => {
+    const latency = Date.now() - pingStart;
+    document.getElementById("db-ping").textContent = `${latency} MS`;
+});
+
+
+/* ═══════════════ SITE AGE ═══════════════ */
+const SITE_BORN = new Date("2024-05-31T00:00:00");
+function updateAge() {
+    const days = Math.floor((new Date() - SITE_BORN) / 86400000);
+    const ageEl = document.getElementById("site-age");
+    if (days < 0) ageEl.textContent = "bald";
+    else if (days === 0) ageEl.textContent = "seit heute";
+    else if (days === 1) ageEl.textContent = "1 Tag";
+    else ageEl.textContent = days + " Tage";
+}
+updateAge();
+
+
+/* ═══════════════ BACKGROUND ANIMATION ═══════════════ */
+const canvas = document.getElementById("bg");
+const ctx    = canvas.getContext("2d");
+let dpr = window.devicePixelRatio || 1;
+
+function resize() {
+    dpr = window.devicePixelRatio || 1;
+    canvas.width  = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+    canvas.style.width = window.innerWidth + "px";
+    canvas.style.height = window.innerHeight + "px";
+    ctx.scale(dpr, dpr);
+}
+resize();
+window.addEventListener("resize", resize);
+
+const particleCount = window.innerWidth < 600 ? 70 : 130;
+const particles = [];
+for (let i = 0; i < particleCount; i++) {
+    particles.push({
+        x:  Math.random() * window.innerWidth,
+        y:  Math.random() * window.innerHeight,
+        r:  Math.random() * 1.8 + 0.4,
+        dx: (Math.random() - 0.5) * 0.4,
+        dy: (Math.random() - 0.5) * 0.4,
+    });
+}
+
+function animate() {
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    ctx.fillStyle = "#00ffcc";
+    
+    for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+        
+        p.x += p.dx;
+        p.y += p.dy;
+        
+        if (p.x < 0 || p.x > window.innerWidth) p.dx *= -1;
+        if (p.y < 0 || p.y > window.innerHeight) p.dy *= -1;
+    }
+    requestAnimationFrame(animate);
+}
+animate();
+
+
+/* ═══════════════ PERFORMANCE DATA ═══════════════ */
+function updatePerformanceData() {
+    const cpu = Math.floor(Math.random() * 14) + 2;
+    const ram = (Math.random() * 0.4 + 1.1).toFixed(2);
+    document.getElementById("server-load").textContent = `CPU: ${cpu}% | RAM: ${ram} GB`;
+}
+setInterval(() => {
+    if (overlay.classList.contains("active")) {
+        updatePerformanceData();
+    }
+}, 3000);
+
+
+/* ═══════════════ BLUME UND INTERAKTION ═══════════════ */
+const STATE_KEY = "plant_data";
+let plant = { level: 1, waterCount: 0, lastWatered: null };
+const levels = [
+    { req: 0,   name: "Samenkorn 🌱",       desc: "Warte auf das erste Wasser..." },
+    { req: 3,   name: "Keimling 🌿",        desc: "Ein zarter grüner Trieb." },
+    { req: 12,  name: "Kleine Pflanze 🪴",  desc: "Wächst heran..." },
+    { req: 30,  name: "Große Pflanze 🌳",   desc: "Prächtiges cyber-grün!" },
+    { req: 60,  name: "Blühende Pflanze 🌸",desc: "Die Blume hat geöffnet!" }
+];
+
+function getStage(cnt) {
+    let stage = levels[0];
+    for (let i = 0; i < levels.length; i++) {
+        if (cnt >= levels[i].req) stage = levels[i];
+    }
+    return stage;
+}
+
+function syncPlantVisuals(animateSprout = false) {
+    const st = getStage(plant.waterCount);
+    const stem = document.getElementById("p-stem");
+    const flower = document.getElementById("p-flower");
+
+    const stemY2 = Math.max(10, 60 - plant.waterCount * 0.7);
+    stem.setAttribute("y2", stemY2);
+
+    for (let i = 1; i <= 6; i++) {
+        const leaf = document.getElementById(`p-l${i}`);
+        if(leaf) {
+            leaf.style.opacity = (plant.waterCount >= i * 2) ? "0.85" : "0";
+        }
+    }
+
+    if (plant.waterCount >= 60) {
+        flower.style.opacity = "1";
+    } else {
+        flower.style.opacity = "0";
+    }
+
+    const hitDesk = document.getElementById("hit-desktop");
+    const hitMob  = document.getElementById("hit-mobile");
+    if (animateSprout) {
+        hitDesk.classList.add("sprouting");
+        hitMob.classList.add("sprouting");
+        setTimeout(() => {
+            hitDesk.classList.remove("sprouting");
+            hitMob.classList.remove("sprouting");
+        }, 900);
+    }
+}
+
+// Pflanze gießen Funktion
+const plantWateringsRef = database.ref("plant/waterings");
+const plantLastWateredRef = database.ref("plant/last_watered");
+
+function showToast(title, sub) {
+    const toast = document.getElementById("plant-toast");
+    document.getElementById("pt-num").textContent = title;
+    document.getElementById("pt-sub").textContent = sub;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 2800);
+}
+
+function waterPlant(e) {
+    e.preventDefault();
+    const hitDesk = document.getElementById("hit-desktop");
+    const hitMob  = document.getElementById("hit-mobile");
+    
+    // Gieß-Effekt & Bounce-Animation
+    hitDesk.classList.add("bouncing");
+    hitMob.classList.add("bouncing");
+    setTimeout(() => {
+        hitDesk.classList.remove("bouncing");
+        hitMob.classList.remove("bouncing");
+    }, 450);
+
+    // Wassertropfen erstellen
+    const drop = document.createElement("span");
+    drop.className = "wdrop";
+    drop.textContent = "💧";
+    e.currentTarget.appendChild(drop);
+    setTimeout(() => drop.remove(), 650);
+
+    // DB Transaktionen
+    plantWateringsRef.transaction((curr) => (curr || 0) + 1, (err, committed, snap) => {
+        if(committed) {
+            const newCount = snap.val();
+            plant.waterCount = newCount;
+            
+            // Zeitstempel updaten
+            const now = Date.now();
+            plantLastWateredRef.set(now);
+            
+            syncPlantVisuals();
+            const currentStage = getStage(newCount);
+            showToast(`${newCount}× gegossen`, currentStage.name);
+        }
+    });
+}
+
+document.getElementById("hit-desktop").addEventListener("click", waterPlant);
+document.getElementById("hit-mobile").addEventListener("click", waterPlant);
+
+// Initialer DB-Load für Pflanze
+plantWateringsRef.on("value", (snap) => {
+    plant.waterCount = snap.val() || 0;
+    syncPlantVisuals();
+});
+
+</script>
+</body>
+</html>
