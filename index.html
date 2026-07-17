@@ -6,7 +6,12 @@
 <meta http-equiv="Content-Security-Policy" content="
     default-src 'self'; 
     script-src 'self' 'unsafe-inline' https://www.gstatic.com; 
-    connect-src 'self' https://professorfilou-e8eea-default-rtdb.firebaseio.com wss://*.firebaseio.com; 
+    connect-src 'self' 
+        https://professorfilou-e8eea-default-rtdb.firebaseio.com 
+        wss://professorfilou-e8eea-default-rtdb.firebaseio.com 
+        https://*.firebasedatabase.app 
+        wss://*.firebasedatabase.app 
+        wss://*.firebaseio.com; 
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
     font-src 'self' https://fonts.gstatic.com; 
     img-src 'self' data: https://upload.wikimedia.org https://cdn-icons-png.flaticon.com;
@@ -29,7 +34,6 @@ body{
     overflow-x:hidden;
     color:#00ffcc;
     min-height:100vh;
-    /* Verhindert das standardmäßige Markieren und Kopieren von Texten über CSS */
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -192,8 +196,7 @@ h1{
 }
 @keyframes conffall{
     0%   { transform:translateY(-20px) rotate(0deg);   opacity:1; }
-    100% { transform:translateY(105vh) rotate(720deg);
-           opacity:1; }
+    100% { transform:translateY(105vh) rotate(720deg); opacity:1; }
 }
 
 /* ════ CYBER PRESENCE WIDGET ════ */
@@ -288,8 +291,7 @@ h1{
     content: " ";
     display: block;
     position: absolute;
-    top: 0; left: 0; bottom: 0;
-    right: 0;
+    top: 0; left: 0; bottom: 0; right: 0;
     background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.05));
     z-index: 2;
     background-size: 100% 4px, 6px 100%;
@@ -546,11 +548,11 @@ h1{
 .bouncing{ animation:pbounce 0.45s cubic-bezier(0.25, 1, 0.5, 1); }
 
 @keyframes pdrown{
-    0%  { transform:scale(1) rotate(0deg);                     opacity:1; }
-    20% { transform:scale(1.04) rotate(2deg);                  opacity:1; }
-    45% { transform:scale(0.88) rotate(-6deg) translateY(6px);  opacity:0.85; }
+    0%  { transform:scale(1) rotate(0deg); opacity:1; }
+    20% { transform:scale(1.04) rotate(2deg); opacity:1; }
+    45% { transform:scale(0.88) rotate(-6deg) translateY(6px); opacity:0.85; }
     70% { transform:scale(0.72) rotate(12deg) translateY(18px); opacity:0.4; }
-    100%{ transform:scale(0.55) rotate(18deg) translateY(34px);  opacity:0; }
+    100%{ transform:scale(0.55) rotate(18deg) translateY(34px); opacity:0; }
 }
 .drowning{ animation:pdrown 1.1s cubic-bezier(0.5, 0, 0.7, 1) forwards; }
 
@@ -558,7 +560,7 @@ h1{
     0%  { transform:scale(0.2) translateY(20px); opacity:0; }
     50% { transform:scale(1.12) translateY(-4px); opacity:1; }
     75% { transform:scale(0.96) translateY(2px); }
-    100%{ transform:scale(1) translateY(0);       opacity:1; }
+    100%{ transform:scale(1) translateY(0); opacity:1; }
 }
 .sprouting{ animation:psprout 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
 
@@ -719,29 +721,29 @@ h1{
 <svg style="display:none">
 <defs>
 <g id="plant-shape">
-    <rect x="20" y="65" width="28" height="17" rx="4"   fill="#3a2517"/>
-    <rect x="15" y="60" width="38" height="8"  rx="1" fill="#4a311f"/>
-    <rect x="18" y="62" width="9"  height="3"  rx="1"   fill="rgba(0,255,204,0.25)"/>
+    <rect x="20" y="65" width="28" height="17" rx="4" fill="#3a2517"/>
+    <rect x="15" y="60" width="38" height="8" rx="1" fill="#4a311f"/>
+    <rect x="18" y="62" width="9" height="3" rx="1" fill="rgba(0,255,204,0.25)"/>
     <line id="p-stem" x1="34" y1="60" x2="34" y2="40"
           stroke="#00ffcc" stroke-width="3" stroke-linecap="round"
           style="transition:y2 0.7s cubic-bezier(0.25, 0.8, 0.25, 1);"/>
     <ellipse class="lf" id="p-l1" cx="23" cy="54" rx="12" ry="5"
              fill="#00e6b8" transform="rotate(-34 23 54)" opacity="0.42"/>
     <ellipse class="lf" id="p-l2" cx="45" cy="50" rx="12" ry="5"
-             fill="#00c8a0" transform="rotate(34 45 50)"  opacity="0.42"/>
+             fill="#00c8a0" transform="rotate(34 45 50)" opacity="0.42"/>
     <ellipse class="lf" id="p-l3" cx="22" cy="46" rx="10" ry="4.2"
              fill="#00b38f" transform="rotate(-24 22 46)" opacity="0"/>
     <ellipse class="lf" id="p-l4" cx="46" cy="42" rx="10" ry="4.2"
-             fill="#00997a" transform="rotate(24 46 42)"  opacity="0"/>
-    <ellipse class="lf" id="p-l5" cx="25" cy="37" rx="8"  ry="3.5"
+             fill="#00997a" transform="rotate(24 46 42)" opacity="0"/>
+    <ellipse class="lf" id="p-l5" cx="25" cy="37" rx="8" ry="3.5"
              fill="#008066" transform="rotate(-17 25 37)" opacity="0"/>
-    <ellipse class="lf" id="p-l6" cx="43" cy="33" rx="8"  ry="3.5"
-             fill="#006652" transform="rotate(17 43 33)"  opacity="0"/>
+    <ellipse class="lf" id="p-l6" cx="43" cy="33" rx="8" ry="3.5"
+             fill="#006652" transform="rotate(17 43 33)" opacity="0"/>
     <g id="p-flower" opacity="0" style="transition:opacity 0.7s ease;">
-        <circle cx="34" cy="25" r="4"   fill="#ff0055"/>
-        <circle cx="34" cy="17" r="4"   fill="#ff0055"/>
-        <circle cx="41" cy="21" r="4"   fill="#ff3377"/>
-        <circle cx="27" cy="21" r="4"   fill="#ff3377"/>
+        <circle cx="34" cy="25" r="4" fill="#ff0055"/>
+        <circle cx="34" cy="17" r="4" fill="#ff0055"/>
+        <circle cx="41" cy="21" r="4" fill="#ff3377"/>
+        <circle cx="27" cy="21" r="4" fill="#ff3377"/>
         <circle cx="34" cy="21" r="5.5" fill="#fff176"/>
         <circle cx="34" cy="21" r="2.5" fill="#f9a825"/>
     </g>
@@ -768,21 +770,21 @@ h1{
     <div class="projects-title">SECURE_FILES</div>
 
     <div class="projects">
-        <a class="project-btn" href="https://professorfilou.de/BankingGame"   target="_blank" rel="noopener noreferrer">BankGame</a>
-        <a class="project-btn" href="https://professorfilou.de/EmojiClick/"         target="_blank" rel="noopener noreferrer">EmojiClick</a>
-        <a class="project-btn" href="https://professorfilou.de/DropDown/"          target="_blank" rel="noopener noreferrer">DropDown</a>
-        <a class="project-btn" href="https://professorfilou.de/WhoAmIWeb/"          target="_blank" rel="noopener noreferrer">WhoAmIWeb</a>
-        <a class="project-btn" href="https://professorfilou.de/WeatherWeb/"         target="_blank" rel="noopener noreferrer">WeatherWeb</a>
-        <a class="project-btn" href="https://professorfilou.de/Tycoon/"              target="_blank" rel="noopener noreferrer">Tycoon</a>
-        <a class="project-btn" href="https://professorfilou.de/finn.fun/"           target="_blank" rel="noopener noreferrer">finn.fun</a>
-        <a class="project-btn" href="https://professorfilou.de/Lade/"                target="_blank" rel="noopener noreferrer">Lade</a>
-        <a class="project-btn" href="https://professorfilou.de/Search/"              target="_blank" rel="noopener noreferrer">Search</a>
-        <a class="project-btn" href="https://professorfilou.de/Quiz/"                target="_blank" rel="noopener noreferrer">Quiz</a>
-        <a class="project-btn" href="https://professorfilou.de/FinnGPT/"             target="_blank" rel="noopener noreferrer">FinnGPT</a>
-        <a class="project-btn" href="https://professorfilou.de/Pong/"                target="_blank" rel="noopener noreferrer">Pong</a>
-        <a class="project-btn" href="https://professorfilou.de/Windows/"             target="_blank" rel="noopener noreferrer">Windows</a>
-        <a class="project-btn" href="https://professorfilou.de/Terminal/"            target="_blank" rel="noopener noreferrer">Terminal</a>
-        <a class="project-btn" href="https://professorfilou.de/SportRules"           target="_blank" rel="noopener noreferrer">SportRules</a>
+        <a class="project-btn" href="https://professorfilou.de/BankingGame" target="_blank" rel="noopener noreferrer">BankGame</a>
+        <a class="project-btn" href="https://professorfilou.de/EmojiClick/" target="_blank" rel="noopener noreferrer">EmojiClick</a>
+        <a class="project-btn" href="https://professorfilou.de/DropDown/" target="_blank" rel="noopener noreferrer">DropDown</a>
+        <a class="project-btn" href="https://professorfilou.de/WhoAmIWeb/" target="_blank" rel="noopener noreferrer">WhoAmIWeb</a>
+        <a class="project-btn" href="https://professorfilou.de/WeatherWeb/" target="_blank" rel="noopener noreferrer">WeatherWeb</a>
+        <a class="project-btn" href="https://professorfilou.de/Tycoon/" target="_blank" rel="noopener noreferrer">Tycoon</a>
+        <a class="project-btn" href="https://professorfilou.de/finn.fun/" target="_blank" rel="noopener noreferrer">finn.fun</a>
+        <a class="project-btn" href="https://professorfilou.de/Lade/" target="_blank" rel="noopener noreferrer">Lade</a>
+        <a class="project-btn" href="https://professorfilou.de/Search/" target="_blank" rel="noopener noreferrer">Search</a>
+        <a class="project-btn" href="https://professorfilou.de/Quiz/" target="_blank" rel="noopener noreferrer">Quiz</a>
+        <a class="project-btn" href="https://professorfilou.de/FinnGPT/" target="_blank" rel="noopener noreferrer">FinnGPT</a>
+        <a class="project-btn" href="https://professorfilou.de/Pong/" target="_blank" rel="noopener noreferrer">Pong</a>
+        <a class="project-btn" href="https://professorfilou.de/Windows/" target="_blank" rel="noopener noreferrer">Windows</a>
+        <a class="project-btn" href="https://professorfilou.de/Terminal/" target="_blank" rel="noopener noreferrer">Terminal</a>
+        <a class="project-btn" href="https://professorfilou.de/SportRules" target="_blank" rel="noopener noreferrer">SportRules</a>
     </div>
 
     <div class="footer">© ProfessorFilou | SECURE CORE</div>
@@ -801,9 +803,8 @@ h1{
 </div>
 
 <script type="module">
-// Importiert die modularen Firebase SDK Funktionen der Version 11
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getDatabase, ref, runTransaction, onValue, get, remove, set, onDisconnect, goOffline, goOnline } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { getDatabase, ref, runTransaction, onValue, get, remove, set, onDisconnect } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 const firebaseConfig = { 
     apiKey: "AIzaSyCAh2AsbxLqU2Gx9s0YbZo8PR4fpG3WDw8", 
@@ -830,18 +831,13 @@ function addSecurityLog(message, isWarning = false) {
     logBox.scrollTop = logBox.scrollHeight;
 }
 
-/* ═══════════════ DETECT INTERFERENCE (ANTI-DEVTOOLS HARDCORE SHIELD) ═══════════════ */
+/* ═══════════════ DETECT INTERFERENCE (ANTI-DEVTOOLS SHIELD) ═══════════════ */
 const blocker = document.getElementById("devtools-blocker");
-let isOffline = false;
 
-// Funktion zum Blockieren der Seite & Trennen von Firebase
+// Funktion zum Blockieren der UI (Kein goOffline mehr, um die Verbindung nicht zu killen!)
 function triggerLockdown() {
     if (blocker.style.display !== "flex") {
         blocker.style.display = "flex";
-        if (!isOffline) {
-            goOffline(db); // Trennt die Live-Verbindung komplett ab!
-            isOffline = true;
-        }
         console.clear();
     }
 }
@@ -850,11 +846,7 @@ function triggerLockdown() {
 function releaseLockdown() {
     if (blocker.style.display === "flex") {
         blocker.style.display = "none";
-        if (isOffline) {
-            goOnline(db); // Stellt die Verbindung wieder her, sobald sicher
-            isOffline = false;
-            addSecurityLog("Datenkanal re-aktiviert.");
-        }
+        addSecurityLog("Datenkanal re-aktiviert.");
     }
 }
 
@@ -885,45 +877,39 @@ window.addEventListener('resize', () => {
 
 // Unzulässige Shortcuts blockieren (Erweitert um Kopieren, Alles-Markieren und Speichern)
 document.addEventListener("keydown", (e) => {
-    // Standard DevTools / Source Shortcuts
     if (e.key === "F12" || (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) || (e.ctrlKey && e.key === "u")) {
         e.preventDefault();
         triggerLockdown();
         addSecurityLog("SYS: Tastenkombination blockiert.", true);
     }
 
-    // NEU: Kopieren (Strg+C / Cmd+C) blockieren
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
         e.preventDefault();
         addSecurityLog("SYS: Kopieren blockiert.", true);
     }
 
-    // NEU: Alles markieren (Strg+A / Cmd+A) blockieren
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') {
         e.preventDefault();
         addSecurityLog("SYS: Alles-Markieren blockiert.", true);
     }
 
-    // NEU: Seite speichern (Strg+S / Cmd+S) blockieren
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
         e.preventDefault();
         addSecurityLog("SYS: Speichern blockiert.", true);
     }
 });
 
-// Rechtsklick-Sperre (Löst sofort Lockdown aus!)
+// Rechtsklick-Sperre
 document.addEventListener("contextmenu", (e) => {
     e.preventDefault();
     triggerLockdown();
     addSecurityLog("SYS: Rechtsklick erkannt & abgefangen.", true);
 });
 
-// Verhindert das Herausziehen (Drag) von Bildern und Links
 document.addEventListener("dragstart", (e) => {
     e.preventDefault();
 });
 
-// iFrame-Buster (Verhindert Clickjacking auf fremden Seiten)
 if (window.self !== window.top) {
     try {
         window.top.location = window.self.location;
@@ -932,7 +918,6 @@ if (window.self !== window.top) {
     }
 }
 
-// NEU: Clipboard-Sperre und Inhalts-Manipulation
 document.addEventListener("copy", (e) => {
     e.clipboardData.setData("text/plain", "[ SECURE CORE: Kopieren von Inhalten ist auf dieser Website untersagt. ]");
     e.preventDefault();
@@ -956,7 +941,6 @@ const forbidConsole = () => {
 };
 forbidConsole();
 
-// NEU: Konsole fluten/leeren im Sekundentakt bei geöffneter Konsole
 setInterval(() => {
     if (window.outerHeight - window.innerHeight > 160 || window.outerWidth - window.innerWidth > 160) {
         console.clear();
@@ -968,8 +952,11 @@ setInterval(() => {
 const SITE_BORN = new Date("2026-05-31T00:00:00");
 const visitsRef = ref(db, "visits/total");
 const visitEl = document.getElementById("visit-count");
+
+// Erhöht den globalen Counter sicher um 1
 runTransaction(visitsRef, cur => (cur || 0) + 1);
 
+// Holt den aktualisierten Wert ab
 onValue(visitsRef, snap => {
     visitEl.textContent = (snap.val() || 0).toLocaleString("de-DE");
 });
@@ -1074,7 +1061,6 @@ function calcLatency() {
     });
 }
 
-// Pseudo CPU & RAM Auslastung (zur Veranschaulichung der Systemleistung)
 function updatePerformanceData() {
     const cpu = Math.floor(Math.random() * 14) + 2;
     const ram = (Math.random() * 0.4 + 1.1).toFixed(2);
@@ -1183,9 +1169,7 @@ function spawnStagePop(x, y, text) {
 function waterPlant(e) {
     e.preventDefault();
     const hit = e.currentTarget;
-    const isDesktop = hit.id === "hit-desktop";
     const rect = hit.getBoundingClientRect();
-    // Wassertropfen erstellen
     const drop = document.createElement("div");
     drop.className = "wdrop";
     drop.textContent = "💧";
