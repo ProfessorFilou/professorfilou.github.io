@@ -29,6 +29,7 @@ body{
     overflow-x:hidden;
     color:#00ffcc;
     min-height:100vh;
+    /* Verhindert das standardmäßige Markieren und Kopieren von Texten über CSS */
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -191,7 +192,8 @@ h1{
 }
 @keyframes conffall{
     0%   { transform:translateY(-20px) rotate(0deg);   opacity:1; }
-    100% { transform:translateY(105vh) rotate(720deg); opacity:1; }
+    100% { transform:translateY(105vh) rotate(720deg);
+           opacity:1; }
 }
 
 /* ════ CYBER PRESENCE WIDGET ════ */
@@ -755,30 +757,32 @@ h1{
         <a class="social" href="https://github.com/professorfilou" target="_blank" rel="noopener noreferrer">
             <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" alt="GitHub">
         </a>
-        
         <a class="social" href="https://youtube.com/@professorfilou" target="_blank" rel="noopener noreferrer">
             <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" alt="YouTube">
         </a>
-        
         <a class="social" href="https://twitch.tv/professorfilou" target="_blank" rel="noopener noreferrer">
             <img src="https://upload.wikimedia.org/wikipedia/commons/d/d3/Twitch_Glitch_Logo_Purple.svg" alt="Twitch">
         </a>
     </div>
 
-    <div class="projects-title">Meine Projekte</div>
+    <div class="projects-title">SECURE_FILES</div>
+
     <div class="projects">
-        <a class="project-btn" href="https://professorfilou.de/PasswortGen/" target="_blank" rel="noopener noreferrer">PasswortGen</a>
-        <a class="project-btn" href="https://professorfilou.de/WeatherWeb/" target="_blank" rel="noopener noreferrer">WeatherWeb</a>
-        <a class="project-btn" href="https://professorfilou.de/Tycoon/" target="_blank" rel="noopener noreferrer">Tycoon</a>
-        <a class="project-btn" href="https://professorfilou.de/finn.fun/" target="_blank" rel="noopener noreferrer">finn.fun</a>
-        <a class="project-btn" href="https://professorfilou.de/Lade/" target="_blank" rel="noopener noreferrer">Lade</a>
-        <a class="project-btn" href="https://professorfilou.de/Search/" target="_blank" rel="noopener noreferrer">Search</a>
-        <a class="project-btn" href="https://professorfilou.de/Quiz/" target="_blank" rel="noopener noreferrer">Quiz</a>
-        <a class="project-btn" href="https://professorfilou.de/FinnGPT/" target="_blank" rel="noopener noreferrer">FinnGPT</a>
-        <a class="project-btn" href="https://professorfilou.de/Pong/" target="_blank" rel="noopener noreferrer">Pong</a>
-        <a class="project-btn" href="https://professorfilou.de/Windows/" target="_blank" rel="noopener noreferrer">Windows</a>
-        <a class="project-btn" href="https://professorfilou.de/Terminal/" target="_blank" rel="noopener noreferrer">Terminal</a>
-        <a class="project-btn" href="https://professorfilou.de/SportRules/" target="_blank" rel="noopener noreferrer">SportRules</a>
+        <a class="project-btn" href="https://professorfilou.de/BankingGame"   target="_blank" rel="noopener noreferrer">BankGame</a>
+        <a class="project-btn" href="https://professorfilou.de/EmojiClick/"         target="_blank" rel="noopener noreferrer">EmojiClick</a>
+        <a class="project-btn" href="https://professorfilou.de/DropDown/"          target="_blank" rel="noopener noreferrer">DropDown</a>
+        <a class="project-btn" href="https://professorfilou.de/WhoAmIWeb/"          target="_blank" rel="noopener noreferrer">WhoAmIWeb</a>
+        <a class="project-btn" href="https://professorfilou.de/WeatherWeb/"         target="_blank" rel="noopener noreferrer">WeatherWeb</a>
+        <a class="project-btn" href="https://professorfilou.de/Tycoon/"              target="_blank" rel="noopener noreferrer">Tycoon</a>
+        <a class="project-btn" href="https://professorfilou.de/finn.fun/"           target="_blank" rel="noopener noreferrer">finn.fun</a>
+        <a class="project-btn" href="https://professorfilou.de/Lade/"                target="_blank" rel="noopener noreferrer">Lade</a>
+        <a class="project-btn" href="https://professorfilou.de/Search/"              target="_blank" rel="noopener noreferrer">Search</a>
+        <a class="project-btn" href="https://professorfilou.de/Quiz/"                target="_blank" rel="noopener noreferrer">Quiz</a>
+        <a class="project-btn" href="https://professorfilou.de/FinnGPT/"             target="_blank" rel="noopener noreferrer">FinnGPT</a>
+        <a class="project-btn" href="https://professorfilou.de/Pong/"                target="_blank" rel="noopener noreferrer">Pong</a>
+        <a class="project-btn" href="https://professorfilou.de/Windows/"             target="_blank" rel="noopener noreferrer">Windows</a>
+        <a class="project-btn" href="https://professorfilou.de/Terminal/"            target="_blank" rel="noopener noreferrer">Terminal</a>
+        <a class="project-btn" href="https://professorfilou.de/SportRules"           target="_blank" rel="noopener noreferrer">SportRules</a>
     </div>
 
     <div class="footer">© ProfessorFilou | SECURE CORE</div>
@@ -792,95 +796,83 @@ h1{
             <svg class="plant-svg" viewBox="0 0 68 84" xmlns="http://www.w3.org/2000/svg" overflow="visible">
                 <use href="#plant-shape"/>
             </svg>
-        </div>
+       </div>
     </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-database-compat.js"></script>
+<script type="module">
+// Importiert die modularen Firebase SDK Funktionen der Version 11
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getDatabase, ref, runTransaction, onValue, get, remove, set, onDisconnect, goOffline, goOnline } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-<script>
-/* ═══════════════════ FIREBASE CONFIGURATION ═══════════════════ */
-const firebaseConfig = {
-    apiKey: "AIzaSyCAh2AsbxLqU2Gx9s0YbZo8PR4fpG3WDw8",
-    authDomain: "professorfilou-e8eea.firebaseapp.com",
-    databaseURL: "https://professorfilou-e8eea-default-rtdb.firebaseio.com",
-    projectId: "professorfilou-e8eea",
-    storageBucket: "professorfilou-e8eea.firebasestorage.app",
-    messagingSenderId: "280418084891",
-    appId: "1:280418084891:web:1750e554b152810033f0be"
+const firebaseConfig = { 
+    apiKey: "AIzaSyCAh2AsbxLqU2Gx9s0YbZo8PR4fpG3WDw8", 
+    authDomain: "professorfilou-e8eea.firebaseapp.com", 
+    databaseURL: "https://professorfilou-e8eea-default-rtdb.firebaseio.com", 
+    projectId: "professorfilou-e8eea", 
+    storageBucket: "professorfilou-e8eea.firebasestorage.app", 
+    messagingSenderId: "280418084891", 
+    appId: "1:280418084891:web:1750e554b152810033f0be" 
 };
 
-// Initialisiere Firebase im Browser
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+// Initialisierung
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-/* ═══════════════ PERSISTENT VISITOR ID & BAN SYSTEM ═══════════════ */
-if (!localStorage.getItem("visitor_id")) {
-    localStorage.setItem("visitor_id", "usr_" + Math.random().toString(36).substring(2, 15) + Date.now().toString(36));
+// Event-Logger für unser Terminal-Display
+const logBox = document.getElementById("securityLog");
+function addSecurityLog(message, isWarning = false) {
+    const entry = document.createElement("div");
+    entry.className = `sec-log-entry ${isWarning ? 'warn' : ''}`;
+    const time = new Date().toTimeString().split(' ')[0];
+    entry.textContent = `[${time}] ${message}`;
+    logBox.appendChild(entry);
+    logBox.scrollTop = logBox.scrollHeight;
 }
-const visitorId = localStorage.getItem("visitor_id");
 
+/* ═══════════════ DETECT INTERFERENCE (ANTI-DEVTOOLS HARDCORE SHIELD) ═══════════════ */
 const blocker = document.getElementById("devtools-blocker");
-let isBanned = false;
+let isOffline = false;
 
-// Prüft den Firebase-Bann-Status sofort beim Laden der Website
-function checkBanStatus() {
-    db.ref(`banned_users/${visitorId}`).once('value')
-        .then(snapshot => {
-            const data = snapshot.val();
-            if (data && data.banned === true) {
-                isBanned = true;
-                triggerLockdown(true); // Permanent blockieren
-            }
-        })
-        .catch(err => console.error("Database status check failure", err));
-}
-checkBanStatus();
-
-// Log-Hilfsfunktion
-function addSecurityLog(msg, isWarn = false) {
-    const box = document.getElementById("securityLog");
-    if(!box) return;
-    const div = document.createElement("div");
-    div.className = "sec-log-entry" + (isWarn ? " warn" : "");
-    const time = new Date().toLocaleTimeString();
-    div.textContent = `[${time}] ${msg}`;
-    box.appendChild(div);
-    box.scrollTop = box.scrollHeight;
-}
-
-// Löst den Hardcore-Lockdown aus und bannt den User dauerhaft in Firebase
-function triggerLockdown(alreadyBanned = false) {
-    blocker.style.display = "flex";
-    addSecurityLog("SYS: CRITICAL_LOCKDOWN triggered.", true);
-    
-    if (!alreadyBanned && !isBanned) {
-        isBanned = true;
-        // Speichert die Identität unlöschbar in der Firebase Realtime DB
-        db.ref(`banned_users/${visitorId}`).set({
-            banned: true,
-            timestamp: firebase.database.ServerValue.TIMESTAMP,
-            userAgent: navigator.userAgent
-        })
-        .then(() => {
-            addSecurityLog("SYS: Attacker ID registered in DB.", true);
-        })
-        .catch(err => console.error("Could not write ban state to DB:", err));
+// Funktion zum Blockieren der Seite & Trennen von Firebase
+function triggerLockdown() {
+    if (blocker.style.display !== "flex") {
+        blocker.style.display = "flex";
+        if (!isOffline) {
+            goOffline(db); // Trennt die Live-Verbindung komplett ab!
+            isOffline = true;
+        }
+        console.clear();
     }
 }
 
+// Funktion zum Aufheben, wenn DevTools geschlossen werden
 function releaseLockdown() {
-    // Falls der User in der Datenbank als "banned" markiert ist, 
-    // darf das Overlay niemals verschwinden – selbst wenn er DevTools wieder schließt.
-    if (isBanned) return;
-    blocker.style.display = "none";
+    if (blocker.style.display === "flex") {
+        blocker.style.display = "none";
+        if (isOffline) {
+            goOnline(db); // Stellt die Verbindung wieder her, sobald sicher
+            isOffline = false;
+            addSecurityLog("Datenkanal re-aktiviert.");
+        }
+    }
 }
 
-/* ═══════════════ SECURITY EVENTS & ANTI-DEVTOOLS ═══════════════ */
+// 1. Erkennungsmethode: Timings prüfen
+const devToolsShield = () => {
+    const start = performance.now();
+    debugger; // Hält den Browser an, falls DevTools geöffnet sind
+    const end = performance.now();
+    if (end - start > 100) {
+        triggerLockdown();
+    } else {
+        releaseLockdown();
+    }
+};
+setInterval(devToolsShield, 500);
 
-// 1. Fenstergrößen-Abweichungen beim Öffnen der DevTools ("Untersuchen")
-window.addEventListener("resize", () => {
+// 2. Erkennungsmethode: Fenstergrößen-Veränderungen bei geöffneter Konsole prüfen
+window.addEventListener('resize', () => {
     const threshold = 160;
     const widthThreshold = window.outerWidth - window.innerWidth > threshold;
     const heightThreshold = window.outerHeight - window.innerHeight > threshold;
@@ -891,221 +883,97 @@ window.addEventListener("resize", () => {
     }
 });
 
-// 2. Unzulässige Shortcuts blockieren (F12, Strg+Shift+I, etc.)
+// Unzulässige Shortcuts blockieren (Erweitert um Kopieren, Alles-Markieren und Speichern)
 document.addEventListener("keydown", (e) => {
+    // Standard DevTools / Source Shortcuts
     if (e.key === "F12" || (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) || (e.ctrlKey && e.key === "u")) {
         e.preventDefault();
         triggerLockdown();
         addSecurityLog("SYS: Tastenkombination blockiert.", true);
     }
-    // Kopieren blockieren
+
+    // NEU: Kopieren (Strg+C / Cmd+C) blockieren
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
         e.preventDefault();
         addSecurityLog("SYS: Kopieren blockiert.", true);
     }
-    // Alles-Markieren blockieren
+
+    // NEU: Alles markieren (Strg+A / Cmd+A) blockieren
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') {
         e.preventDefault();
         addSecurityLog("SYS: Alles-Markieren blockiert.", true);
     }
-    // Seite speichern blockieren
+
+    // NEU: Seite speichern (Strg+S / Cmd+S) blockieren
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
         e.preventDefault();
         addSecurityLog("SYS: Speichern blockiert.", true);
     }
 });
 
-// 3. Rechtsklick-Sperre: Verhindert NUR das Kontextmenü, löst aber KEINEN Lockdown aus!
+// Rechtsklick-Sperre (Löst sofort Lockdown aus!)
 document.addEventListener("contextmenu", (e) => {
     e.preventDefault();
-    addSecurityLog("SYS: Rechtsklick blockiert (Sperre ignoriert).", false);
+    triggerLockdown();
+    addSecurityLog("SYS: Rechtsklick erkannt & abgefangen.", true);
 });
 
+// Verhindert das Herausziehen (Drag) von Bildern und Links
+document.addEventListener("dragstart", (e) => {
+    e.preventDefault();
+});
 
-/* ═══════════════════ VISITORS & PRESENCE ═══════════════════ */
-const mySessionRef = db.ref("presence").push();
-const conRef       = db.ref(".info/connected");
-
-conRef.on("value", (snap) => {
-    if (snap.val() === true) {
-        mySessionRef.onDisconnect().remove();
-        mySessionRef.set({ timestamp: firebase.database.ServerValue.TIMESTAMP });
-        
-        document.getElementById("db-status").innerHTML = '<span class="status-indicator green"></span> SECURE';
-        document.getElementById("db-status-text").textContent = "SECURE";
-    } else {
-        document.getElementById("db-status").innerHTML = '<span class="status-indicator red"></span> DISCONNECTED';
-        document.getElementById("db-status-text").textContent = "OFFLINE";
+// iFrame-Buster (Verhindert Clickjacking auf fremden Seiten)
+if (window.self !== window.top) {
+    try {
+        window.top.location = window.self.location;
+    } catch (e) {
+        document.body.innerHTML = "<h1>SECURE SANDBOX BLOCK</h1>";
     }
+}
+
+// NEU: Clipboard-Sperre und Inhalts-Manipulation
+document.addEventListener("copy", (e) => {
+    e.clipboardData.setData("text/plain", "[ SECURE CORE: Kopieren von Inhalten ist auf dieser Website untersagt. ]");
+    e.preventDefault();
+    addSecurityLog("SYS: Kopierversuch abgefangen.", true);
 });
 
-db.ref("presence").on("value", (snap) => {
-    const count = snap.numChildren() || 1;
-    document.getElementById("presence-count").textContent = `${count} CYBER SIGNALS ONLINE`;
-});
+// Konsolen-Methoden-Sabotage
+const forbidConsole = () => {
+    const keys = ['log', 'debug', 'info', 'warn', 'error', 'dir', 'table', 'clear'];
+    keys.forEach(key => {
+        try {
+            Object.defineProperty(console, key, {
+                get: () => () => {
+                    triggerLockdown();
+                    return "Du kommst hier nicht rein!";
+                },
+                set: () => {}
+            });
+        } catch(e) {}
+    });
+};
+forbidConsole();
 
-// Visit Counter (Füge den Seitenaufruf hinzu)
-const visitsRef = db.ref("visits");
-visitsRef.transaction((curr) => {
-    return (curr || 0) + 1;
-}, (err, committed, snap) => {
-    if (!err && committed) {
-        document.getElementById("visit-count").textContent = snap.val();
-    }
-});
-
-// Latenz & Performance Berechnungen
-let lastPingTime = Date.now();
+// NEU: Konsole fluten/leeren im Sekundentakt bei geöffneter Konsole
 setInterval(() => {
-    lastPingTime = Date.now();
-    db.ref(".info/connected").once("value").then(() => {
-        const ping = Date.now() - lastPingTime;
-        document.getElementById("db-ping").textContent = ping + " ms";
-    });
-    
-    const cpu = Math.floor(Math.random() * 12) + 1;
-    const ram = Math.floor(Math.random() * 8) + 12;
-    document.getElementById("server-load").textContent = `CPU: ${cpu}% | RAM: ${ram}%`;
-}, 3000);
-
-
-/* ═══════════════════ PLANT (PFLANZEN EVENT LOGIK) ═══════════════════ */
-const SITE_BORN = new Date("2024-11-20T00:00:00");
-const stages = [
-    { limit: 0,    stemY: 60, leaves: [0,0,0,0,0,0], flower: 0, name: "Samen" },
-    { limit: 10,   stemY: 55, leaves: [1,1,0,0,0,0], flower: 0, name: "Keimling" },
-    { limit: 50,   stemY: 48, leaves: [1,1,1,1,0,0], flower: 0, name: "Kleine Pflanze" },
-    { limit: 200,  stemY: 40, leaves: [1,1,1,1,1,1], flower: 0, name: "Große Pflanze" },
-    { limit: 1000, stemY: 34, leaves: [1,1,1,1,1,1], flower: 1, name: "Blühende Blume" }
-];
-
-function getStage(total) {
-    for (let i = stages.length - 1; i >= 0; i--) {
-        if (total >= stages[i].limit) return { stage: stages[i], index: i };
+    if (window.outerHeight - window.innerHeight > 160 || window.outerWidth - window.innerWidth > 160) {
+        console.clear();
+        console.warn("%c[ ACCESS DENIED ]", "color: red; font-size: 30px; font-weight: bold;");
     }
-    return { stage: stages[0], index: 0 };
-}
+}, 1000);
 
-function updatePlantVisuals(total, animateSprout = false) {
-    const { stage } = getStage(total);
-    const stem = document.getElementById("p-stem");
-    if(stem) stem.setAttribute("y2", stage.stemY);
-    
-    stage.leaves.forEach((show, idx) => {
-        const leaf = document.getElementById(`p-l${idx+1}`);
-        if(leaf) leaf.style.opacity = show ? "0.85" : "0";
-    });
-    
-    const fl = document.getElementById("p-flower");
-    if(fl) fl.style.opacity = stage.flower ? "1" : "0";
-    
-    const plantGroup = document.getElementById("plant-shape");
-    if(plantGroup && animateSprout) {
-        plantGroup.classList.remove("sprouting");
-        void plantGroup.offsetWidth;
-        plantGroup.classList.add("sprouting");
-    }
-}
+/* ═══════════════ BESUCHERZÄHLER ═══════════════ */
+const SITE_BORN = new Date("2026-05-31T00:00:00");
+const visitsRef = ref(db, "visits/total");
+const visitEl = document.getElementById("visit-count");
+runTransaction(visitsRef, cur => (cur || 0) + 1);
 
-function renderPlant() {
-    const todayStr = new Date().toISOString().split('T')[0];
-    db.ref("watering/total").on("value", (snapTotal) => {
-        const total = snapTotal.val() || 0;
-        
-        db.ref(`watering/daily/${todayStr}`).on("value", (snapDaily) => {
-            const daily = snapDaily.val() || 0;
-            updatePlantVisuals(total, false);
-            
-            document.getElementById("pt-num").textContent = daily + "×";
-            const { stage } = getStage(total);
-            document.getElementById("pt-sub").innerHTML = `heute gegossen 💧<br><b style='color:#fff;'>Phase: ${stage.name}</b> (${total}g)`;
-        });
-    });
-}
-renderPlant();
-
-function waterPlant(e) {
-    const hitId = e.currentTarget.id;
-    const todayStr = new Date().toISOString().split('T')[0];
-    
-    const hitEl = document.getElementById(hitId);
-    if(hitEl.classList.contains("drowning") || hitEl.classList.contains("bouncing")) return;
-    
-    // Wassertropfen erstellen
-    const rect = hitEl.getBoundingClientRect();
-    const drop = document.createElement("div");
-    drop.className = "wdrop";
-    drop.textContent = "💧";
-    drop.style.left = (rect.width / 2) + "px";
-    drop.style.top = "-10px";
-    hitEl.appendChild(drop);
-    
-    setTimeout(() => drop.remove(), 650);
-    
-    db.ref("watering/total").transaction(c => (c || 0) + 1);
-    db.ref(`watering/daily/${todayStr}`).transaction(c => (c || 0) + 1);
-    
-    addSecurityLog("ACTION: Pflanze erfolgreich gegossen.", false);
-    
-    db.ref("watering/total").once("value").then(snap => {
-        const total = snap.val() || 0;
-        const currentStageIdx = getStage(total).index;
-        const prevStageIdx = getStage(total - 1).index;
-        
-        if (currentStageIdx > prevStageIdx) {
-            triggerStagePopup(stages[currentStageIdx].name);
-            launchConfetti(120);
-        }
-    });
-    
-    hitEl.classList.add("bouncing");
-    setTimeout(() => hitEl.classList.remove("bouncing"), 450);
-    
-    showToast();
-}
-
-document.getElementById("hit-desktop").addEventListener("click", waterPlant);
-document.getElementById("hit-mobile").addEventListener("click", waterPlant);
-
-let toastTimeout;
-function showToast() {
-    const toast = document.getElementById("plant-toast");
-    toast.classList.add("show");
-    clearTimeout(toastTimeout);
-    toastTimeout = setTimeout(() => toast.classList.remove("show"), 2800);
-}
-
-function triggerStagePopup(stageName) {
-    const pop = document.createElement("div");
-    pop.className = "stage-pop";
-    pop.style.left = "50%";
-    pop.style.top = "40%";
-    pop.innerHTML = `🌟 LEVEL UP!<br><span style="font-size:14px;color:#fff">${stageName}</span>`;
-    document.body.appendChild(pop);
-    setTimeout(() => pop.remove(), 1100);
-}
-
-
-/* ═══════════════════ SYSTEM OVERLAY CONTROLS ═══════════════════ */
-const overlay = document.getElementById("statusOverlay");
-const openBtn = document.getElementById("presence-fixed");
-const closeBtn = document.getElementById("closeStatus");
-
-openBtn.addEventListener("click", () => {
-    overlay.classList.add("active");
-    addSecurityLog("SYS: Live Secure Core Status geöffnet.", false);
+onValue(visitsRef, snap => {
+    visitEl.textContent = (snap.val() || 0).toLocaleString("de-DE");
 });
 
-closeBtn.addEventListener("click", () => {
-    overlay.classList.remove("active");
-});
-
-overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) overlay.classList.remove("active");
-});
-
-
-/* ═══════════════════ UTILITIES & CANVAS ═══════════════════ */
 function updateAge() {
     const days = Math.floor((new Date() - SITE_BORN) / 86400000);
     const ageEl = document.getElementById("site-age");
@@ -1120,26 +988,253 @@ function launchConfetti(amount = 80) {
     const layer = document.getElementById("confetti-layer");
     const colors = ["#00ffcc","#f06292","#fff176","#66bb6a","#42a5f5","#ffffff"];
     for (let i = 0; i < amount; i++) {
-        const p = document.createElement("div");
-        p.className = "confetti-piece";
-        p.style.left = Math.random() * 100 + "vw";
-        p.style.background = colors[Math.floor(Math.random() * colors.length)];
-        p.style.width = Math.random() * 8 + 6 + "px";
-        p.style.height = Math.random() * 10 + 10 + "px";
-        
-        const duration = Math.random() * 2 + 1.5;
-        p.style.animationDuration = duration + "s";
-        p.style.animationDelay = Math.random() * 0.3 + "s";
-        layer.appendChild(p);
-        setTimeout(() => p.remove(), duration * 1000);
+        const piece = document.createElement("div");
+        piece.className = "confetti-piece";
+        piece.style.left = Math.random() * 100 + "vw";
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDuration= (2.5 + Math.random() * 2) + "s";
+        piece.style.animationDelay = (Math.random() * 0.6) + "s";
+        layer.appendChild(piece);
+        piece.addEventListener("animationend", () => piece.remove());
     }
 }
+const today = new Date();
+if (today.getDate() === 31 && today.getMonth() === 4) {
+    setTimeout(() => launchConfetti(160), 600);
+    setTimeout(() => launchConfetti(160), 1800);
+}
 
-// Background Canvas Animation
+/* ═══════════════ LIVE PRESENCE ═══════════════ */
+const sessionId = Math.random().toString(36).slice(2);
+const sessionRef = ref(db, "presence/" + sessionId);
+const connectedRef = ref(db, ".info/connected");
+const presenceRef = ref(db, "presence");
+const dot = document.getElementById("presence-dot");
+const countEl = document.getElementById("presence-count");
+const widget = document.getElementById("presence-fixed");
+
+onValue(connectedRef, snap => {
+    if (!snap.val()) return;
+    onDisconnect(sessionRef).remove();
+    set(sessionRef, { t: Date.now() });
+    addSecurityLog("Session im Netz verschlüsselt.");
+});
+
+onValue(presenceRef, snap => {
+    const count = snap.exists() ? Object.keys(snap.val()).length : 0;
+    if (count <= 1) {
+        countEl.textContent = "> SYSTEM: ALONE";
+        dot.style.background = "#777";
+        dot.style.animation = "pulse-dim 2s infinite";
+    } else {
+        countEl.textContent = `> USERS_ONLINE: ${count}`;
+        dot.style.background = "#00ffcc";
+        dot.style.animation = "pulse-green 1.6s infinite";
+    }
+});
+
+// STATUS MODAL LOGIK
+const overlay = document.getElementById("statusOverlay");
+const openBtn = document.getElementById("presence-fixed");
+const closeBtn = document.getElementById("closeStatus");
+openBtn.addEventListener("click", () => {
+    overlay.classList.add("active");
+    addSecurityLog("Verbindung zum Sicherheits-Hub hergestellt.");
+    calcLatency();
+    updatePerformanceData();
+});
+closeBtn.addEventListener("click", () => {
+    overlay.classList.remove("active");
+});
+
+overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) {
+        overlay.classList.remove("active");
+    }
+});
+
+// Latenz ermitteln
+function calcLatency() {
+    const start = Date.now();
+    const pingRef = ref(db, ".info/connected");
+    get(pingRef).then(() => {
+        const end = Date.now();
+        const latency = end - start;
+        const pingEl = document.getElementById("db-ping");
+        pingEl.textContent = `${latency} ms`;
+        if (latency < 150) {
+            pingEl.style.color = "#00ffcc";
+        } else if (latency < 350) {
+            pingEl.style.color = "#ffaa00";
+        } else {
+            pingEl.style.color = "#ff4444";
+        }
+    }).catch(() => {
+        document.getElementById("db-ping").textContent = "TIMEOUT";
+    });
+}
+
+// Pseudo CPU & RAM Auslastung (zur Veranschaulichung der Systemleistung)
+function updatePerformanceData() {
+    const cpu = Math.floor(Math.random() * 14) + 2;
+    const ram = (Math.random() * 0.4 + 1.1).toFixed(2);
+    document.getElementById("server-load").textContent = `CPU: ${cpu}% | RAM: ${ram} GB`;
+}
+setInterval(() => {
+    if (overlay.classList.contains("active")) {
+        updatePerformanceData();
+    }
+}, 3000);
+
+/* ═══════════════ BLUME UND INTERAKTION ═══════════════ */
+const STATE_KEY = "plant_data";
+let plant = {
+    level: 1,
+    waterCount: 0,
+    lastWatered: null
+};
+const levels = [
+    { name: "Samenkorn", req: 0, scale: 0.35, stem: 60, l: [0,0,0,0,0,0], fl: 0 },
+    { name: "Keimling", req: 3, scale: 0.55, stem: 54, l: [0.4,0.4,0,0,0,0], fl: 0 },
+    { name: "Zarter Trieb", req: 10, scale: 0.75, stem: 48, l: [0.7,0.7,0.4,0.4,0,0], fl: 0 },
+    { name: "Kleine Pflanze", req: 25, scale: 0.9, stem: 42, l: [1,1,0.8,0.8,0.4,0.4], fl: 0 },
+    { name: "Prächtiges Gewächs", req: 50, scale: 1.0, stem: 38, l: [1,1,1,1,0.8,0.8], fl: 0 },
+    { name: "Blühender Cyber-Baum", req: 100, scale: 1.12, stem: 32, l: [1,1,1,1,1,1], fl: 1 }
+];
+
+function loadPlant() {
+    const data = localStorage.getItem(STATE_KEY);
+    if (data) {
+        try {
+            plant = JSON.parse(data);
+        } catch(e) {}
+    }
+    applyPlantState();
+}
+
+function savePlant() {
+    localStorage.setItem(STATE_KEY, JSON.stringify(plant));
+}
+
+function getCurrentLevel() {
+    let current = levels[0];
+    for (const lvl of levels) {
+        if (plant.waterCount >= lvl.req) {
+            current = lvl;
+        }
+    }
+    return current;
+}
+
+function applyPlantState(withSproutEffect = false) {
+    const cur = getCurrentLevel();
+    const hitD = document.getElementById("hit-desktop");
+    const hitM = document.getElementById("hit-mobile");
+    const toast = document.getElementById("plant-toast");
+    const tNum = document.getElementById("pt-num");
+    const tSub = document.getElementById("pt-sub");
+
+    tNum.textContent = `${plant.waterCount}×`;
+    tSub.textContent = `Stufe: ${cur.name} 💧`;
+    const svgD = hitD.querySelector(".plant-svg");
+    const svgM = hitM.querySelector(".plant-svg");
+
+    [svgD, svgM].forEach(svg => {
+        if (!svg) return;
+        svg.style.transform = `scale(${cur.scale})`;
+        
+        const stem = svg.querySelector("#p-stem") || document.getElementById("p-stem");
+        if (stem) stem.setAttribute("y2", cur.stem);
+
+        cur.l.forEach((opacity, index) => {
+            const leaf = svg.querySelector(`#p-l${index+1}`) || document.getElementById(`` + `p-l${index+1}`);
+            if (leaf) leaf.style.opacity = opacity;
+        });
+
+        const flower = svg.querySelector("#p-flower") || document.getElementById("p-flower");
+        if (flower) flower.style.opacity = cur.fl;
+
+        if (withSproutEffect) {
+            svg.classList.remove("sprouting");
+            void svg.offsetWidth;
+            svg.classList.add("sprouting");
+            svg.addEventListener("animationend", () => svg.classList.remove("sprouting"), { once:true });
+        }
+    });
+}
+
+function showToast() {
+    const toast = document.getElementById("plant-toast");
+    toast.classList.add("show");
+    if (toast.timeout) clearTimeout(toast.timeout);
+    toast.timeout = setTimeout(() => toast.classList.remove("show"), 2800);
+}
+
+function spawnStagePop(x, y, text) {
+    const pop = document.createElement("div");
+    pop.className = "stage-pop";
+    pop.textContent = text;
+    pop.style.left = `${x}px`;
+    pop.style.top = `${y}px`;
+    document.body.appendChild(pop);
+    pop.addEventListener("animationend", () => pop.remove());
+}
+
+function waterPlant(e) {
+    e.preventDefault();
+    const hit = e.currentTarget;
+    const isDesktop = hit.id === "hit-desktop";
+    const rect = hit.getBoundingClientRect();
+    // Wassertropfen erstellen
+    const drop = document.createElement("div");
+    drop.className = "wdrop";
+    drop.textContent = "💧";
+    hit.appendChild(drop);
+    drop.addEventListener("animationend", () => drop.remove());
+
+    const oldLvl = getCurrentLevel();
+    plant.waterCount++;
+    plant.lastWatered = Date.now();
+    savePlant();
+
+    const newLvl = getCurrentLevel();
+    const leveledUp = oldLvl.name !== newLvl.name;
+
+    setTimeout(() => {
+        applyPlantState(leveledUp);
+        showToast();
+        bouncePlant(hit);
+
+        if (leveledUp) {
+            launchConfetti(60);
+            const popX = rect.left + rect.width / 2;
+            const popY = rect.top;
+            
+            spawnStagePop(popX, popY, `UPGRADE: ${newLvl.name.toUpperCase()}!`);
+            addSecurityLog(`PFLANZE: Entwickelt zu "${newLvl.name}"!`);
+        }
+    }, 550);
+}
+
+function bouncePlant(hit) {
+    const svg = hit.querySelector(".plant-svg");
+    if (!svg) return;
+    svg.classList.remove("bouncing");
+    void svg.offsetWidth;
+    svg.classList.add("bouncing");
+    svg.addEventListener("animationend", () => svg.classList.remove("bouncing"), { once:true });
+}
+
+document.getElementById("hit-desktop").addEventListener("click", waterPlant);
+document.getElementById("hit-mobile").addEventListener("click", waterPlant);
+loadPlant();
+</script>
+
+<script>
 const canvas = document.getElementById("bg");
 const ctx    = canvas.getContext("2d");
-let dpr = window.devicePixelRatio || 1;
 
+let dpr = window.devicePixelRatio || 1;
 function resize() {
     dpr = window.devicePixelRatio || 1;
     canvas.width  = window.innerWidth * dpr;
@@ -1166,7 +1261,6 @@ for (let i = 0; i < particleCount; i++) {
 function animate() {
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
     ctx.fillStyle = "#00ffcc";
-    
     for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
         ctx.beginPath();
@@ -1175,14 +1269,14 @@ function animate() {
         
         p.x += p.dx;
         p.y += p.dy;
-        
-        if (p.x < 0 || p.x > window.innerWidth)  p.dx *= -1;
-        if (p.y < 0 || p.y > window.innerHeight) p.dy *= -1;
+        if (p.x < 0) p.x = window.innerWidth;
+        if (p.x > window.innerWidth) p.x = 0;
+        if (p.y < 0) p.y = window.innerHeight;
+        if (p.y > window.innerHeight) p.y = 0;
     }
     requestAnimationFrame(animate);
 }
 animate();
 </script>
-
 </body>
 </html>
