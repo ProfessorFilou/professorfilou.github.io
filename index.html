@@ -20,6 +20,11 @@ body{
     overflow-x:hidden;
     color:#00ffcc;
     min-height:100vh;
+    /* NEU: Verhindert das Markieren und Kopieren von Texten */
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 canvas{
@@ -58,14 +63,6 @@ h1{
     background:#00ffcc;
     margin:22px auto;
     box-shadow:0 0 15px #00ffcc;
-}
-
-.text{
-    color:#8ab4f8;
-    line-height:1.8;
-    font-size:clamp(16px,4vw,22px);
-    text-shadow: 0 0 5px rgba(138, 180, 248, 0.3);
-    font-weight: 500;
 }
 
 .socials{
@@ -744,10 +741,6 @@ h1{
     <h1>ProfessorFilou</h1>
     <div class="line"></div>
 
-    <div class="text">
-        ⚡ SECURE MINECRAFT LAB ⚡
-    </div>
-
     <div class="socials">
         <a class="social" href="https://github.com/professorfilou" target="_blank" rel="noopener noreferrer">
             <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" alt="GitHub">
@@ -889,6 +882,44 @@ document.addEventListener("keydown", (e) => {
         addSecurityLog("SYS: Tastenkombination blockiert.", true);
     }
 });
+
+// NEUE SCHUTZIDEE: Rechtsklick-Sperre (Löst sofort Lockdown aus!)
+document.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    triggerLockdown();
+    addSecurityLog("SYS: Rechtsklick erkannt & abgefangen.", true);
+});
+
+// NEUE SCHUTZIDEE: Verhindert das Herausziehen (Drag) von Bildern und Links
+document.addEventListener("dragstart", (e) => {
+    e.preventDefault();
+});
+
+// NEUE SCHUTZIDEE: iFrame-Buster (Verhindert Clickjacking auf fremden Seiten)
+if (window.self !== window.top) {
+    try {
+        window.top.location = window.self.location;
+    } catch (e) {
+        document.body.innerHTML = "<h1>SECURE SANDBOX BLOCK</h1>";
+    }
+}
+
+// NEUE SCHUTZIDEE: Konsolen-Methoden-Sabotage
+const forbidConsole = () => {
+    const keys = ['log', 'debug', 'info', 'warn', 'error', 'dir', 'table', 'clear'];
+    keys.forEach(key => {
+        try {
+            Object.defineProperty(console, key, {
+                get: () => () => {
+                    triggerLockdown();
+                    return "Du kommst hier nicht rein!";
+                },
+                set: () => {}
+            });
+        } catch(e) {}
+    });
+};
+forbidConsole();
 
 
 /* ═══════════════ BESUCHERZÄHLER ═══════════════ */
@@ -1107,7 +1138,7 @@ let everClicked = false;
 let drownPlayed = false;
 
 onValue(plantRef, snap => {
-    if (isOffline) return; // Verhindert Aktualisierung im gesperrten Zustand
+    if (isOffline) return;
     const raw = snap.val() || 0;
     const atDrownPoint = raw > 0 && raw % DROWN_AT === 0;
     waterCount = raw % DROWN_AT;
