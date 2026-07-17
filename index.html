@@ -12,7 +12,8 @@
     margin:0;
     padding:0;
     box-sizing:border-box;
-    font-family:'Courier New', Courier, monospace, Arial, sans-serif;
+    /* Wieder auf moderne, cleane System-Schriftarten zurückgesetzt */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 body{
@@ -47,6 +48,7 @@ h1{
     animation:glow 2s infinite alternate;
     max-width:100%;
     overflow-wrap:anywhere;
+    font-weight: 800;
 }
 
 .line{
@@ -62,6 +64,7 @@ h1{
     line-height:1.8;
     font-size:clamp(16px,4vw,22px);
     text-shadow: 0 0 5px rgba(138, 180, 248, 0.3);
+    font-weight: 500;
 }
 
 .socials{
@@ -103,6 +106,7 @@ h1{
     color:#00ffcc;
     letter-spacing:2px;
     text-shadow: 0 0 8px rgba(0,255,204,0.4);
+    font-weight: 700;
 }
 
 .projects{
@@ -123,6 +127,7 @@ h1{
     transition:0.3s;
     backdrop-filter:blur(8px);
     font-size:17px;
+    font-weight: 600;
 }
 
 .project-btn:hover{
@@ -176,7 +181,7 @@ h1{
     100% { transform:translateY(105vh) rotate(720deg); opacity:1; }
 }
 
-/* ════ CYBER PRESENCE WIDGET (Unten Rechts) ════ */
+/* ════ CYBER PRESENCE WIDGET ════ */
 #presence-fixed{
     position:fixed;
     bottom:24px;
@@ -196,6 +201,8 @@ h1{
     user-select:none;
     transition:all 0.3s ease;
     box-shadow: 0 0 10px rgba(0, 255, 204, 0.1);
+    font-weight: 700;
+    letter-spacing: 0.5px;
 }
 
 #presence-fixed:hover {
@@ -208,7 +215,6 @@ h1{
 #presence-dot{
     width:8px;
     height:8px;
-    border-radius:0%; /* Quadratisch für Retro-Terminal-Look */
     background:#444;
     display:inline-block;
     flex-shrink:0;
@@ -251,7 +257,7 @@ h1{
     border: 2px solid #00ffcc;
     box-shadow: 0 0 40px rgba(0, 255, 204, 0.25), inset 0 0 20px rgba(0, 255, 204, 0.1);
     width: min(500px, 95vw);
-    border-radius: 8px; /* Eckiger, industrieller Look */
+    border-radius: 8px;
     padding: 24px;
     text-align: left;
     transform: translateY(20px);
@@ -287,9 +293,9 @@ h1{
 
 .status-title {
     color: #00ffcc;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: bold;
-    letter-spacing: 1.5px;
+    letter-spacing: 1px;
     text-transform: uppercase;
 }
 
@@ -297,11 +303,13 @@ h1{
     background: none;
     border: 1px solid #00ffcc;
     color: #00ffcc;
-    font-size: 14px;
-    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 4px 10px;
     cursor: pointer;
     transition: all 0.2s;
     text-transform: uppercase;
+    border-radius: 3px;
 }
 
 .status-close:hover {
@@ -330,6 +338,7 @@ h1{
     color: #8ab4f8;
     font-size: 13px;
     text-transform: uppercase;
+    font-weight: 600;
 }
 
 .status-value {
@@ -378,7 +387,9 @@ h1{
 .sec-log-box {
     height: 90px;
     overflow-y: auto;
-    font-size: 10px;
+    font-size: 11px;
+    /* Konsolen-Logs in Monospace für echten CLI-Vibe */
+    font-family: 'Courier New', Courier, monospace;
     color: #a5d6a7;
     line-height: 1.4;
     display: flex;
@@ -396,7 +407,7 @@ h1{
     color: #ffaa00;
 }
 
-/* ════ PLANT (Top Right für Desktop) ════ */
+/* ════ PLANT ════ */
 #plant-fixed{
     position:fixed;
     top:20px;
@@ -755,27 +766,23 @@ function addSecurityLog(message, isWarning = false) {
 }
 
 
-/* ═══════════════ DETECT INTERFERENCE (SCHMARRN DETECTOR) ═══════════════ */
-
-// Verhindert das Ausführen von manipulativer Logik, indem es einen unendlichen Debugger-Loop triggert,
-// sobald jemand F12 gedrückt hält oder das Konsolen-Panel öffnet.
+/* ═══════════════ DETECT INTERFERENCE (ANTI-DEVTOOLS LOOP) ═══════════════ */
 setInterval(function() {
     const start = performance.now();
-    debugger; // Wenn DevTools offen sind, stoppt der Browser hier.
+    debugger; // Wenn Console offen ist, pausiert das Skript hier
     const end = performance.now();
     if (end - start > 100) {
-        addSecurityLog("WARNUNG: Debugger-Interferenz entdeckt!", true);
+        addSecurityLog("WARNUNG: Entwicklerkonsole manipuliert!", true);
     }
 }, 1000);
 
 // Tastenkombinationen blockieren
 document.addEventListener("keydown", (e) => {
-    // Blockiert F12, Strg+Shift+I, Strg+Shift+J, Strg+U
     if (e.key === "F12" || 
         (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J")) || 
         (e.ctrlKey && e.key === "u")) {
         e.preventDefault();
-        addSecurityLog("VERSUCH: Unzulässige Tastenkombination geblockt.", true);
+        addSecurityLog("SYS: Unerlaubte Tastenkombination blockiert.", true);
     }
 });
 
@@ -836,18 +843,18 @@ onValue(connectedRef, snap => {
     if (!snap.val()) return;
     onDisconnect(sessionRef).remove();
     set(sessionRef, { t: Date.now() });
-    addSecurityLog("Session im dezentralen Netzwerk registriert.");
+    addSecurityLog("Session im Netzwerk verifiziert.");
 });
 
 onValue(presenceRef, snap => {
     const count = snap.exists() ? Object.keys(snap.val()).length : 0;
 
     if (count <= 1) {
-        countEl.textContent  = "> SYSTEM_ONLY_YOU";
+        countEl.textContent  = "> CORES_ALONE";
         dot.style.background = "#ffaa00";
         dot.style.animation  = "pulse-dim 2s ease infinite";
     } else {
-        countEl.textContent  = `> ACTIVE_USERS: 0${count}`;
+        countEl.textContent  = `> CORES_CONNECTED: 0${count}`;
         dot.style.background = "#00ffcc";
         dot.style.animation  = "pulse-green 1s ease infinite";
     }
@@ -866,7 +873,7 @@ const serverLoad = document.getElementById("server-load");
 openBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     overlay.classList.add("active");
-    addSecurityLog("Status-Konsole geöffnet.");
+    addSecurityLog("Status-Konsole gestartet.");
     startPingMeasurement();
     startRealPerformanceTracking();
 });
@@ -881,14 +888,12 @@ overlay.addEventListener("click", (e) => {
     }
 });
 
-// ESC-Taste schließt das Terminal
 document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && overlay.classList.contains("active")) {
         overlay.classList.remove("active");
     }
 });
 
-// Firebase Status-Überwachung
 onValue(connectedRef, (snap) => {
     const indicator = dbStatus.querySelector(".status-indicator");
     if (snap.val() === true) {
@@ -900,11 +905,10 @@ onValue(connectedRef, (snap) => {
         dbStatusText.textContent = "DISCONNECTED";
         dbStatus.style.color = "#ff4444";
         dbPing.textContent = "OFFLINE";
-        addSecurityLog("Datenbank-Verbindung unterbrochen!", true);
+        addSecurityLog("DB-Verbindung getrennt!", true);
     }
 });
 
-// Ping-Messung
 function startPingMeasurement() {
     if (!overlay.classList.contains("active")) return;
     
@@ -913,7 +917,7 @@ function startPingMeasurement() {
         const ping = Date.now() - startTime;
         dbPing.textContent = ping + " ms";
         dbPing.style.color = ping < 150 ? "#00ffcc" : "#ff4444";
-        setTimeout(startPingMeasurement, 5000); // Messung alle 5 Sek
+        setTimeout(startPingMeasurement, 5000);
     }).catch(() => {
         dbPing.textContent = "TIMEOUT";
     });
