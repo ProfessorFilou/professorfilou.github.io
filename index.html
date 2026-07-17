@@ -292,7 +292,7 @@ h1{
     display: block;
     position: absolute;
     top: 0; left: 0; bottom: 0; right: 0;
-    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.05));
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.01), rgba(0, 255, 0, 0.05));
     z-index: 2;
     background-size: 100% 4px, 6px 100%;
     pointer-events: none;
@@ -804,7 +804,7 @@ h1{
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getDatabase, ref, runTransaction, onValue, get, remove, set, onDisconnect } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { getDatabase, ref, onValue, get, remove, set, onDisconnect, ServerValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 const firebaseConfig = { 
     apiKey: "AIzaSyCAh2AsbxLqU2Gx9s0YbZo8PR4fpG3WDw8", 
@@ -953,10 +953,12 @@ const SITE_BORN = new Date("2026-05-31T00:00:00");
 const visitsRef = ref(db, "visits/total");
 const visitEl = document.getElementById("visit-count");
 
-// Erhöht den globalen Counter sicher um 1
-runTransaction(visitsRef, cur => (cur || 0) + 1);
+// Erhöht den globalen Counter absolut sicher direkt auf dem Server um 1
+set(visitsRef, ServerValue.increment(1)).catch(err => {
+    addSecurityLog("Besucher-Inkrement fehlgeschlagen: " + err.message, true);
+});
 
-// Holt den aktualisierten Wert ab
+// Holt den aktualisierten Wert ab und zeigt ihn an
 onValue(visitsRef, snap => {
     visitEl.textContent = (snap.val() || 0).toLocaleString("de-DE");
 });
