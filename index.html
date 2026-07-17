@@ -3,23 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ProfessorFilou</title>
+<title>ProfessorFilou | Secure Terminal</title>
 
 <link rel="icon" type="image/jpeg" href="ProfessorFilouLOGO.jpg">
 
 <style>
-
 *{
     margin:0;
     padding:0;
     box-sizing:border-box;
-    font-family:Arial, Helvetica, sans-serif;
+    font-family:'Courier New', Courier, monospace, Arial, sans-serif;
 }
 
 body{
-    background:#050505;
+    background:#020204;
     overflow-x:hidden;
-    color:white;
+    color:#00ffcc;
     min-height:100vh;
 }
 
@@ -40,10 +39,11 @@ canvas{
 }
 
 h1{
-    font-size:clamp(42px,8vw,100px);
+    font-size:clamp(38px,7vw,90px);
     line-height:1;
-    letter-spacing:clamp(1px,0.5vw,6px);
-    text-shadow:0 0 10px #00ffcc,0 0 20px #00ffcc,0 0 40px #00ffcc;
+    letter-spacing:clamp(2px,0.8vw,8px);
+    color: #00ffcc;
+    text-shadow:0 0 10px #00ffcc, 0 0 30px rgba(0, 255, 204, 0.6);
     animation:glow 2s infinite alternate;
     max-width:100%;
     overflow-wrap:anywhere;
@@ -58,9 +58,10 @@ h1{
 }
 
 .text{
-    color:#bfbfbf;
+    color:#8ab4f8;
     line-height:1.8;
     font-size:clamp(16px,4vw,22px);
+    text-shadow: 0 0 5px rgba(138, 180, 248, 0.3);
 }
 
 .socials{
@@ -75,23 +76,25 @@ h1{
     width:74px;
     height:74px;
     border-radius:20px;
-    background:rgba(255,255,255,0.05);
+    background:rgba(0, 255, 204, 0.02);
     display:flex;
     justify-content:center;
     align-items:center;
-    border:1px solid rgba(255,255,255,0.08);
+    border:1px solid rgba(0, 255, 204, 0.15);
     transition:0.3s;
 }
 
 .social:hover{
     transform:translateY(-5px) scale(1.05);
-    box-shadow:0 0 15px #00ffcc,0 0 35px rgba(0,255,204,0.5);
+    box-shadow:0 0 15px #00ffcc,0 0 35px rgba(0,255,204,0.3);
+    border-color: #00ffcc;
 }
 
 .social img{
     width:38px;
     height:38px;
     object-fit:contain;
+    filter: drop-shadow(0 0 5px rgba(0, 255, 204, 0.5));
 }
 
 .projects-title{
@@ -99,6 +102,7 @@ h1{
     font-size:clamp(26px,6vw,34px);
     color:#00ffcc;
     letter-spacing:2px;
+    text-shadow: 0 0 8px rgba(0,255,204,0.4);
 }
 
 .projects{
@@ -114,8 +118,8 @@ h1{
     border-radius:18px;
     text-decoration:none;
     color:white;
-    background:rgba(255,255,255,0.05);
-    border:1px solid rgba(255,255,255,0.08);
+    background:rgba(0, 255, 204, 0.02);
+    border:1px solid rgba(0, 255, 204, 0.15);
     transition:0.3s;
     backdrop-filter:blur(8px);
     font-size:17px;
@@ -130,13 +134,13 @@ h1{
 
 .footer{
     margin-top:55px;
-    color:#666;
+    color:#555;
     font-size:14px;
 }
 
 .footer-info{
     margin-top:14px;
-    color:#777;
+    color:#666;
     font-size:13px;
     line-height:1.9;
 }
@@ -146,8 +150,8 @@ h1{
 }
 
 @keyframes glow{
-    from{text-shadow:0 0 10px #00ffcc,0 0 20px #00ffcc;}
-    to{text-shadow:0 0 20px #00ffcc,0 0 40px #00ffcc,0 0 80px #00ffcc;}
+    from{text-shadow:0 0 10px #00ffcc,0 0 20px rgba(0, 255, 204, 0.4);}
+    to{text-shadow:0 0 20px #00ffcc,0 0 40px rgba(0, 255, 204, 0.8),0 0 80px rgba(0, 255, 204, 0.2);}
 }
 
 /* ══ Konfetti ══ */
@@ -172,7 +176,7 @@ h1{
     100% { transform:translateY(105vh) rotate(720deg); opacity:1; }
 }
 
-/* ════ PRESENCE (Unten Rechts für Desktop) ════ */
+/* ════ CYBER PRESENCE WIDGET (Unten Rechts) ════ */
 #presence-fixed{
     position:fixed;
     bottom:24px;
@@ -180,30 +184,31 @@ h1{
     z-index:300;
     display:flex;
     align-items:center;
-    gap:8px;
-    background:rgba(255,255,255,0.05);
-    border:1px solid rgba(255,255,255,0.08);
-    border-radius:20px;
-    padding:7px 14px;
-    backdrop-filter:blur(8px);
-    font-size:13px;
-    color:#bfbfbf;
+    gap:10px;
+    background:rgba(2, 2, 4, 0.85);
+    border:1px dashed rgba(0, 255, 204, 0.3);
+    border-radius:4px;
+    padding:10px 18px;
+    backdrop-filter:blur(10px);
+    font-size:12px;
+    color:#00ffcc;
     cursor:pointer;
     user-select:none;
     transition:all 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 255, 204, 0.1);
 }
 
 #presence-fixed:hover {
-    background:rgba(0, 255, 204, 0.08);
-    border-color:rgba(0, 255, 204, 0.4);
-    color:white;
+    background:rgba(0, 255, 204, 0.1);
+    border:1px solid #00ffcc;
+    box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
     transform:scale(1.03);
 }
 
 #presence-dot{
-    width:9px;
-    height:9px;
-    border-radius:50%;
+    width:8px;
+    height:8px;
+    border-radius:0%; /* Quadratisch für Retro-Terminal-Look */
     background:#444;
     display:inline-block;
     flex-shrink:0;
@@ -221,12 +226,12 @@ h1{
     100% { box-shadow:0 0 0 0 rgba(120,120,120,0); }
 }
 
-/* ════ STATUS POPUP ════ */
+/* ════ CYBER SECURITY POPUP ════ */
 .status-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(10px);
+    background: rgba(1, 1, 3, 0.92);
+    backdrop-filter: blur(15px);
     z-index: 10000;
     display: flex;
     justify-content: center;
@@ -242,48 +247,67 @@ h1{
 }
 
 .status-modal {
-    background: rgba(10, 10, 10, 0.95);
-    border: 1px solid rgba(0, 255, 204, 0.3);
-    box-shadow: 0 0 30px rgba(0, 255, 204, 0.15);
-    width: min(420px, 90vw);
-    border-radius: 24px;
+    background: #040408;
+    border: 2px solid #00ffcc;
+    box-shadow: 0 0 40px rgba(0, 255, 204, 0.25), inset 0 0 20px rgba(0, 255, 204, 0.1);
+    width: min(500px, 95vw);
+    border-radius: 8px; /* Eckiger, industrieller Look */
     padding: 24px;
     text-align: left;
-    transform: scale(0.9);
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform: translateY(20px);
+    transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Scanline-Effekt auf dem Popup */
+.status-modal::before {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    z-index: 2;
+    background-size: 100% 4px, 6px 100%;
+    pointer-events: none;
 }
 
 .status-overlay.active .status-modal {
-    transform: scale(1);
+    transform: translateY(0);
 }
 
 .status-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 2px double #00ffcc;
     padding-bottom: 14px;
     margin-bottom: 18px;
 }
 
 .status-title {
     color: #00ffcc;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
-    letter-spacing: 0.5px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
 }
 
 .status-close {
     background: none;
-    border: none;
-    color: #666;
-    font-size: 22px;
+    border: 1px solid #00ffcc;
+    color: #00ffcc;
+    font-size: 14px;
+    padding: 2px 8px;
     cursor: pointer;
-    transition: color 0.2s;
+    transition: all 0.2s;
+    text-transform: uppercase;
 }
 
 .status-close:hover {
-    color: #00ffcc;
+    background: #00ffcc;
+    color: #020204;
+    box-shadow: 0 0 10px #00ffcc;
 }
 
 .status-grid {
@@ -296,30 +320,30 @@ h1{
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(0, 255, 204, 0.02);
     padding: 10px 14px;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 4px;
+    border: 1px solid rgba(0, 255, 204, 0.15);
 }
 
 .status-label {
-    color: #999;
-    font-size: 14px;
+    color: #8ab4f8;
+    font-size: 13px;
+    text-transform: uppercase;
 }
 
 .status-value {
     color: white;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 13px;
     display: flex;
     align-items: center;
     gap: 6px;
 }
 
 .status-indicator {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
+    width: 6px;
+    height: 6px;
     display: inline-block;
 }
 
@@ -331,6 +355,45 @@ h1{
 .status-indicator.red {
     background: #ff4444;
     box-shadow: 0 0 8px #ff4444;
+}
+
+/* Live Security Console Log */
+.sec-log-container {
+    margin-top: 18px;
+    background: #010102;
+    border: 1px solid rgba(0, 255, 204, 0.3);
+    border-radius: 4px;
+    padding: 10px;
+}
+
+.sec-log-title {
+    font-size: 11px;
+    color: #ff4444;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.sec-log-box {
+    height: 90px;
+    overflow-y: auto;
+    font-size: 10px;
+    color: #a5d6a7;
+    line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sec-log-entry {
+    border-left: 2px solid #00ffcc;
+    padding-left: 6px;
+}
+
+.sec-log-entry.warn {
+    border-color: #ffaa00;
+    color: #ffaa00;
 }
 
 /* ════ PLANT (Top Right für Desktop) ════ */
@@ -516,37 +579,45 @@ h1{
 
 <div id="presence-fixed">
     <span id="presence-dot"></span>
-    <span id="presence-count">–</span>
+    <span id="presence-count">TERMINAL INITIALIZING...</span>
 </div>
 
 <div class="status-overlay" id="statusOverlay">
     <div class="status-modal" id="statusModal">
         <div class="status-header">
-            <div class="status-title">📡 Live-Systemstatus</div>
-            <button class="status-close" id="closeStatus" aria-label="Schließen">&times;</button>
+            <div class="status-title">> SECURE_CORE_LIVE_STATUS</div>
+            <button class="status-close" id="closeStatus" aria-label="Abbrechen">EXIT</button>
         </div>
         <div class="status-grid">
             <div class="status-item">
-                <span class="status-label">Datenbank-Verbindung</span>
+                <span class="status-label">DB CON_STATE</span>
                 <span class="status-value" id="db-status">
-                    <span class="status-indicator green"></span> <span id="db-status-text">Verbunden</span>
+                    <span class="status-indicator green"></span> <span id="db-status-text">SECURE</span>
                 </span>
             </div>
             <div class="status-item">
-                <span class="status-label">Datenbank-Ping</span>
-                <span class="status-value" id="db-ping">berechnet...</span>
+                <span class="status-label">SYS_LATENCY</span>
+                <span class="status-value" id="db-ping">CALCULATING...</span>
             </div>
             <div class="status-item">
-                <span class="status-label">Website-Stabilität</span>
-                <span class="status-value" style="color: #00ffcc;">99.98% (Optimal)</span>
+                <span class="status-label">INTEGRITY_INDEX</span>
+                <span class="status-value" style="color: #00ffcc;">99.98% (ENCRYPTED)</span>
             </div>
             <div class="status-item">
-                <span class="status-label">Server Host</span>
-                <span class="status-value" style="color: #aaa; font-family: monospace;">Firebase Realtime DB</span>
+                <span class="status-label">HOST_PROVIDER</span>
+                <span class="status-value" style="color: #8ab4f8;">Firebase RT-DB v11</span>
             </div>
             <div class="status-item">
-                <span class="status-label">Auslastung (Echtzeit)</span>
-                <span class="status-value" id="server-load" style="color: #66bb6a;">CPU: -- | RAM: --</span>
+                <span class="status-label">SYS_PERFORMANCE</span>
+                <span class="status-value" id="server-load" style="color: #00ffcc;">CPU: -- | RAM: --</span>
+            </div>
+        </div>
+
+        <div class="sec-log-container">
+            <div class="sec-log-title">> EVENT_SECURITY_LOG</div>
+            <div class="sec-log-box" id="securityLog">
+                <div class="sec-log-entry">[SYS] Sandbox-Verschlüsselung aktiv.</div>
+                <div class="sec-log-entry">[SYS] Firebase-Schnittstelle verriegelt.</div>
             </div>
         </div>
     </div>
@@ -568,29 +639,29 @@ h1{
 <svg style="display:none">
 <defs>
 <g id="plant-shape">
-    <rect x="20" y="65" width="28" height="17" rx="4"   fill="#5a3e28"/>
-    <rect x="15" y="60" width="38" height="8"  rx="3.5" fill="#7a5235"/>
-    <rect x="18" y="62" width="9"  height="3"  rx="2"   fill="rgba(255,255,255,0.13)"/>
+    <rect x="20" y="65" width="28" height="17" rx="4"   fill="#3a2517"/>
+    <rect x="15" y="60" width="38" height="8"  rx="1" fill="#4a311f"/>
+    <rect x="18" y="62" width="9"  height="3"  rx="1"   fill="rgba(0,255,204,0.25)"/>
     <line id="p-stem" x1="34" y1="60" x2="34" y2="40"
-          stroke="#2e7d32" stroke-width="3" stroke-linecap="round"
+          stroke="#00ffcc" stroke-width="3" stroke-linecap="round"
           style="transition:y2 1s ease;"/>
     <ellipse class="lf" id="p-l1" cx="23" cy="54" rx="12" ry="5"
-             fill="#2e7d32" transform="rotate(-34 23 54)" opacity="0.42"/>
+             fill="#00e6b8" transform="rotate(-34 23 54)" opacity="0.42"/>
     <ellipse class="lf" id="p-l2" cx="45" cy="50" rx="12" ry="5"
-             fill="#388e3c" transform="rotate(34 45 50)"  opacity="0.42"/>
+             fill="#00c8a0" transform="rotate(34 45 50)"  opacity="0.42"/>
     <ellipse class="lf" id="p-l3" cx="22" cy="46" rx="10" ry="4.2"
-             fill="#43a047" transform="rotate(-24 22 46)" opacity="0"/>
+             fill="#00b38f" transform="rotate(-24 22 46)" opacity="0"/>
     <ellipse class="lf" id="p-l4" cx="46" cy="42" rx="10" ry="4.2"
-             fill="#66bb6a" transform="rotate(24 46 42)"  opacity="0"/>
+             fill="#00997a" transform="rotate(24 46 42)"  opacity="0"/>
     <ellipse class="lf" id="p-l5" cx="25" cy="37" rx="8"  ry="3.5"
-             fill="#81c784" transform="rotate(-17 25 37)" opacity="0"/>
+             fill="#008066" transform="rotate(-17 25 37)" opacity="0"/>
     <ellipse class="lf" id="p-l6" cx="43" cy="33" rx="8"  ry="3.5"
-             fill="#a5d6a7" transform="rotate(17 43 33)"  opacity="0"/>
+             fill="#006652" transform="rotate(17 43 33)"  opacity="0"/>
     <g id="p-flower" opacity="0" style="transition:opacity 0.9s ease;">
-        <circle cx="34" cy="25" r="4"   fill="#f06292"/>
-        <circle cx="34" cy="17" r="4"   fill="#f06292"/>
-        <circle cx="41" cy="21" r="4"   fill="#f48fb1"/>
-        <circle cx="27" cy="21" r="4"   fill="#f48fb1"/>
+        <circle cx="34" cy="25" r="4"   fill="#ff0055"/>
+        <circle cx="34" cy="17" r="4"   fill="#ff0055"/>
+        <circle cx="41" cy="21" r="4"   fill="#ff3377"/>
+        <circle cx="27" cy="21" r="4"   fill="#ff3377"/>
         <circle cx="34" cy="21" r="5.5" fill="#fff176"/>
         <circle cx="34" cy="21" r="2.5" fill="#f9a825"/>
     </g>
@@ -598,14 +669,12 @@ h1{
 </defs>
 </svg>
 
-
 <div class="main">
-
     <h1>ProfessorFilou</h1>
     <div class="line"></div>
 
     <div class="text">
-        ❤️ Minecraft
+        ⚡ SECURE MINECRAFT LAB ⚡
     </div>
 
     <div class="socials">
@@ -620,7 +689,7 @@ h1{
         </a>
     </div>
 
-    <div class="projects-title">My Projects</div>
+    <div class="projects-title">SECURE_FILES</div>
 
     <div class="projects">
         <a class="project-btn" href="https://professorfilou.de/BankingGame"   target="_blank" rel="noopener noreferrer">BankGame</a>
@@ -640,7 +709,7 @@ h1{
         <a class="project-btn" href="https://professorfilou.de/SportRules"           target="_blank" rel="noopener noreferrer">SportRules</a>
     </div>
 
-    <div class="footer">© ProfessorFilou</div>
+    <div class="footer">© ProfessorFilou | SECURE CORE</div>
     <div class="footer-info">
         👀 <b id="visit-count">…</b> Besuche<br>
         🎂 Seite ist <b id="site-age">…</b> online
@@ -653,12 +722,9 @@ h1{
             </svg>
         </div>
     </div>
-
 </div>
 
-
 <script type="module">
-
 import { initializeApp }
     from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getDatabase, ref, runTransaction, onValue, get, remove, set, onDisconnect }
@@ -677,11 +743,45 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db  = getDatabase(app);
 
+// Event-Logger für unser Terminal-Display
+const logBox = document.getElementById("securityLog");
+function addSecurityLog(message, isWarning = false) {
+    const entry = document.createElement("div");
+    entry.className = `sec-log-entry ${isWarning ? 'warn' : ''}`;
+    const time = new Date().toTimeString().split(' ')[0];
+    entry.textContent = `[${time}] ${message}`;
+    logBox.appendChild(entry);
+    logBox.scrollTop = logBox.scrollHeight;
+}
+
+
+/* ═══════════════ DETECT INTERFERENCE (SCHMARRN DETECTOR) ═══════════════ */
+
+// Verhindert das Ausführen von manipulativer Logik, indem es einen unendlichen Debugger-Loop triggert,
+// sobald jemand F12 gedrückt hält oder das Konsolen-Panel öffnet.
+setInterval(function() {
+    const start = performance.now();
+    debugger; // Wenn DevTools offen sind, stoppt der Browser hier.
+    const end = performance.now();
+    if (end - start > 100) {
+        addSecurityLog("WARNUNG: Debugger-Interferenz entdeckt!", true);
+    }
+}, 1000);
+
+// Tastenkombinationen blockieren
+document.addEventListener("keydown", (e) => {
+    // Blockiert F12, Strg+Shift+I, Strg+Shift+J, Strg+U
+    if (e.key === "F12" || 
+        (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J")) || 
+        (e.ctrlKey && e.key === "u")) {
+        e.preventDefault();
+        addSecurityLog("VERSUCH: Unzulässige Tastenkombination geblockt.", true);
+    }
+});
+
 
 /* ═══════════════ BESUCHERZÄHLER ═══════════════ */
-
 const SITE_BORN = new Date("2026-05-31T00:00:00");
-
 const visitsRef = ref(db, "visits/total");
 const visitEl   = document.getElementById("visit-count");
 
@@ -723,7 +823,6 @@ if (today.getDate() === 31 && today.getMonth() === 4) {
 
 
 /* ═══════════════ LIVE PRESENCE ═══════════════ */
-
 const sessionId    = Math.random().toString(36).slice(2);
 const sessionRef   = ref(db, "presence/" + sessionId);
 const connectedRef = ref(db, ".info/connected");
@@ -737,35 +836,25 @@ onValue(connectedRef, snap => {
     if (!snap.val()) return;
     onDisconnect(sessionRef).remove();
     set(sessionRef, { t: Date.now() });
+    addSecurityLog("Session im dezentralen Netzwerk registriert.");
 });
 
 onValue(presenceRef, snap => {
     const count = snap.exists() ? Object.keys(snap.val()).length : 0;
 
     if (count <= 1) {
-        countEl.textContent  = "nur du hier";
-        dot.style.background = "#666";
-        dot.style.animation  = "pulse-dim 2.5s ease infinite";
-        widget.style.borderColor  = "rgba(255,255,255,0.08)";
-        widget.style.boxShadow    = "none";
-    } else if (count <= 3) {
-        countEl.textContent  = count + " gerade hier";
-        dot.style.background = "#00ffcc";
-        dot.style.animation  = "pulse-green 1.8s ease infinite";
-        widget.style.borderColor = "rgba(0,255,204,0.3)";
-        widget.style.boxShadow   = "0 0 12px rgba(0,255,204,0.15)";
+        countEl.textContent  = "> SYSTEM_ONLY_YOU";
+        dot.style.background = "#ffaa00";
+        dot.style.animation  = "pulse-dim 2s ease infinite";
     } else {
-        countEl.textContent  = count + " gerade hier 🔥";
+        countEl.textContent  = `> ACTIVE_USERS: 0${count}`;
         dot.style.background = "#00ffcc";
-        dot.style.animation  = "pulse-green 0.9s ease infinite";
-        widget.style.borderColor = "rgba(0,255,204,0.6)";
-        widget.style.boxShadow   = "0 0 20px rgba(0,255,204,0.35)";
+        dot.style.animation  = "pulse-green 1s ease infinite";
     }
 });
 
 
 /* ═══════════════ STATUS POPUP LOGIC ═══════════════ */
-
 const overlay = document.getElementById("statusOverlay");
 const openBtn = document.getElementById("presence-fixed");
 const closeBtn = document.getElementById("closeStatus");
@@ -774,10 +863,10 @@ const dbStatusText = document.getElementById("db-status-text");
 const dbPing = document.getElementById("db-ping");
 const serverLoad = document.getElementById("server-load");
 
-// Öffnen/Schließen Handler
 openBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     overlay.classList.add("active");
+    addSecurityLog("Status-Konsole geöffnet.");
     startPingMeasurement();
     startRealPerformanceTracking();
 });
@@ -792,33 +881,30 @@ overlay.addEventListener("click", (e) => {
     }
 });
 
-// Schließen über die ESC-Taste
+// ESC-Taste schließt das Terminal
 document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && overlay.classList.contains("active")) {
         overlay.classList.remove("active");
     }
 });
 
-// Echtzeit Verbindungsstatus via Firebase .info/connected (XSS-Sichere DOM-Manipulation)
+// Firebase Status-Überwachung
 onValue(connectedRef, (snap) => {
     const indicator = dbStatus.querySelector(".status-indicator");
     if (snap.val() === true) {
         indicator.className = "status-indicator green";
-        indicator.style.background = "#00ffcc";
-        indicator.style.boxShadow = "0 0 8px #00ffcc";
-        dbStatusText.textContent = " Verbunden";
+        dbStatusText.textContent = "CONNECTED (SECURE)";
         dbStatus.style.color = "#00ffcc";
     } else {
         indicator.className = "status-indicator red";
-        indicator.style.background = "#ff4444";
-        indicator.style.boxShadow = "0 0 8px #ff4444";
-        dbStatusText.textContent = " Getrennt";
+        dbStatusText.textContent = "DISCONNECTED";
         dbStatus.style.color = "#ff4444";
-        dbPing.textContent = "N/A";
+        dbPing.textContent = "OFFLINE";
+        addSecurityLog("Datenbank-Verbindung unterbrochen!", true);
     }
 });
 
-// Ping-Messung (Latenz zur Firebase Database berechnen)
+// Ping-Messung
 function startPingMeasurement() {
     if (!overlay.classList.contains("active")) return;
     
@@ -826,17 +912,10 @@ function startPingMeasurement() {
     get(ref(db, ".info/serverTimeOffset")).then(() => {
         const ping = Date.now() - startTime;
         dbPing.textContent = ping + " ms";
-        if (ping < 100) {
-            dbPing.style.color = "#00ffcc";
-        } else if (ping < 250) {
-            dbPing.style.color = "#fff176";
-        } else {
-            dbPing.style.color = "#ff4444";
-        }
-        // Regelmäßiges Update solange das Popup offen ist
-        setTimeout(startPingMeasurement, 3000);
+        dbPing.style.color = ping < 150 ? "#00ffcc" : "#ff4444";
+        setTimeout(startPingMeasurement, 5000); // Messung alle 5 Sek
     }).catch(() => {
-        dbPing.textContent = "Fehler";
+        dbPing.textContent = "TIMEOUT";
     });
 }
 
@@ -856,7 +935,6 @@ function monitorCPU() {
     let currentUsage = Math.max(0, Math.min(100, ((delay - expected) / expected) * 100));
     
     cpuUsage = Math.round(cpuUsage * 0.85 + currentUsage * 0.15);
-    
     requestAnimationFrame(monitorCPU);
 }
 
@@ -867,38 +945,27 @@ function updatePerformanceValues() {
     }
     
     const displayCPU = Math.max(1, cpuUsage);
-    
-    let displayRAM = "N/A";
+    let displayRAM = "BLOCKED";
     if (window.performance && performance.memory) {
         const usedMB = Math.round(performance.memory.usedJSHeapSize / (1024 * 1024));
-        const totalMB = Math.round(performance.memory.jsHeapLimit / (1024 * 1024));
-        displayRAM = `${usedMB}MB / ${totalMB}MB`;
+        displayRAM = `${usedMB} MB`;
     } else {
-        displayRAM = "~42 MB (Browser-Sperre)";
+        displayRAM = "RESTRICTED";
     }
     
     serverLoad.textContent = `CPU: ${displayCPU}% | RAM: ${displayRAM}`;
-    
-    if (displayCPU < 15) {
-        serverLoad.style.color = "#66bb6a"; 
-    } else if (displayCPU < 50) {
-        serverLoad.style.color = "#fff176"; 
-    } else {
-        serverLoad.style.color = "#ff4444"; 
-    }
+    serverLoad.style.color = displayCPU < 30 ? "#00ffcc" : "#ffaa00";
 }
 
 function startRealPerformanceTracking() {
     lastFrameTime = performance.now();
     requestAnimationFrame(monitorCPU);
-    
     clearInterval(perfInterval);
-    perfInterval = setInterval(updatePerformanceValues, 1000);
+    perfInterval = setInterval(updatePerformanceValues, 1500);
 }
 
 
 /* ═══════════════ PFLANZE ═══════════════ */
-
 function todayKey() {
     return "plant_" + new Date().toISOString().slice(0, 10);
 }
@@ -1017,10 +1084,10 @@ function playDrownAndRebirth() {
             }, { once:true });
         }, { once:true });
     });
-    flashCustom("💀 ERTRUNKEN → 🌱 NEU!");
+    flashCustom("💀 REBOOT PLANT!");
 }
 
-const stageText = { 2:"🌿 Neue Blätter!", 3:"🌱 Sie wächst!", 4:"🌸 Geblüht!" };
+const stageText = { 2:"🌿 LEVEL UP!", 3:"🌱 GROWTH DETECTED!", 4:"🌸 SYSTEM BLOOM!" };
 
 function flashStage(s) {
     if (!stageText[s]) return;
@@ -1044,17 +1111,17 @@ function showToast(n) {
     clearTimeout(toastTimer);
     ptNum.textContent = n + "×";
     let msg;
-    if       (n >= 100) msg = "Sie ist ertrunken 💀🌊";
-    else if (n >= 90)  msg = "Gleich zu viel… 😰💦";
-    else if (n >= 80)  msg = "Voll aufgeblüht! 🌸";
-    else if (n >= 70)  msg = "Wunderschön! 🌷";
-    else if (n >= 60)  msg = "Sie blüht auf! 🌺";
-    else if (n >= 50)  msg = "Halbzeit! 🌳";
-    else if (n >= 40)  msg = "Wird groß! 🌲";
-    else if (n >= 30)  msg = "Immer grüner! 🍃";
-    else if (n >= 20)  msg = "Neue Blätter! 🌿";
-    else if (n >= 10)  msg = "Sie wächst! 🌱";
-    else               msg = "Heute gegossen 💧";
+    if       (n >= 100) msg = "Core Overflow: Reset 💀";
+    else if (n >= 90)  msg = "Warning: Critical water levels 😰";
+    else if (n >= 80)  msg = "Bloom sequence complete 🌸";
+    else if (n >= 70)  msg = "Flora integrity high 🌷";
+    else if (n >= 60)  msg = "Structure developing 🌺";
+    else if (n >= 50)  msg = "Growth state: 50% 🌳";
+    else if (n >= 40)  msg = "Expansion phase active 🌲";
+    else if (n >= 30)  msg = "Photosynthesis optimal 🍃";
+    else if (n >= 20)  msg = "Organic components added 🌿";
+    else if (n >= 10)  msg = "Initiating growth state 🌱";
+    else               msg = "H2O-Inject successful 💧";
     ptSub.textContent = msg;
 
     if (window.innerWidth <= 600) {
@@ -1085,9 +1152,7 @@ function bounce(anchor) {
     svg.addEventListener("animationend",
         () => svg.classList.remove("bouncing"), { once:true });
 }
-
 </script>
-
 
 <script>
 const canvas = document.getElementById("bg");
