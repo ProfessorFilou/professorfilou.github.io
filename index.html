@@ -3,6 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="
+    default-src 'self'; 
+    script-src 'self' 'unsafe-inline' https://www.gstatic.com; 
+    connect-src 'self' https://professorfilou-e8eea-default-rtdb.firebaseio.com wss://*.firebaseio.com; 
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
+    font-src 'self' https://fonts.gstatic.com; 
+    img-src 'self' data: https://upload.wikimedia.org https://cdn-icons-png.flaticon.com;
+    frame-ancestors 'none';
+">
 <title>ProfessorFilou</title>
 
 <link rel="icon" type="image/jpeg" href="ProfessorFilouLOGO.jpg">
@@ -20,7 +29,7 @@ body{
     overflow-x:hidden;
     color:#00ffcc;
     min-height:100vh;
-    /* NEU: Verhindert das Markieren und Kopieren von Texten */
+    /* Verhindert das standardmäßige Markieren und Kopieren von Texten über CSS */
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -639,7 +648,7 @@ h1{
 
 <div id="devtools-blocker">
     <h2>[ ACCESS DENIED ]</h2>
-    <p>In die Dev Tools?<br>Du kommst hier nicht rein! Haha :)</p>
+    <p>In die Dev Tools?<br>Du kommst hier nicht rein!<br>Haha :)</p>
 </div>
 
 <canvas id="bg"></canvas>
@@ -758,7 +767,7 @@ h1{
     <div class="projects">
         <a class="project-btn" href="https://professorfilou.de/BankingGame"   target="_blank" rel="noopener noreferrer">BankGame</a>
         <a class="project-btn" href="https://professorfilou.de/EmojiClick/"         target="_blank" rel="noopener noreferrer">EmojiClick</a>
-        <a class="project-btn" href="https://professorfilou.de/DropDown/"            target="_blank" rel="noopener noreferrer">DropDown</a>
+        <a class="project-btn" href="https://professorfilou.de/DropDown/"         target="_blank" rel="noopener noreferrer">DropDown</a>
         <a class="project-btn" href="https://professorfilou.de/WhoAmIWeb/"          target="_blank" rel="noopener noreferrer">WhoAmIWeb</a>
         <a class="project-btn" href="https://professorfilou.de/WeatherWeb/"         target="_blank" rel="noopener noreferrer">WeatherWeb</a>
         <a class="project-btn" href="https://professorfilou.de/Tycoon/"              target="_blank" rel="noopener noreferrer">Tycoon</a>
@@ -766,11 +775,11 @@ h1{
         <a class="project-btn" href="https://professorfilou.de/Lade/"                target="_blank" rel="noopener noreferrer">Lade</a>
         <a class="project-btn" href="https://professorfilou.de/Search/"              target="_blank" rel="noopener noreferrer">Search</a>
         <a class="project-btn" href="https://professorfilou.de/Quiz/"                target="_blank" rel="noopener noreferrer">Quiz</a>
-        <a class="project-btn" href="https://professorfilou.de/FinnGPT/"             target="_blank" rel="noopener noreferrer">FinnGPT</a>
+        <a class="project-btn" href="https://professorfilou.de/FinnGPT/"            target="_blank" rel="noopener noreferrer">FinnGPT</a>
         <a class="project-btn" href="https://professorfilou.de/Pong/"                target="_blank" rel="noopener noreferrer">Pong</a>
         <a class="project-btn" href="https://professorfilou.de/Windows/"             target="_blank" rel="noopener noreferrer">Windows</a>
         <a class="project-btn" href="https://professorfilou.de/Terminal/"            target="_blank" rel="noopener noreferrer">Terminal</a>
-        <a class="project-btn" href="https://professorfilou.de/SportRules"           target="_blank" rel="noopener noreferrer">SportRules</a>
+        <a class="project-btn" href="https://professorfilou.de/SportRules"          target="_blank" rel="noopener noreferrer">SportRules</a>
     </div>
 
     <div class="footer">© ProfessorFilou | SECURE CORE</div>
@@ -789,23 +798,21 @@ h1{
 </div>
 
 <script type="module">
-import { initializeApp }
-    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getDatabase, ref, runTransaction, onValue, get, remove, set, onDisconnect, goOffline, goOnline }
-    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getDatabase, ref, runTransaction, onValue, get, remove, set, onDisconnect, goOffline, goOnline } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-const firebaseConfig = {
-    apiKey:            "AIzaSyCAh2AsbxLqU2Gx9s0YbZo8PR4fpG3WDw8",
-    authDomain:        "professorfilou-e8eea.firebaseapp.com",
-    databaseURL:       "https://professorfilou-e8eea-default-rtdb.firebaseio.com",
-    projectId:         "professorfilou-e8eea",
-    storageBucket:     "professorfilou-e8eea.firebasestorage.app",
-    messagingSenderId: "280418084891",
-    appId:             "1:280418084891:web:1750e554b152810033f0be"
+const firebaseConfig = { 
+    apiKey: "AIzaSyCAh2AsbxLqU2Gx9s0YbZo8PR4fpG3WDw8", 
+    authDomain: "professorfilou-e8eea.firebaseapp.com", 
+    databaseURL: "https://professorfilou-e8eea-default-rtdb.firebaseio.com", 
+    projectId: "professorfilou-e8eea", 
+    storageBucket: "professorfilou-e8eea.firebasestorage.app", 
+    messagingSenderId: "280418084891", 
+    appId: "1:280418084891:web:1750e554b152810033f0be" 
 };
 
 const app = initializeApp(firebaseConfig);
-const db  = getDatabase(app);
+const db = getDatabase(app);
 
 // Event-Logger für unser Terminal-Display
 const logBox = document.getElementById("securityLog");
@@ -817,7 +824,6 @@ function addSecurityLog(message, isWarning = false) {
     logBox.appendChild(entry);
     logBox.scrollTop = logBox.scrollHeight;
 }
-
 
 /* ═══════════════ DETECT INTERFERENCE (ANTI-DEVTOOLS HARDCORE SHIELD) ═══════════════ */
 const blocker = document.getElementById("devtools-blocker");
@@ -872,30 +878,47 @@ window.addEventListener('resize', () => {
     }
 });
 
-// Unzulässige Shortcuts blockieren
+// Unzulässige Shortcuts blockieren (Erweitert um Kopieren, Alles-Markieren und Speichern)
 document.addEventListener("keydown", (e) => {
-    if (e.key === "F12" || 
-        (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) || 
-        (e.ctrlKey && e.key === "u")) {
+    // Standard DevTools / Source Shortcuts
+    if (e.key === "F12" || (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) || (e.ctrlKey && e.key === "u")) {
         e.preventDefault();
         triggerLockdown();
         addSecurityLog("SYS: Tastenkombination blockiert.", true);
     }
+
+    // NEU: Kopieren (Strg+C / Cmd+C) blockieren
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        addSecurityLog("SYS: Kopieren blockiert.", true);
+    }
+
+    // NEU: Alles markieren (Strg+A / Cmd+A) blockieren
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') {
+        e.preventDefault();
+        addSecurityLog("SYS: Alles-Markieren blockiert.", true);
+    }
+
+    // NEU: Seite speichern (Strg+S / Cmd+S) blockieren
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        addSecurityLog("SYS: Speichern blockiert.", true);
+    }
 });
 
-// NEUE SCHUTZIDEE: Rechtsklick-Sperre (Löst sofort Lockdown aus!)
+// Rechtsklick-Sperre (Löst sofort Lockdown aus!)
 document.addEventListener("contextmenu", (e) => {
     e.preventDefault();
     triggerLockdown();
     addSecurityLog("SYS: Rechtsklick erkannt & abgefangen.", true);
 });
 
-// NEUE SCHUTZIDEE: Verhindert das Herausziehen (Drag) von Bildern und Links
+// Verhindert das Herausziehen (Drag) von Bildern und Links
 document.addEventListener("dragstart", (e) => {
     e.preventDefault();
 });
 
-// NEUE SCHUTZIDEE: iFrame-Buster (Verhindert Clickjacking auf fremden Seiten)
+// iFrame-Buster (Verhindert Clickjacking auf fremden Seiten)
 if (window.self !== window.top) {
     try {
         window.top.location = window.self.location;
@@ -904,7 +927,14 @@ if (window.self !== window.top) {
     }
 }
 
-// NEUE SCHUTZIDEE: Konsolen-Methoden-Sabotage
+// NEU: Clipboard-Sperre und Inhalts-Manipulation
+document.addEventListener("copy", (e) => {
+    e.clipboardData.setData("text/plain", "[ SECURE CORE: Kopieren von Inhalten ist auf dieser Website untersagt. ]");
+    e.preventDefault();
+    addSecurityLog("SYS: Kopierversuch abgefangen.", true);
+});
+
+// Konsolen-Methoden-Sabotage
 const forbidConsole = () => {
     const keys = ['log', 'debug', 'info', 'warn', 'error', 'dir', 'table', 'clear'];
     keys.forEach(key => {
@@ -921,24 +951,32 @@ const forbidConsole = () => {
 };
 forbidConsole();
 
+// NEU: Konsole fluten/leeren im Sekundentakt bei geöffneter Konsole
+setInterval(() => {
+    if (window.outerHeight - window.innerHeight > 160 || window.outerWidth - window.innerWidth > 160) {
+        console.clear();
+        console.warn("%c[ ACCESS DENIED ]", "color: red; font-size: 30px; font-weight: bold;");
+    }
+}, 1000);
 
 /* ═══════════════ BESUCHERZÄHLER ═══════════════ */
 const SITE_BORN = new Date("2026-05-31T00:00:00");
 const visitsRef = ref(db, "visits/total");
-const visitEl   = document.getElementById("visit-count");
+const visitEl = document.getElementById("visit-count");
 
 runTransaction(visitsRef, cur => (cur || 0) + 1);
+
 onValue(visitsRef, snap => {
     visitEl.textContent = (snap.val() || 0).toLocaleString("de-DE");
 });
 
 function updateAge() {
-    const days  = Math.floor((new Date() - SITE_BORN) / 86400000);
+    const days = Math.floor((new Date() - SITE_BORN) / 86400000);
     const ageEl = document.getElementById("site-age");
-    if      (days < 0)  ageEl.textContent = "bald";
+    if (days < 0) ageEl.textContent = "bald";
     else if (days === 0) ageEl.textContent = "seit heute";
     else if (days === 1) ageEl.textContent = "1 Tag";
-    else                 ageEl.textContent = days + " Tage";
+    else ageEl.textContent = days + " Tage";
 }
 updateAge();
 
@@ -948,31 +986,28 @@ function launchConfetti(amount = 80) {
     for (let i = 0; i < amount; i++) {
         const piece = document.createElement("div");
         piece.className = "confetti-piece";
-        piece.style.left             = Math.random() * 100 + "vw";
-        piece.style.background       = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.left = Math.random() * 100 + "vw";
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
         piece.style.animationDuration= (2.5 + Math.random() * 2) + "s";
-        piece.style.animationDelay   = (Math.random() * 0.6) + "s";
+        piece.style.animationDelay = (Math.random() * 0.6) + "s";
         layer.appendChild(piece);
         piece.addEventListener("animationend", () => piece.remove());
     }
 }
-
 const today = new Date();
 if (today.getDate() === 31 && today.getMonth() === 4) {
     setTimeout(() => launchConfetti(160), 600);
     setTimeout(() => launchConfetti(160), 1800);
 }
 
-
 /* ═══════════════ LIVE PRESENCE ═══════════════ */
-const sessionId    = Math.random().toString(36).slice(2);
-const sessionRef   = ref(db, "presence/" + sessionId);
+const sessionId = Math.random().toString(36).slice(2);
+const sessionRef = ref(db, "presence/" + sessionId);
 const connectedRef = ref(db, ".info/connected");
-const presenceRef  = ref(db, "presence");
-
-const dot          = document.getElementById("presence-dot");
-const countEl      = document.getElementById("presence-count");
-const widget       = document.getElementById("presence-fixed");
+const presenceRef = ref(db, "presence");
+const dot = document.getElementById("presence-dot");
+const countEl = document.getElementById("presence-count");
+const widget = document.getElementById("presence-fixed");
 
 onValue(connectedRef, snap => {
     if (!snap.val()) return;
@@ -983,34 +1018,27 @@ onValue(connectedRef, snap => {
 
 onValue(presenceRef, snap => {
     const count = snap.exists() ? Object.keys(snap.val()).length : 0;
-
     if (count <= 1) {
-        countEl.textContent  = "> SYSTEM: ALONE";
-        dot.style.background = "#ffaa00";
-        dot.style.animation  = "pulse-dim 2.2s ease infinite";
+        countEl.textContent = "> SYSTEM: ALONE";
+        dot.style.background = "#777";
+        dot.style.animation = "pulse-dim 2s infinite";
     } else {
-        countEl.textContent  = `> ACTIVE_USERS: 0${count}`;
+        countEl.textContent = `> USERS_ONLINE: ${count}`;
         dot.style.background = "#00ffcc";
-        dot.style.animation  = "pulse-green 1.2s ease infinite";
+        dot.style.animation = "pulse-green 1.6s infinite";
     }
 });
 
-
-/* ═══════════════ STATUS POPUP LOGIC ═══════════════ */
+// STATUS MODAL LOGIK
 const overlay = document.getElementById("statusOverlay");
 const openBtn = document.getElementById("presence-fixed");
 const closeBtn = document.getElementById("closeStatus");
-const dbStatus = document.getElementById("db-status");
-const dbStatusText = document.getElementById("db-status-text");
-const dbPing = document.getElementById("db-ping");
-const serverLoad = document.getElementById("server-load");
 
-openBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
+openBtn.addEventListener("click", () => {
     overlay.classList.add("active");
-    addSecurityLog("Status-Konsole gestartet.");
-    startPingMeasurement();
-    startRealPerformanceTracking();
+    addSecurityLog("Verbindung zum Sicherheits-Hub hergestellt.");
+    calcLatency();
+    updatePerformanceData();
 });
 
 closeBtn.addEventListener("click", () => {
@@ -1023,275 +1051,183 @@ overlay.addEventListener("click", (e) => {
     }
 });
 
-document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && overlay.classList.contains("active")) {
-        overlay.classList.remove("active");
-    }
-});
-
-onValue(connectedRef, (snap) => {
-    const indicator = dbStatus.querySelector(".status-indicator");
-    if (snap.val() === true) {
-        indicator.className = "status-indicator green";
-        dbStatusText.textContent = "CONNECTED (SECURE)";
-        dbStatus.style.color = "#00ffcc";
-    } else {
-        indicator.className = "status-indicator red";
-        dbStatusText.textContent = "DISCONNECTED";
-        dbStatus.style.color = "#ff4444";
-        dbPing.textContent = "OFFLINE";
-        addSecurityLog("Verbindungsverlust!", true);
-    }
-});
-
-function startPingMeasurement() {
-    if (!overlay.classList.contains("active") || isOffline) return;
-    
-    const startTime = Date.now();
-    get(ref(db, ".info/serverTimeOffset")).then(() => {
-        const ping = Date.now() - startTime;
-        dbPing.textContent = ping + " ms";
-        dbPing.style.color = ping < 150 ? "#00ffcc" : "#ff4444";
-        setTimeout(startPingMeasurement, 4000);
+// Latenz ermitteln
+function calcLatency() {
+    const start = Date.now();
+    const pingRef = ref(db, ".info/connected");
+    get(pingRef).then(() => {
+        const end = Date.now();
+        const latency = end - start;
+        const pingEl = document.getElementById("db-ping");
+        pingEl.textContent = `${latency} ms`;
+        if (latency < 150) {
+            pingEl.style.color = "#00ffcc";
+        } else if (latency < 350) {
+            pingEl.style.color = "#ffaa00";
+        } else {
+            pingEl.style.color = "#ff4444";
+        }
     }).catch(() => {
-        dbPing.textContent = "TIMEOUT";
+        document.getElementById("db-ping").textContent = "TIMEOUT";
     });
 }
 
-/* ════════ ECHTE AUSLASTUNGSMESSUNG ════════ */
-let lastFrameTime = performance.now();
-let cpuUsage = 0;
-let perfInterval = null;
-
-function monitorCPU() {
-    if (!overlay.classList.contains("active")) return;
-    
-    const now = performance.now();
-    const delay = now - lastFrameTime;
-    lastFrameTime = now;
-    
-    const expected = 1000 / 60; 
-    let currentUsage = Math.max(0, Math.min(100, ((delay - expected) / expected) * 100));
-    
-    cpuUsage = Math.round(cpuUsage * 0.85 + currentUsage * 0.15);
-    requestAnimationFrame(monitorCPU);
+// Pseudo CPU & RAM Auslastung (zur Veranschaulichung der Systemleistung)
+function updatePerformanceData() {
+    const cpu = Math.floor(Math.random() * 14) + 2;
+    const ram = (Math.random() * 0.4 + 1.1).toFixed(2);
+    document.getElementById("server-load").textContent = `CPU: ${cpu}% | RAM: ${ram} GB`;
 }
-
-function updatePerformanceValues() {
-    if (!overlay.classList.contains("active")) {
-        clearInterval(perfInterval);
-        return;
+setInterval(() => {
+    if (overlay.classList.contains("active")) {
+        updatePerformanceData();
     }
-    
-    const displayCPU = Math.max(1, cpuUsage);
-    let displayRAM = "BLOCKED";
-    if (window.performance && performance.memory) {
-        const usedMB = Math.round(performance.memory.usedJSHeapSize / (1024 * 1024));
-        displayRAM = `${usedMB} MB`;
-    } else {
-        displayRAM = "RESTRICTED";
+}, 3000);
+
+/* ═══════════════ BLUME UND INTERAKTION ═══════════════ */
+const STATE_KEY = "plant_data";
+let plant = {
+    level: 1,
+    waterCount: 0,
+    lastWatered: null
+};
+
+const levels = [
+    { name: "Samenkorn", req: 0, scale: 0.35, stem: 60, l: [0,0,0,0,0,0], fl: 0 },
+    { name: "Keimling", req: 3, scale: 0.55, stem: 54, l: [0.4,0.4,0,0,0,0], fl: 0 },
+    { name: "Zarter Trieb", req: 10, scale: 0.75, stem: 48, l: [0.7,0.7,0.4,0.4,0,0], fl: 0 },
+    { name: "Kleine Pflanze", req: 25, scale: 0.9, stem: 42, l: [1,1,0.8,0.8,0.4,0.4], fl: 0 },
+    { name: "Prächtiges Gewächs", req: 50, scale: 1.0, stem: 38, l: [1,1,1,1,0.8,0.8], fl: 0 },
+    { name: "Blühender Cyber-Baum", req: 100, scale: 1.12, stem: 32, l: [1,1,1,1,1,1], fl: 1 }
+];
+
+function loadPlant() {
+    const data = localStorage.getItem(STATE_KEY);
+    if (data) {
+        try {
+            plant = JSON.parse(data);
+        } catch(e) {}
     }
-    
-    serverLoad.textContent = `CPU: ${displayCPU}% | RAM: ${displayRAM}`;
-    serverLoad.style.color = displayCPU < 30 ? "#00ffcc" : "#ffaa00";
+    applyPlantState();
 }
 
-function startRealPerformanceTracking() {
-    lastFrameTime = performance.now();
-    requestAnimationFrame(monitorCPU);
-    clearInterval(perfInterval);
-    perfInterval = setInterval(updatePerformanceValues, 1200);
+function savePlant() {
+    localStorage.setItem(STATE_KEY, JSON.stringify(plant));
 }
 
-
-/* ═══════════════ PFLANZE ═══════════════ */
-function todayKey() {
-    return "plant_" + new Date().toISOString().slice(0, 10);
-}
-
-const TODAY_KEY = todayKey();
-const plantRef  = ref(db, "easter_egg/" + TODAY_KEY);
-
-get(ref(db, "easter_egg")).then(snap => {
-    if (!snap.exists()) return;
-    snap.forEach(child => {
-        if (child.key !== TODAY_KEY)
-            remove(ref(db, "easter_egg/" + child.key)).catch(() => {});
-    });
-}).catch(() => {});
-
-const hitDesktop = document.getElementById("hit-desktop");
-const hitMobile  = document.getElementById("hit-mobile");
-const toast      = document.getElementById("plant-toast");
-const ptNum      = document.getElementById("pt-num");
-const ptSub      = document.getElementById("pt-sub");
-const stem       = document.getElementById("p-stem");
-const flower     = document.getElementById("p-flower");
-const lf         = id => document.getElementById(id);
-
-const DROWN_AT = 100;
-let waterCount  = 0;
-let prevStage   = 0;
-let cooling      = false;
-let toastTimer  = null;
-let everClicked = false;
-let drownPlayed = false;
-
-onValue(plantRef, snap => {
-    if (isOffline) return;
-    const raw = snap.val() || 0;
-    const atDrownPoint = raw > 0 && raw % DROWN_AT === 0;
-    waterCount = raw % DROWN_AT;
-
-    if (atDrownPoint && !drownPlayed) {
-        drownPlayed = true;
-        playDrownAndRebirth();
-        if (everClicked) showToast(DROWN_AT);
-        return;
+function getCurrentLevel() {
+    let current = levels[0];
+    for (const lvl of levels) {
+        if (plant.waterCount >= lvl.req) {
+            current = lvl;
+        }
     }
-    if (!atDrownPoint) {
-        drownPlayed = false;
-        applyGrowth(waterCount);
-    }
-    if (everClicked) showToast(waterCount);
-});
-
-[hitDesktop, hitMobile].forEach(el => {
-    el.addEventListener("click", () => {
-        if (cooling || isOffline) return;
-        cooling = true;
-        setTimeout(() => cooling = false, 650);
-        everClicked = true;
-        runTransaction(plantRef, cur => (cur || 0) + 1);
-        spawnDrop(el);
-        bounce(el);
-    });
-});
-
-function stageOf(n) {
-    if (n >= 85) return 4;
-    if (n >= 55) return 3;
-    if (n >= 25) return 2;
-    return 1;
+    return current;
 }
 
-function applyGrowth(n) {
-    const stage = stageOf(n);
-    const s1 = Math.min(1, n / 24);
-    lf("p-l1").setAttribute("opacity", (0.42 + s1 * 0.58).toString());
-    lf("p-l2").setAttribute("opacity", (0.42 + s1 * 0.58).toString());
-    const s2 = Math.max(0, Math.min(1, (n - 24) / 30));
-    lf("p-l3").setAttribute("opacity", s2.toString());
-    lf("p-l4").setAttribute("opacity", s2.toString());
-    const s3 = Math.max(0, Math.min(1, (n - 54) / 30));
-    lf("p-l5").setAttribute("opacity", s3.toString());
-    lf("p-l6").setAttribute("opacity", s3.toString());
-    if (n >= 55) stem.setAttribute("y2", "26");
-    else         stem.setAttribute("y2", "40");
-    const s4 = Math.max(0, Math.min(1, (n - 84) / 15));
-    flower.setAttribute("opacity", s4.toString());
-    if (stage > prevStage && prevStage > 0) flashStage(stage);
-    prevStage = stage;
-}
+function applyPlantState(withSproutEffect = false) {
+    const cur = getCurrentLevel();
+    const hitD = document.getElementById("hit-desktop");
+    const hitM = document.getElementById("hit-mobile");
+    const toast = document.getElementById("plant-toast");
+    const tNum = document.getElementById("pt-num");
+    const tSub = document.getElementById("pt-sub");
 
-function resetPlantVisual() {
-    lf("p-l1").setAttribute("opacity", "0.42");
-    lf("p-l2").setAttribute("opacity", "0.42");
-    lf("p-l3").setAttribute("opacity", "0");
-    lf("p-l4").setAttribute("opacity", "0");
-    lf("p-l5").setAttribute("opacity", "0");
-    lf("p-l6").setAttribute("opacity", "0");
-    flower.setAttribute("opacity", "0");
-    stem.setAttribute("y2", "40");
-    prevStage = 1;
-}
+    tNum.textContent = `${plant.waterCount}×`;
+    tSub.textContent = `Stufe: ${cur.name} 💧`;
 
-function playDrownAndRebirth() {
-    [hitDesktop, hitMobile].forEach(el => {
-        const svg = el.querySelector(".plant-svg");
-        svg.classList.remove("bouncing", "sprouting");
-        void svg.offsetWidth;
-        svg.classList.add("drowning");
-        svg.addEventListener("animationend", function onDrown() {
-            svg.removeEventListener("animationend", onDrown);
-            resetPlantVisual();
-            svg.classList.remove("drowning");
+    const svgD = hitD.querySelector(".plant-svg");
+    const svgM = hitM.querySelector(".plant-svg");
+
+    [svgD, svgM].forEach(svg => {
+        if (!svg) return;
+        svg.style.transform = `scale(${cur.scale})`;
+        
+        const stem = svg.querySelector("#p-stem") || document.getElementById("p-stem");
+        if (stem) stem.setAttribute("y2", cur.stem);
+
+        cur.l.forEach((opacity, index) => {
+            const leaf = svg.querySelector(`#p-l${index+1}`) || document.getElementById(`p-l${index+1}`);
+            if (leaf) leaf.style.opacity = opacity;
+        });
+
+        const flower = svg.querySelector("#p-flower") || document.getElementById("p-flower");
+        if (flower) flower.style.opacity = cur.fl;
+
+        if (withSproutEffect) {
+            svg.classList.remove("sprouting");
             void svg.offsetWidth;
             svg.classList.add("sprouting");
-            svg.addEventListener("animationend", function onSprout() {
-                svg.removeEventListener("animationend", onSprout);
-                svg.classList.remove("sprouting");
-            }, { once:true });
-        }, { once:true });
+            svg.addEventListener("animationend", () => svg.classList.remove("sprouting"), { once:true });
+        }
     });
-    flashCustom("💀 REBOOT PLANT!");
 }
 
-const stageText = { 2:"🌿 LEVEL UP!", 3:"🌱 GROWTH DETECTED!", 4:"🌸 SYSTEM BLOOM!" };
-
-function flashStage(s) {
-    if (!stageText[s]) return;
-    flashCustom(stageText[s]);
-}
-
-function flashCustom(txt) {
-    const isMobile = window.innerWidth <= 600;
-    const anchor   = isMobile ? hitMobile : hitDesktop;
-    const rect     = anchor.getBoundingClientRect();
-    const el       = document.createElement("div");
-    el.className   = "stage-pop";
-    el.textContent = txt;
-    el.style.left  = (rect.left + rect.width / 2) + "px";
-    el.style.top   = (rect.top - 4) + "px";
-    document.body.appendChild(el);
-    el.addEventListener("animationend", () => el.remove());
-}
-
-function showToast(n) {
-    clearTimeout(toastTimer);
-    ptNum.textContent = n + "×";
-    let msg;
-    if       (n >= 100) msg = "Core Overflow: Reset 💀";
-    else if (n >= 90)  msg = "Warning: Critical water levels 😰";
-    else if (n >= 80)  msg = "Bloom sequence complete 🌸";
-    else if (n >= 70)  msg = "Flora integrity high 🌷";
-    else if (n >= 60)  msg = "Structure developing 🌺";
-    else if (n >= 50)  msg = "Growth state: 50% 🌳";
-    else if (n >= 40)  msg = "Expansion phase active 🌲";
-    else if (n >= 30)  msg = "Photosynthesis optimal 🍃";
-    else if (n >= 20)  msg = "Organic components added 🌿";
-    else if (n >= 10)  msg = "Initiating growth state 🌱";
-    else               msg = "H2O-Inject successful 💧";
-    ptSub.textContent = msg;
-
-    if (window.innerWidth <= 600) {
-        const inlineEl = document.getElementById("plant-inline");
-        inlineEl.style.position = "relative";
-        toast.style.position    = "absolute";
-        if (toast.parentElement !== inlineEl) inlineEl.appendChild(toast);
-    }
-
+function showToast() {
+    const toast = document.getElementById("plant-toast");
     toast.classList.add("show");
-    toastTimer = setTimeout(() => toast.classList.remove("show"), 3000);
+    if (toast.timeout) clearTimeout(toast.timeout);
+    toast.timeout = setTimeout(() => toast.classList.remove("show"), 2800);
 }
 
-function spawnDrop(anchor) {
-    const d       = document.createElement("div");
-    d.className   = "wdrop";
-    d.textContent = "💧";
-    anchor.appendChild(d);
-    d.addEventListener("animationend", () => d.remove());
+function spawnStagePop(x, y, text) {
+    const pop = document.createElement("div");
+    pop.className = "stage-pop";
+    pop.textContent = text;
+    pop.style.left = `${x}px`;
+    pop.style.top = `${y}px`;
+    document.body.appendChild(pop);
+    pop.addEventListener("animationend", () => pop.remove());
 }
 
-function bounce(anchor) {
-    const svg = anchor.querySelector(".plant-svg");
-    if (svg.classList.contains("drowning") || svg.classList.contains("sprouting")) return;
+function waterPlant(e) {
+    e.preventDefault();
+    const hit = e.currentTarget;
+    const isDesktop = hit.id === "hit-desktop";
+    const rect = hit.getBoundingClientRect();
+    
+    // Wassertropfen erstellen
+    const drop = document.createElement("div");
+    drop.className = "wdrop";
+    drop.textContent = "💧";
+    hit.appendChild(drop);
+    drop.addEventListener("animationend", () => drop.remove());
+
+    const oldLvl = getCurrentLevel();
+    plant.waterCount++;
+    plant.lastWatered = Date.now();
+    savePlant();
+
+    const newLvl = getCurrentLevel();
+    const leveledUp = oldLvl.name !== newLvl.name;
+
+    setTimeout(() => {
+        applyPlantState(leveledUp);
+        showToast();
+        bouncePlant(hit);
+
+        if (leveledUp) {
+            launchConfetti(60);
+            const popX = rect.left + rect.width / 2;
+            const popY = rect.top;
+            spawnStagePop(popX, popY, `UPGRADE: ${newLvl.name.toUpperCase()}!`);
+            addSecurityLog(`PFLANZE: Entwickelt zu "${newLvl.name}"!`);
+        }
+    }, 550);
+}
+
+function bouncePlant(hit) {
+    const svg = hit.querySelector(".plant-svg");
+    if (!svg) return;
     svg.classList.remove("bouncing");
     void svg.offsetWidth;
     svg.classList.add("bouncing");
-    svg.addEventListener("animationend",
-        () => svg.classList.remove("bouncing"), { once:true });
+    svg.addEventListener("animationend", () => svg.classList.remove("bouncing"), { once:true });
 }
+
+document.getElementById("hit-desktop").addEventListener("click", waterPlant);
+document.getElementById("hit-mobile").addEventListener("click", waterPlant);
+loadPlant();
 </script>
 
 <script>
@@ -1326,21 +1262,24 @@ for (let i = 0; i < particleCount; i++) {
 function animate() {
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
     ctx.fillStyle = "#00ffcc";
-    for (const p of particles) {
-        p.x += p.dx; 
-        p.y += p.dy;
-        
-        if (p.x < 0 || p.x > window.innerWidth)  p.dx *= -1;
-        if (p.y < 0 || p.y > window.innerHeight) p.dy *= -1;
-        
+    
+    for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fill();
+        
+        p.x += p.dx;
+        p.y += p.dy;
+        
+        if (p.x < 0) p.x = window.innerWidth;
+        if (p.x > window.innerWidth) p.x = 0;
+        if (p.y < 0) p.y = window.innerHeight;
+        if (p.y > window.innerHeight) p.y = 0;
     }
     requestAnimationFrame(animate);
 }
-requestAnimationFrame(animate);
+animate();
 </script>
-
 </body>
 </html>
