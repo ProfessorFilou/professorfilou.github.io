@@ -285,7 +285,6 @@ h1{
     overflow:visible;
 }
 
-/* Pflanze Animationen (NEU hinzugefügt/repariert) */
 @keyframes pbounce {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(0.9) translateY(4px); }
@@ -709,13 +708,18 @@ get(passwordRef).then(snap => {
     }
 });
 
+// FIX: Optimierte Klick-Erkennung mit Fehlerbehebung für Mobilgeräte
 footerBtn.addEventListener("click", () => {
     footerClicks++;
+    
     clearTimeout(clickTimeout);
-    clickTimeout = setTimeout(() => { footerClicks = 0; }, 3500); // Klick-Toleranz auf 3.5s erhöht
+    clickTimeout = setTimeout(() => { 
+        footerClicks = 0; 
+    }, 4000); 
 
     if (footerClicks >= 5) {
         footerClicks = 0;
+        clearTimeout(clickTimeout);
         
         get(passwordRef).then(snap => {
             if (!snap.exists()) {
@@ -726,6 +730,8 @@ footerBtn.addEventListener("click", () => {
                 popupAuth.classList.add("open");
                 authPwInput.focus();
             }
+        }).catch(err => {
+            console.error("Firebase Fehler:", err);
         });
     }
 });
@@ -884,7 +890,7 @@ function spawnDrop(a) {
     const d = document.createElement("div"); 
     d.style.position = "absolute"; 
     d.style.fontSize = "18px"; 
-    d.style.animation = "wfall 0.7s ease-in forwards"; // Hier greift jetzt die reparierte CSS-Animation
+    d.style.animation = "wfall 0.7s ease-in forwards"; 
     d.style.left = "50%";
     d.style.top = "20px";
     d.style.transform = "translateX(-50%)";
