@@ -8,7 +8,6 @@
 <link rel="icon" type="image/jpeg" href="ProfessorFilouLOGO.jpg">
 
 <style>
-
 *{
     margin:0;
     padding:0;
@@ -212,179 +211,57 @@ h1{
     100% { box-shadow:0 0 0 0 rgba(120,120,120,0); }
 }
 
-/* ════ PLANT ════ */
-#plant-fixed{
-    position:fixed;
-    top:20px;
-    right:24px;
-    z-index:300;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
+/* ════ GLÜHBIRNE (NEU) ════ */
+#bulb-fixed {
+    position: fixed;
+    top: 0;
+    right: 40px;
+    z-index: 300;
 }
 
 @media(max-width:600px){
-    #plant-fixed{ display:none; }
+    #bulb-fixed { right: 20px; }
     #presence-fixed{ top:auto; bottom:20px; left:50%; transform:translateX(-50%); }
 }
 
-#plant-inline{
-    display:none;
-    flex-direction:column;
-    align-items:center;
-    margin-top:28px;
+.bulb-hit {
+    width: 60px;
+    height: 130px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
-@media(max-width:600px){
-    #plant-inline{ display:flex; }
+.bulb-svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
 }
 
-.plant-hit{
-    position:relative;
-    width:68px;
-    height:84px;
-    cursor:pointer;
-    user-select:none;
-    -webkit-tap-highlight-color:transparent;
-    display:flex;
-    align-items:flex-end;
-    justify-content:center;
+/* --- Der AN-Zustand --- */
+.bulb-svg.is-on #bulb-glass {
+    fill: rgba(0, 255, 204, 0.2);
+    stroke: #00ffcc;
+    filter: drop-shadow(0 0 15px #00ffcc) drop-shadow(0 0 30px rgba(0,255,204,0.6));
 }
 
-.plant-svg{
-    width:100%;
-    height:100%;
-    overflow:visible;
-    transition:filter 0.3s, opacity 0.5s ease, transform 0.5s ease;
+.bulb-svg.is-on #bulb-filament {
+    stroke: #fff;
+    filter: drop-shadow(0 0 4px #00ffcc);
 }
 
-.plant-hit:hover .plant-svg,
-.plant-hit:active .plant-svg{
-    filter:drop-shadow(0 0 8px #00ffcc) drop-shadow(0 0 18px rgba(0,255,204,0.4));
+/* Wackeleffekt beim Klicken */
+@keyframes swing {
+    0% { transform: rotate(0deg); }
+    20% { transform: rotate(8deg); }
+    40% { transform: rotate(-6deg); }
+    60% { transform: rotate(3deg); }
+    100% { transform: rotate(0deg); }
 }
-
-.wdrop{
-    position:absolute;
-    font-size:18px;
-    top:2px;
-    left:50%;
-    transform:translateX(-50%);
-    pointer-events:none;
-    animation:wfall 0.72s cubic-bezier(.38,0,.62,1) forwards;
+.swinging {
+    transform-origin: 50% 0%;
+    animation: swing 0.6s ease;
 }
-
-@keyframes wfall{
-    0%  { opacity:1; top:2px; }
-    72% { opacity:1; top:70px; }
-    100%{ opacity:0; top:80px; }
-}
-
-@keyframes pbounce{
-    0%  { transform:scale(1) rotate(0deg); }
-    28% { transform:scale(1.18) rotate(-7deg); }
-    58% { transform:scale(0.93) rotate(4deg); }
-    78% { transform:scale(1.04) rotate(-2deg); }
-    100%{ transform:scale(1) rotate(0deg); }
-}
-.bouncing{ animation:pbounce 0.48s ease; }
-
-@keyframes pdrown{
-    0%  { transform:scale(1) rotate(0deg);                     opacity:1; }
-    20% { transform:scale(1.05) rotate(3deg);                  opacity:1; }
-    45% { transform:scale(0.9) rotate(-8deg) translateY(6px);  opacity:0.85; }
-    70% { transform:scale(0.75) rotate(14deg) translateY(18px); opacity:0.45; }
-    100%{ transform:scale(0.6) rotate(22deg) translateY(34px);  opacity:0; }
-}
-.drowning{ animation:pdrown 1.3s cubic-bezier(.5,0,.7,1) forwards; }
-
-@keyframes psprout{
-    0%  { transform:scale(0.2) translateY(20px); opacity:0; }
-    40% { transform:scale(1.15) translateY(-4px); opacity:1; }
-    65% { transform:scale(0.95) translateY(2px); }
-    100%{ transform:scale(1) translateY(0);       opacity:1; }
-}
-.sprouting{ animation:psprout 1.1s cubic-bezier(.34,1.56,.64,1) forwards; }
-
-.lf{ transition:opacity 0.65s ease; }
-
-#plant-toast{
-    position:fixed;
-    z-index:400;
-    top:112px;
-    right:12px;
-    left:auto;
-    background:rgba(3,16,12,0.94);
-    border:1px solid rgba(0,255,204,0.45);
-    border-radius:14px;
-    padding:9px 15px;
-    color:#00ffcc;
-    font-size:13px;
-    line-height:1.5;
-    text-align:center;
-    white-space:nowrap;
-    backdrop-filter:blur(16px);
-    box-shadow:0 0 0 1px rgba(0,255,204,0.06),
-               0 8px 28px rgba(0,0,0,0.55),
-               0 0 20px rgba(0,255,204,0.12);
-    opacity:0;
-    pointer-events:none;
-    transform:translateY(-6px) scale(0.94);
-    transition:opacity 0.28s, transform 0.28s;
-}
-
-#plant-toast.show{
-    opacity:1;
-    transform:translateY(0) scale(1);
-}
-
-@media(max-width:600px){
-    #plant-toast{
-        position:absolute;
-        top:auto;
-        right:auto;
-        left:50%;
-        bottom:calc(100% + 10px);
-        transform:translateX(-50%) translateY(6px) scale(0.94);
-        font-size:13px;
-        white-space:nowrap;
-    }
-    #plant-toast.show{
-        transform:translateX(-50%) translateY(0) scale(1);
-    }
-}
-
-#plant-toast strong{
-    display:block;
-    font-size:16px;
-    font-weight:700;
-    letter-spacing:0.3px;
-}
-
-#plant-toast .tsub{
-    color:rgba(0,255,204,0.65);
-    font-size:11.5px;
-}
-
-.stage-pop{
-    position:fixed;
-    z-index:500;
-    color:#00ffcc;
-    font-size:11px;
-    font-weight:700;
-    letter-spacing:1.2px;
-    text-transform:uppercase;
-    pointer-events:none;
-    text-shadow:0 0 8px #00ffcc;
-    animation:stagefloat 1.2s ease forwards;
-}
-
-@keyframes stagefloat{
-    0%  { opacity:0; transform:translateY(0) translateX(-50%); }
-    15% { opacity:1; }
-    70% { opacity:1; transform:translateY(-18px) translateX(-50%); }
-    100%{ opacity:0; transform:translateY(-28px) translateX(-50%); }
-}
-
 </style>
 </head>
 <body>
@@ -397,52 +274,16 @@ h1{
     <span id="presence-count">–</span>
 </div>
 
-<div id="plant-fixed">
-    <div class="plant-hit" id="hit-desktop">
-        <svg class="plant-svg" viewBox="0 0 68 84" xmlns="http://www.w3.org/2000/svg" overflow="visible">
-            <use href="#plant-shape"/>
+<div id="bulb-fixed">
+    <div class="bulb-hit" id="hit-bulb">
+        <svg class="bulb-svg" viewBox="0 0 100 150" xmlns="http://www.w3.org/2000/svg">
+            <line x1="50" y1="0" x2="50" y2="60" stroke="#666" stroke-width="3" />
+            <rect x="40" y="60" width="20" height="15" rx="2" fill="#444" />
+            <path id="bulb-filament" d="M45 100 Q45 85 50 85 Q55 85 55 100" stroke="#666" stroke-width="2" fill="none" />
+            <path id="bulb-glass" d="M50 75 C25 75 25 120 50 130 C75 120 75 75 50 75 Z" fill="rgba(255,255,255,0.05)" stroke="#666" stroke-width="3" />
         </svg>
     </div>
 </div>
-
-<div id="plant-toast">
-    <strong id="pt-num">1×</strong>
-    <div class="tsub" id="pt-sub">heute gegossen 💧</div>
-</div>
-
-<svg style="display:none">
-<defs>
-<g id="plant-shape">
-    <rect x="20" y="65" width="28" height="17" rx="4"   fill="#5a3e28"/>
-    <rect x="15" y="60" width="38" height="8"  rx="3.5" fill="#7a5235"/>
-    <rect x="18" y="62" width="9"  height="3"  rx="2"   fill="rgba(255,255,255,0.13)"/>
-    <line id="p-stem" x1="34" y1="60" x2="34" y2="40"
-          stroke="#2e7d32" stroke-width="3" stroke-linecap="round"
-          style="transition:y2 1s ease;"/>
-    <ellipse class="lf" id="p-l1" cx="23" cy="54" rx="12" ry="5"
-             fill="#2e7d32" transform="rotate(-34 23 54)" opacity="0.42"/>
-    <ellipse class="lf" id="p-l2" cx="45" cy="50" rx="12" ry="5"
-             fill="#388e3c" transform="rotate(34 45 50)"  opacity="0.42"/>
-    <ellipse class="lf" id="p-l3" cx="22" cy="46" rx="10" ry="4.2"
-             fill="#43a047" transform="rotate(-24 22 46)" opacity="0"/>
-    <ellipse class="lf" id="p-l4" cx="46" cy="42" rx="10" ry="4.2"
-             fill="#66bb6a" transform="rotate(24 46 42)"  opacity="0"/>
-    <ellipse class="lf" id="p-l5" cx="25" cy="37" rx="8"  ry="3.5"
-             fill="#81c784" transform="rotate(-17 25 37)" opacity="0"/>
-    <ellipse class="lf" id="p-l6" cx="43" cy="33" rx="8"  ry="3.5"
-             fill="#a5d6a7" transform="rotate(17 43 33)"  opacity="0"/>
-    <g id="p-flower" opacity="0" style="transition:opacity 0.9s ease;">
-        <circle cx="34" cy="25" r="4"   fill="#f06292"/>
-        <circle cx="34" cy="17" r="4"   fill="#f06292"/>
-        <circle cx="41" cy="21" r="4"   fill="#f48fb1"/>
-        <circle cx="27" cy="21" r="4"   fill="#f48fb1"/>
-        <circle cx="34" cy="21" r="5.5" fill="#fff176"/>
-        <circle cx="34" cy="21" r="2.5" fill="#f9a825"/>
-    </g>
-</g>
-</defs>
-</svg>
-
 
 <div class="main">
 
@@ -491,22 +332,12 @@ h1{
         🎂 Seite ist <b id="site-age">…</b> online
     </div>
 
-    <div id="plant-inline" style="position:relative;">
-        <div class="plant-hit" id="hit-mobile">
-            <svg class="plant-svg" viewBox="0 0 68 84" xmlns="http://www.w3.org/2000/svg" overflow="visible">
-                <use href="#plant-shape"/>
-            </svg>
-        </div>
-    </div>
-
 </div>
 
-
 <script type="module">
-
 import { initializeApp }
     from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getDatabase, ref, runTransaction, onValue, get, remove, set, onDisconnect }
+import { getDatabase, ref, runTransaction, onValue, set, onDisconnect }
     from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 const firebaseConfig = {
@@ -524,9 +355,7 @@ const db  = getDatabase(app);
 
 
 /* ═══════════════ BESUCHERZÄHLER ═══════════════ */
-
 const SITE_BORN = new Date("2026-05-31T00:00:00");
-
 const visitsRef = ref(db, "visits/total");
 const visitEl   = document.getElementById("visit-count");
 
@@ -568,7 +397,6 @@ if (today.getDate() === 31 && today.getMonth() === 4) {
 
 
 /* ═══════════════ LIVE PRESENCE ═══════════════ */
-
 const sessionId    = Math.random().toString(36).slice(2);
 const sessionRef   = ref(db, "presence/" + sessionId);
 const connectedRef = ref(db, ".info/connected");
@@ -609,197 +437,30 @@ onValue(presenceRef, snap => {
 });
 
 
-/* ═══════════════ PFLANZE ═══════════════ */
+/* ═══════════════ LIVE GLÜHBIRNE (NEU) ═══════════════ */
+const bulbRef = ref(db, "live_features/light_bulb");
+const bulbEl = document.getElementById("hit-bulb");
+const bulbSvg = bulbEl.querySelector(".bulb-svg");
 
-function todayKey() {
-    return "plant_" + new Date().toISOString().slice(0, 10);
-}
+let currentBulbState = false;
 
-const TODAY_KEY = todayKey();
-const plantRef  = ref(db, "easter_egg/" + TODAY_KEY);
-
-get(ref(db, "easter_egg")).then(snap => {
-    if (!snap.exists()) return;
-    snap.forEach(child => {
-        if (child.key !== TODAY_KEY)
-            remove(ref(db, "easter_egg/" + child.key)).catch(() => {});
-    });
-}).catch(() => {});
-
-const hitDesktop = document.getElementById("hit-desktop");
-const hitMobile  = document.getElementById("hit-mobile");
-const toast      = document.getElementById("plant-toast");
-const ptNum      = document.getElementById("pt-num");
-const ptSub      = document.getElementById("pt-sub");
-const stem       = document.getElementById("p-stem");
-const flower     = document.getElementById("p-flower");
-const lf         = id => document.getElementById(id);
-
-const DROWN_AT = 100;
-let waterCount  = 0;
-let prevStage   = 0;
-let cooling      = false;
-let toastTimer  = null;
-let everClicked = false;
-let drownPlayed = false;
-
-onValue(plantRef, snap => {
-    const raw = snap.val() || 0;
-    const atDrownPoint = raw > 0 && raw % DROWN_AT === 0;
-    waterCount = raw % DROWN_AT;
-
-    if (atDrownPoint && !drownPlayed) {
-        drownPlayed = true;
-        playDrownAndRebirth();
-        if (everClicked) showToast(DROWN_AT);
-        return;
+onValue(bulbRef, (snap) => {
+    currentBulbState = snap.val() === true;
+    if (currentBulbState) {
+        bulbSvg.classList.add("is-on");
+    } else {
+        bulbSvg.classList.remove("is-on");
     }
-    if (!atDrownPoint) {
-        drownPlayed = false;
-        applyGrowth(waterCount);
-    }
-    if (everClicked) showToast(waterCount);
 });
 
-[hitDesktop, hitMobile].forEach(el => {
-    el.addEventListener("click", () => {
-        if (cooling) return;
-        cooling = true;
-        setTimeout(() => cooling = false, 700);
-        everClicked = true;
-        runTransaction(plantRef, cur => (cur || 0) + 1);
-        spawnDrop(el);
-        bounce(el);
-    });
+bulbEl.addEventListener("click", () => {
+    bulbSvg.classList.remove("swinging");
+    void bulbSvg.offsetWidth; 
+    bulbSvg.classList.add("swinging");
+    
+    set(bulbRef, !currentBulbState);
 });
-
-function stageOf(n) {
-    if (n >= 85) return 4;
-    if (n >= 55) return 3;
-    if (n >= 25) return 2;
-    return 1;
-}
-
-function applyGrowth(n) {
-    const stage = stageOf(n);
-    const s1 = Math.min(1, n / 24);
-    lf("p-l1").setAttribute("opacity", 0.38 + s1 * 0.62);
-    lf("p-l2").setAttribute("opacity", 0.38 + s1 * 0.62);
-    const s2 = Math.max(0, Math.min(1, (n - 24) / 30));
-    lf("p-l3").setAttribute("opacity", s2);
-    lf("p-l4").setAttribute("opacity", s2);
-    const s3 = Math.max(0, Math.min(1, (n - 54) / 30));
-    lf("p-l5").setAttribute("opacity", s3);
-    lf("p-l6").setAttribute("opacity", s3);
-    if (n >= 55) stem.setAttribute("y2", "26");
-    else         stem.setAttribute("y2", "40");
-    const s4 = Math.max(0, Math.min(1, (n - 84) / 15));
-    flower.setAttribute("opacity", s4);
-    if (stage > prevStage && prevStage > 0) flashStage(stage);
-    prevStage = stage;
-}
-
-function resetPlantVisual() {
-    lf("p-l1").setAttribute("opacity", 0.42);
-    lf("p-l2").setAttribute("opacity", 0.42);
-    lf("p-l3").setAttribute("opacity", 0);
-    lf("p-l4").setAttribute("opacity", 0);
-    lf("p-l5").setAttribute("opacity", 0);
-    lf("p-l6").setAttribute("opacity", 0);
-    flower.setAttribute("opacity", 0);
-    stem.setAttribute("y2", "40");
-    prevStage = 1;
-}
-
-function playDrownAndRebirth() {
-    [hitDesktop, hitMobile].forEach(el => {
-        const svg = el.querySelector(".plant-svg");
-        svg.classList.remove("bouncing", "sprouting");
-        void svg.offsetWidth;
-        svg.classList.add("drowning");
-        svg.addEventListener("animationend", function onDrown() {
-            svg.removeEventListener("animationend", onDrown);
-            resetPlantVisual();
-            svg.classList.remove("drowning");
-            void svg.offsetWidth;
-            svg.classList.add("sprouting");
-            svg.addEventListener("animationend", function onSprout() {
-                svg.removeEventListener("animationend", onSprout);
-                svg.classList.remove("sprouting");
-            }, { once:true });
-        }, { once:true });
-    });
-    flashCustom("💀 ERTRUNKEN → 🌱 NEU!");
-}
-
-const stageText = { 2:"🌿 Neue Blätter!", 3:"🌱 Sie wächst!", 4:"🌸 Geblüht!" };
-
-function flashStage(s) {
-    if (!stageText[s]) return;
-    flashCustom(stageText[s]);
-}
-
-function flashCustom(txt) {
-    const isMobile = window.innerWidth <= 600;
-    const anchor   = isMobile ? hitMobile : hitDesktop;
-    const rect     = anchor.getBoundingClientRect();
-    const el       = document.createElement("div");
-    el.className   = "stage-pop";
-    el.textContent = txt;
-    el.style.left  = (rect.left + rect.width / 2) + "px";
-    el.style.top   = (rect.top - 4) + "px";
-    document.body.appendChild(el);
-    el.addEventListener("animationend", () => el.remove());
-}
-
-function showToast(n) {
-    clearTimeout(toastTimer);
-    ptNum.textContent = n + "×";
-    let msg;
-    if       (n >= 100) msg = "Sie ist ertrunken 💀🌊";
-    else if (n >= 90)  msg = "Gleich zu viel… 😰💦";
-    else if (n >= 80)  msg = "Voll aufgeblüht! 🌸";
-    else if (n >= 70)  msg = "Wunderschön! 🌷";
-    else if (n >= 60)  msg = "Sie blüht auf! 🌺";
-    else if (n >= 50)  msg = "Halbzeit! 🌳";
-    else if (n >= 40)  msg = "Wird groß! 🌲";
-    else if (n >= 30)  msg = "Immer grüner! 🍃";
-    else if (n >= 20)  msg = "Neue Blätter! 🌿";
-    else if (n >= 10)  msg = "Sie wächst! 🌱";
-    else               msg = "Heute gegossen 💧";
-    ptSub.textContent = msg;
-
-    if (window.innerWidth <= 600) {
-        const inlineEl = document.getElementById("plant-inline");
-        inlineEl.style.position = "relative";
-        toast.style.position    = "absolute";
-        if (toast.parentElement !== inlineEl) inlineEl.appendChild(toast);
-    }
-
-    toast.classList.add("show");
-    toastTimer = setTimeout(() => toast.classList.remove("show"), 3200);
-}
-
-function spawnDrop(anchor) {
-    const d       = document.createElement("div");
-    d.className   = "wdrop";
-    d.textContent = "💧";
-    anchor.appendChild(d);
-    d.addEventListener("animationend", () => d.remove());
-}
-
-function bounce(anchor) {
-    const svg = anchor.querySelector(".plant-svg");
-    if (svg.classList.contains("drowning") || svg.classList.contains("sprouting")) return;
-    svg.classList.remove("bouncing");
-    void svg.offsetWidth;
-    svg.classList.add("bouncing");
-    svg.addEventListener("animationend",
-        () => svg.classList.remove("bouncing"), { once:true });
-}
-
 </script>
-
 
 <script>
 const canvas = document.getElementById("bg");
@@ -840,6 +501,5 @@ function animate() {
 }
 animate();
 </script>
-
 </body>
 </html>
