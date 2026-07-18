@@ -359,6 +359,88 @@ h1{
     50% { opacity: 1; }
 }
 
+/* ════ CUSTOM POPUPS STYLING (NEU) ════ */
+.custom-popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(8px);
+    z-index: 12000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+.custom-popup-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+.popup-card {
+    background: #0d0d0d;
+    border: 1px solid #00ffcc;
+    box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    width: min(360px, 90vw);
+}
+.popup-card h3 {
+    color: #00ffcc;
+    margin-bottom: 12px;
+}
+.popup-card p {
+    color: #bbb;
+    font-size: 14px;
+    margin-bottom: 18px;
+}
+.popup-input {
+    width: 100%;
+    padding: 12px;
+    background: #151515;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: white;
+    font-size: 15px;
+    margin-bottom: 20px;
+    outline: none;
+    text-align: center;
+    transition: border-color 0.3s;
+}
+.popup-input:focus {
+    border-color: #00ffcc;
+}
+.popup-btn-group {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+.popup-btn {
+    padding: 12px 20px;
+    background: #050505;
+    border: 1px solid #00ffcc;
+    color: #00ffcc;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.popup-btn:hover {
+    background: #00ffcc;
+    color: #050505;
+    box-shadow: 0 0 10px #00ffcc;
+}
+.popup-btn.secondary {
+    border-color: #666;
+    color: #666;
+}
+.popup-btn.secondary:hover {
+    background: #222;
+    color: #fff;
+    box-shadow: none;
+}
+
 /* ════ ADMIN PANEL OVERLAY ════ */
 #admin-overlay {
     position: fixed;
@@ -419,6 +501,27 @@ h1{
     <div class="maintenance-text">
         Wartungsarbeiten
         <div class="dot-stream"><span>.</span><span>.</span><span>.</span></div>
+    </div>
+</div>
+
+<div id="popup-setup" class="custom-popup-overlay">
+    <div class="popup-card">
+        <h3>Passwort festlegen</h3>
+        <p>Es wurde noch kein Admin-Passwort in Firebase gefunden. Bitte erstelle eins:</p>
+        <input type="password" id="setup-pw-input" class="popup-input" placeholder="Neues Passwort">
+        <button id="setup-pw-save" class="popup-btn">Passwort speichern</button>
+    </div>
+</div>
+
+<div id="popup-auth" class="custom-popup-overlay">
+    <div class="popup-card">
+        <h3>Admin-Verifizierung</h3>
+        <p>Bitte gib dein Passwort ein, um das Dev Mode Panel zu öffnen:</p>
+        <input type="password" id="auth-pw-input" class="popup-input" placeholder="Passwort eingeben">
+        <div class="popup-btn-group">
+            <button id="auth-pw-confirm" class="popup-btn">Bestätigen</button>
+            <button id="auth-pw-cancel" class="popup-btn secondary">Abbrechen</button>
+        </div>
     </div>
 </div>
 
@@ -534,7 +637,7 @@ h1{
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getDatabase, ref, runTransaction, onValue, get, remove, set, onDisconnect } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { getDatabase, ref, runTransaction, onValue, get, set, onDisconnect } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 const firebaseConfig = {
     apiKey:            "AIzaSyCAh2AsbxLqU2Gx9s0YbZo8PR4fpG3WDw8",
@@ -551,18 +654,29 @@ const db  = getDatabase(app);
 
 /* ═══════════════ LIVE DEV MODE / WARTUNGSMODUS ═══════════════ */
 const maintenanceRef = ref(db, "live_features/maintenance_mode");
-const actionsRef = ref(db, "admin_actions");
+const passwordRef = ref(db, "admin_settings/password"); // Dedizierter Passwort-Pfad in Firebase
+
 const mOverlay = document.getElementById("maintenance-overlay");
 const adminOverlay = document.getElementById("admin-overlay");
 const footerBtn = document.getElementById("secret-footer");
 const toggleMBtn = document.getElementById("toggle-maintenance");
 
+// Custom Popup Elemente
+const popupSetup = document.getElementById("popup-setup");
+const setupPwInput = document.getElementById("setup-pw-input");
+const setupPwSave = document.getElementById("setup-pw-save");
+
+const popupAuth = document.getElementById("popup-auth");
+const authPwInput = document.getElementById("auth-pw-input");
+const authPwConfirm = document.getElementById("auth-pw-confirm");
+const authPwCancel = document.getElementById("auth-pw-cancel");
+
 let isMaintenanceActive = false;
 let footerClicks = 0;
 let clickTimeout;
-let verifiedPassword = ""; // Cache im Arbeitsspeicher für die Session
+let serverPassword = null; // Speichert das aus Firebase geladene Passwort
 
-// Wir spiegeln den Status aus admin_actions direkt live in live_features/maintenance_mode
+// Wartungsmodus Live-Status spiegeln
 onValue(maintenanceRef, (snap) => {
     isMaintenanceActive = snap.val() === true;
     if (isMaintenanceActive) {
@@ -573,6 +687,14 @@ onValue(maintenanceRef, (snap) => {
     updateAdminButtonUI();
 });
 
+// Beim Laden der Seite prüfen, ob bereits ein Passwort existiert
+get(passwordRef).then(snap => {
+    if (snap.exists()) {
+        serverPassword = snap.val();
+    }
+});
+
+// Secret Footer Klicks abfangen
 footerBtn.addEventListener("click", () => {
     footerClicks++;
     clearTimeout(clickTimeout);
@@ -580,46 +702,66 @@ footerBtn.addEventListener("click", () => {
 
     if (footerClicks >= 5) {
         footerClicks = 0;
-        const userEnteredPw = prompt("Admin Passwort eingeben:");
-        if (!userEnteredPw || userEnteredPw.trim() === "") return;
-
-        // Wir holen den Pfad über ein REST-ähnliches verhalten, indem wir versuchen den Wert zu lesen
-        get(ref(db, `admin_actions/${userEnteredPw}`)).then(snap => {
-            const exists = snap.exists();
-            
-            // Wenn die DB komplett leer ist, registrieren wir dieses Passwort
-            get(actionsRef).then(actionSnap => {
-                if (!actionSnap.exists()) {
-                    set(ref(db, `admin_actions/${userEnteredPw}`), { status: false }).then(() => {
-                        verifiedPassword = userEnteredPw;
-                        adminOverlay.classList.add("open");
-                        alert("Initiales Admin-Passwort erfolgreich gesetzt!");
-                    });
-                } else {
-                    if (exists) {
-                        verifiedPassword = userEnteredPw;
-                        adminOverlay.classList.add("open");
-                    } else {
-                        alert("Falsches Passwort!");
-                    }
-                }
-            });
-        }).catch(err => {
-            console.error("Authentifizierungsfehler:", err);
-            alert("Zugriff verweigert oder falsches Passwort.");
+        
+        // Erneute Abfrage falls das Passwort inzwischen im Hintergrund gesetzt wurde
+        get(passwordRef).then(snap => {
+            if (!snap.exists()) {
+                // 1. Fall: Kein Passwort gefunden -> Setup Popup öffnen
+                popupSetup.classList.add("open");
+                setupPwInput.focus();
+            } else {
+                // 2. Fall: Passwort existiert -> Auth Popup öffnen
+                serverPassword = snap.val();
+                popupAuth.classList.add("open");
+                authPwInput.focus();
+            }
         });
     }
 });
 
-toggleMBtn.addEventListener("click", () => {
-    if (!verifiedPassword) return;
-    const nextState = !isMaintenanceActive;
+// Setup-Popup: Erstes Passwort in Firebase speichern
+setupPwSave.addEventListener("click", () => {
+    const newPw = setupPwInput.value.trim();
+    if (!newPw) {
+        alert("Bitte gib ein gültiges Passwort ein!");
+        return;
+    }
     
-    // Wir schreiben an zwei Stellen gleichzeitig: 
-    // Einmal zur Verifizierung in unser geschütztes Verzeichnis und einmal in das öffentliche Feature-Verzeichnis
-    set(ref(db, `admin_actions/${verifiedPassword}`), { status: nextState }).then(() => {
-        set(maintenanceRef, nextState);
+    set(passwordRef, newPw).then(() => {
+        serverPassword = newPw;
+        popupSetup.classList.remove("open");
+        setupPwInput.value = "";
+        // Direkt im Anschluss das Admin-Panel öffnen
+        adminOverlay.classList.add("open");
     }).catch(err => {
+        alert("Fehler beim Speichern des Passworts: " + err.message);
+    });
+});
+
+// Auth-Popup: Passwort bestätigen und Schalter/Panel freigeben
+authPwConfirm.addEventListener("click", () => {
+    const enteredPw = authPwInput.value.trim();
+    if (enteredPw === serverPassword) {
+        popupAuth.classList.remove("open");
+        authPwInput.value = "";
+        adminOverlay.classList.add("open");
+    } else {
+        alert("Falsches Passwort!");
+        authPwInput.value = "";
+        authPwInput.focus();
+    }
+});
+
+// Auth-Popup: Abbrechen
+authPwCancel.addEventListener("click", () => {
+    popupAuth.classList.remove("open");
+    authPwInput.value = "";
+});
+
+// Admin-Panel: Wartungsmodus-Schalter triggern
+toggleMBtn.addEventListener("click", () => {
+    const nextState = !isMaintenanceActive;
+    set(maintenanceRef, nextState).catch(err => {
         alert("Schreibfehler! Keine Berechtigung.");
     });
 });
