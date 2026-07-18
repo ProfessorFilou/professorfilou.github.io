@@ -578,26 +578,26 @@ footerBtn.addEventListener("click", () => {
 
     if (footerClicks >= 5) {
         footerClicks = 0;
-        const pw = prompt("Admin Passwort eingeben:");
-        if (!pw) return;
+        const userEnteredPw = prompt("Admin Passwort eingeben:");
+        if (!userEnteredPw) return;
 
-        // Festgelegtes Passwort abgleichen
-        if (pw === "PFWAB") {
-            // Passwort in der Datenbank abspeichern/aktualisieren und Panel öffnen
-            set(passwordRef, "PFWAB").then(() => {
+        // Passwort live aus der Firebase abfragen (kein Passwort im Quellcode!)
+        get(passwordRef).then(snap => {
+            const dbPassword = snap.val();
+            if (dbPassword && userEnteredPw === dbPassword) {
                 adminOverlay.classList.add("open");
-            }).catch(err => {
-                console.error("Fehler beim Speichern des Passworts in der DB:", err);
-                // Panel trotzdem öffnen, da das eingegebene PW korrekt war
-                adminOverlay.classList.add("open");
-            });
-        } else {
-            alert("Falsches Passwort!");
-        }
+            } else {
+                alert("Falsches Passwort!");
+            }
+        }).catch(err => {
+            console.error("Fehler beim Abrufen des Passworts aus der DB:", err);
+            alert("Fehler bei der Authentifizierung.");
+        });
     }
 });
 
 toggleMBtn.addEventListener("click", () => {
+    // Schaltet den Status in der Datenbank sauber zwischen true und false hin und her
     set(maintenanceRef, !isMaintenanceActive);
 });
 
