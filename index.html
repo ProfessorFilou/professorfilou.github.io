@@ -140,6 +140,10 @@ h1{
     font-size:14px;
     cursor: pointer;
     user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    pointer-events: auto;
+    padding: 10px;
 }
 
 .footer-info{
@@ -281,6 +285,20 @@ h1{
     overflow:visible;
 }
 
+/* Pflanze Animationen (NEU hinzugefügt/repariert) */
+@keyframes pbounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(0.9) translateY(4px); }
+}
+@keyframes wfall {
+    0% { transform: translateY(-40px); opacity: 0; }
+    30% { opacity: 1; }
+    100% { transform: translateY(20px); opacity: 0; }
+}
+.plant-svg.drowning {
+    animation: pbounce 0.3s ease 3;
+}
+
 #plant-toast{
     position:fixed;
     z-index:400;
@@ -359,7 +377,7 @@ h1{
     50% { opacity: 1; }
 }
 
-/* ════ CUSTOM POPUPS STYLING (NEU) ════ */
+/* ════ CUSTOM POPUPS STYLING ════ */
 .custom-popup-overlay {
     position: fixed;
     inset: 0;
@@ -654,14 +672,13 @@ const db  = getDatabase(app);
 
 /* ═══════════════ LIVE DEV MODE / WARTUNGSMODUS ═══════════════ */
 const maintenanceRef = ref(db, "live_features/maintenance_mode");
-const passwordRef = ref(db, "admin_settings/password"); // Dedizierter Passwort-Pfad in Firebase
+const passwordRef = ref(db, "admin_settings/password");
 
 const mOverlay = document.getElementById("maintenance-overlay");
 const adminOverlay = document.getElementById("admin-overlay");
 const footerBtn = document.getElementById("secret-footer");
 const toggleMBtn = document.getElementById("toggle-maintenance");
 
-// Custom Popup Elemente
 const popupSetup = document.getElementById("popup-setup");
 const setupPwInput = document.getElementById("setup-pw-input");
 const setupPwSave = document.getElementById("setup-pw-save");
@@ -674,9 +691,8 @@ const authPwCancel = document.getElementById("auth-pw-cancel");
 let isMaintenanceActive = false;
 let footerClicks = 0;
 let clickTimeout;
-let serverPassword = null; // Speichert das aus Firebase geladene Passwort
+let serverPassword = null;
 
-// Wartungsmodus Live-Status spiegeln
 onValue(maintenanceRef, (snap) => {
     isMaintenanceActive = snap.val() === true;
     if (isMaintenanceActive) {
@@ -687,30 +703,25 @@ onValue(maintenanceRef, (snap) => {
     updateAdminButtonUI();
 });
 
-// Beim Laden der Seite prüfen, ob bereits ein Passwort existiert
 get(passwordRef).then(snap => {
     if (snap.exists()) {
         serverPassword = snap.val();
     }
 });
 
-// Secret Footer Klicks abfangen
 footerBtn.addEventListener("click", () => {
     footerClicks++;
     clearTimeout(clickTimeout);
-    clickTimeout = setTimeout(() => { footerClicks = 0; }, 2000);
+    clickTimeout = setTimeout(() => { footerClicks = 0; }, 3500); // Klick-Toleranz auf 3.5s erhöht
 
     if (footerClicks >= 5) {
         footerClicks = 0;
         
-        // Erneute Abfrage falls das Passwort inzwischen im Hintergrund gesetzt wurde
         get(passwordRef).then(snap => {
             if (!snap.exists()) {
-                // 1. Fall: Kein Passwort gefunden -> Setup Popup öffnen
                 popupSetup.classList.add("open");
                 setupPwInput.focus();
             } else {
-                // 2. Fall: Passwort existiert -> Auth Popup öffnen
                 serverPassword = snap.val();
                 popupAuth.classList.add("open");
                 authPwInput.focus();
@@ -719,7 +730,6 @@ footerBtn.addEventListener("click", () => {
     }
 });
 
-// Setup-Popup: Erstes Passwort in Firebase speichern
 setupPwSave.addEventListener("click", () => {
     const newPw = setupPwInput.value.trim();
     if (!newPw) {
@@ -731,14 +741,12 @@ setupPwSave.addEventListener("click", () => {
         serverPassword = newPw;
         popupSetup.classList.remove("open");
         setupPwInput.value = "";
-        // Direkt im Anschluss das Admin-Panel öffnen
         adminOverlay.classList.add("open");
     }).catch(err => {
-        alert("Fehler beim Speichern des Passworts: " + err.message);
+        alert("Fehler: " + err.message);
     });
 });
 
-// Auth-Popup: Passwort bestätigen und Schalter/Panel freigeben
 authPwConfirm.addEventListener("click", () => {
     const enteredPw = authPwInput.value.trim();
     if (enteredPw === serverPassword) {
@@ -752,13 +760,11 @@ authPwConfirm.addEventListener("click", () => {
     }
 });
 
-// Auth-Popup: Abbrechen
 authPwCancel.addEventListener("click", () => {
     popupAuth.classList.remove("open");
     authPwInput.value = "";
 });
 
-// Admin-Panel: Wartungsmodus-Schalter triggern
 toggleMBtn.addEventListener("click", () => {
     const nextState = !isMaintenanceActive;
     set(maintenanceRef, nextState).catch(err => {
@@ -873,8 +879,26 @@ function showToast(n) {
     ptSub.textContent = n >= 80 ? "Voll aufgeblüht! 🌸" : n >= 50 ? "Halbzeit! 🌳" : n >= 10 ? "Sie wächst! 🌱" : "Heute gegossen 💧";
     toast.classList.add("show"); toastTimer = setTimeout(() => toast.classList.remove("show"), 3200);
 }
-function spawnDrop(a) { const d = document.createElement("div"); d.style.position="absolute"; d.style.fontSize="18px"; d.style.animation="wfall 0.7s forwards"; d.textContent="💧"; a.appendChild(d); setTimeout(() => d.remove(), 700); }
-function bounce(a) { const s = a.querySelector(".plant-svg"); s.style.animation = "pbounce 0.5s ease"; s.addEventListener("animationend", () => s.style.animation=""); }
+
+function spawnDrop(a) { 
+    const d = document.createElement("div"); 
+    d.style.position = "absolute"; 
+    d.style.fontSize = "18px"; 
+    d.style.animation = "wfall 0.7s ease-in forwards"; // Hier greift jetzt die reparierte CSS-Animation
+    d.style.left = "50%";
+    d.style.top = "20px";
+    d.style.transform = "translateX(-50%)";
+    d.style.pointerEvents = "none";
+    d.textContent = "💧"; 
+    a.appendChild(d); 
+    setTimeout(() => d.remove(), 700); 
+}
+
+function bounce(a) { 
+    const s = a.querySelector(".plant-svg"); 
+    s.style.animation = "pbounce 0.4s ease"; 
+    s.addEventListener("animationend", () => s.style.animation=""); 
+}
 
 /* ═══════════════ LIVE GLÜHBIRNE ═══════════════ */
 const bulbRef = ref(db, "live_features/light_bulb");
