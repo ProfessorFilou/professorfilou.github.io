@@ -693,7 +693,6 @@ let footerClicks = 0;
 let clickTimeout;
 let serverPassword = null;
 
-// Wartungsmodus live auslesen
 onValue(maintenanceRef, (snap) => {
     isMaintenanceActive = snap.val() === true;
     if (isMaintenanceActive) {
@@ -704,7 +703,6 @@ onValue(maintenanceRef, (snap) => {
     updateAdminButtonUI();
 });
 
-// Passwort direkt beim Start puffern
 function fetchPassword() {
     return get(passwordRef).then(snap => {
         if (snap.exists()) {
@@ -712,16 +710,15 @@ function fetchPassword() {
             return true;
         }
         return false;
-    });
+    }).catch(() => false);
 }
 fetchPassword();
 
-// NEU: Absolut stabiles Klick-Event mit visuellem Feedback (Footer blitzt auf)
+// Unkaputtbarer Klick-Listener mit Fallback-Garantie
 footerBtn.addEventListener("click", async (e) => {
     e.preventDefault();
     footerClicks++;
     
-    // Visueller Klick-Effekt
     footerBtn.style.opacity = "0.3";
     setTimeout(() => { footerBtn.style.opacity = "1"; }, 100);
 
@@ -734,15 +731,23 @@ footerBtn.addEventListener("click", async (e) => {
         footerClicks = 0;
         clearTimeout(clickTimeout);
         
-        // Holt das Passwort frisch ab, um Lade-Verzögerungen zu verhindern
-        const hasPassword = await fetchPassword();
-        
-        if (!hasPassword) {
+        try {
+            const passwordPromise = fetchPassword();
+            const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 1800));
+            
+            const hasPassword = await Promise.race([passwordPromise, timeoutPromise]);
+            
+            if (!hasPassword) {
+                popupSetup.classList.add("open");
+                setTimeout(() => setupPwInput.focus(), 50);
+            } else {
+                popupAuth.classList.add("open");
+                setTimeout(() => authPwInput.focus(), 50);
+            }
+        } catch (err) {
+            console.warn("Firebase reagiert verzögert. Öffne Setup-Modus...", err);
             popupSetup.classList.add("open");
             setTimeout(() => setupPwInput.focus(), 50);
-        } else {
-            popupAuth.classList.add("open");
-            setTimeout(() => authPwInput.focus(), 50);
         }
     }
 });
@@ -760,7 +765,7 @@ setupPwSave.addEventListener("click", () => {
         setupPwInput.value = "";
         adminOverlay.classList.add("open");
     }).catch(err => {
-        alert("Fehler beim Speichern: " + err.message);
+        alert("Fehler beim Speichern: " + err.message + "\nHast du die Rules im Firebase Dashboard hochgeladen?");
     });
 });
 
@@ -777,13 +782,8 @@ authPwConfirm.addEventListener("click", () => {
     }
 });
 
-// Enter-Tasten-Support
-authPwInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") authPwConfirm.click();
-});
-setupPwInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") setupPwSave.click();
-});
+authPwInput.addEventListener("keypress", (e) => { if (e.key === "Enter") authPwConfirm.click(); });
+setupPwInput.addEventListener("keypress", (e) => { if (e.key === "Enter") setupPwSave.click(); });
 
 authPwCancel.addEventListener("click", () => {
     popupAuth.classList.remove("open");
@@ -793,7 +793,7 @@ authPwCancel.addEventListener("click", () => {
 toggleMBtn.addEventListener("click", () => {
     const nextState = !isMaintenanceActive;
     set(maintenanceRef, nextState).catch(err => {
-        alert("Schreibfehler! Überprüfe die Firebase-Rules.");
+        alert("Fehler beim Umschalten: " + err.message);
     });
 });
 
