@@ -560,8 +560,9 @@ const toggleMBtn = document.getElementById("toggle-maintenance");
 let isMaintenanceActive = false;
 let footerClicks = 0;
 let clickTimeout;
-let verifiedPassword = ""; // Temporärer Cache im RAM für die Session
+let verifiedPassword = ""; // Cache im Arbeitsspeicher für die Session
 
+// Wir spiegeln den Status aus admin_actions direkt live in live_features/maintenance_mode
 onValue(maintenanceRef, (snap) => {
     isMaintenanceActive = snap.val() === true;
     if (isMaintenanceActive) {
@@ -582,37 +583,45 @@ footerBtn.addEventListener("click", () => {
         const userEnteredPw = prompt("Admin Passwort eingeben:");
         if (!userEnteredPw || userEnteredPw.trim() === "") return;
 
-        // Wir prüfen live, ob unter der Node 'admin_actions' überhaupt schon Daten liegen
-        get(actionsRef).then(snap => {
-            const hasData = snap.exists();
+        // Wir holen den Pfad über ein REST-ähnliches verhalten, indem wir versuchen den Wert zu lesen
+        get(ref(db, `admin_actions/${userEnteredPw}`)).then(snap => {
+            const exists = snap.exists();
             
-            if (!hasData) {
-                // Die DB ist brandneu/leer! Wir registrieren das eingegebene PW als Master-Passwort
-                set(ref(db, `admin_actions/${userEnteredPw}`), true).then(() => {
-                    verifiedPassword = userEnteredPw;
-                    adminOverlay.classList.add("open");
-                    alert("Initiales Admin-Passwort erfolgreich in Firebase registriert!");
-                });
-            } else {
-                // Passwörter existieren bereits. Wir checken, ob das eingegebene Passwort in der DB existiert
-                if (snap.child(userEnteredPw).exists()) {
-                    verifiedPassword = userEnteredPw;
-                    adminOverlay.classList.add("open");
+            // Wenn die DB komplett leer ist, registrieren wir dieses Passwort
+            get(actionsRef).then(actionSnap => {
+                if (!actionSnap.exists()) {
+                    set(ref(db, `admin_actions/${userEnteredPw}`), { status: false }).then(() => {
+                        verifiedPassword = userEnteredPw;
+                        adminOverlay.classList.add("open");
+                        alert("Initiales Admin-Passwort erfolgreich gesetzt!");
+                    });
                 } else {
-                    alert("Falsches Passwort!");
+                    if (exists) {
+                        verifiedPassword = userEnteredPw;
+                        adminOverlay.classList.add("open");
+                    } else {
+                        alert("Falsches Passwort!");
+                    }
                 }
-            }
+            });
         }).catch(err => {
             console.error("Authentifizierungsfehler:", err);
-            alert("Zugriff verweigert.");
+            alert("Zugriff verweigert oder falsches Passwort.");
         });
     }
 });
 
 toggleMBtn.addEventListener("click", () => {
-    // Schaltet den Status um und nutzt das verifizierte Passwort im RAM
     if (!verifiedPassword) return;
-    set(maintenanceRef, !isMaintenanceActive);
+    const nextState = !isMaintenanceActive;
+    
+    // Wir schreiben an zwei Stellen gleichzeitig: 
+    // Einmal zur Verifizierung in unser geschütztes Verzeichnis und einmal in das öffentliche Feature-Verzeichnis
+    set(ref(db, `admin_actions/${verifiedPassword}`), { status: nextState }).then(() => {
+        set(maintenanceRef, nextState);
+    }).catch(err => {
+        alert("Schreibfehler! Keine Berechtigung.");
+    });
 });
 
 document.getElementById("close-admin").addEventListener("click", () => {
