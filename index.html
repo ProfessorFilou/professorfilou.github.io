@@ -551,6 +551,7 @@ const db  = getDatabase(app);
 
 /* ═══════════════ LIVE DEV MODE / WARTUNGSMODUS ═══════════════ */
 const maintenanceRef = ref(db, "live_features/maintenance_mode");
+const passwordRef = ref(db, "admin/password");
 const mOverlay = document.getElementById("maintenance-overlay");
 const adminOverlay = document.getElementById("admin-overlay");
 const footerBtn = document.getElementById("secret-footer");
@@ -580,13 +581,19 @@ footerBtn.addEventListener("click", () => {
         const pw = prompt("Admin Passwort eingeben:");
         if (!pw) return;
 
-        get(ref(db, "admin/password")).then(snap => {
-            if (snap.val() && snap.val() === pw) {
+        // Festgelegtes Passwort abgleichen
+        if (pw === "PFWAB") {
+            // Passwort in der Datenbank abspeichern/aktualisieren und Panel öffnen
+            set(passwordRef, "PFWAB").then(() => {
                 adminOverlay.classList.add("open");
-            } else {
-                alert("Falsches Passwort!");
-            }
-        });
+            }).catch(err => {
+                console.error("Fehler beim Speichern des Passworts in der DB:", err);
+                // Panel trotzdem öffnen, da das eingegebene PW korrekt war
+                adminOverlay.classList.add("open");
+            });
+        } else {
+            alert("Falsches Passwort!");
+        }
     }
 });
 
