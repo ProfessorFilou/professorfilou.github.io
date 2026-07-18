@@ -144,6 +144,7 @@ h1{
     -moz-user-select: none;
     pointer-events: auto;
     padding: 10px;
+    transition: opacity 0.1s ease;
 }
 
 .footer-info{
@@ -692,6 +693,7 @@ let footerClicks = 0;
 let clickTimeout;
 let serverPassword = null;
 
+// Wartungsmodus live auslesen
 onValue(maintenanceRef, (snap) => {
     isMaintenanceActive = snap.val() === true;
     if (isMaintenanceActive) {
@@ -702,16 +704,27 @@ onValue(maintenanceRef, (snap) => {
     updateAdminButtonUI();
 });
 
-get(passwordRef).then(snap => {
-    if (snap.exists()) {
-        serverPassword = snap.val();
-    }
-});
+// Passwort direkt beim Start puffern
+function fetchPassword() {
+    return get(passwordRef).then(snap => {
+        if (snap.exists()) {
+            serverPassword = snap.val();
+            return true;
+        }
+        return false;
+    });
+}
+fetchPassword();
 
-// FIX: Optimierte Klick-Erkennung mit Fehlerbehebung für Mobilgeräte
-footerBtn.addEventListener("click", () => {
+// NEU: Absolut stabiles Klick-Event mit visuellem Feedback (Footer blitzt auf)
+footerBtn.addEventListener("click", async (e) => {
+    e.preventDefault();
     footerClicks++;
     
+    // Visueller Klick-Effekt
+    footerBtn.style.opacity = "0.3";
+    setTimeout(() => { footerBtn.style.opacity = "1"; }, 100);
+
     clearTimeout(clickTimeout);
     clickTimeout = setTimeout(() => { 
         footerClicks = 0; 
@@ -721,18 +734,16 @@ footerBtn.addEventListener("click", () => {
         footerClicks = 0;
         clearTimeout(clickTimeout);
         
-        get(passwordRef).then(snap => {
-            if (!snap.exists()) {
-                popupSetup.classList.add("open");
-                setupPwInput.focus();
-            } else {
-                serverPassword = snap.val();
-                popupAuth.classList.add("open");
-                authPwInput.focus();
-            }
-        }).catch(err => {
-            console.error("Firebase Fehler:", err);
-        });
+        // Holt das Passwort frisch ab, um Lade-Verzögerungen zu verhindern
+        const hasPassword = await fetchPassword();
+        
+        if (!hasPassword) {
+            popupSetup.classList.add("open");
+            setTimeout(() => setupPwInput.focus(), 50);
+        } else {
+            popupAuth.classList.add("open");
+            setTimeout(() => authPwInput.focus(), 50);
+        }
     }
 });
 
@@ -749,7 +760,7 @@ setupPwSave.addEventListener("click", () => {
         setupPwInput.value = "";
         adminOverlay.classList.add("open");
     }).catch(err => {
-        alert("Fehler: " + err.message);
+        alert("Fehler beim Speichern: " + err.message);
     });
 });
 
@@ -766,6 +777,14 @@ authPwConfirm.addEventListener("click", () => {
     }
 });
 
+// Enter-Tasten-Support
+authPwInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") authPwConfirm.click();
+});
+setupPwInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") setupPwSave.click();
+});
+
 authPwCancel.addEventListener("click", () => {
     popupAuth.classList.remove("open");
     authPwInput.value = "";
@@ -774,7 +793,7 @@ authPwCancel.addEventListener("click", () => {
 toggleMBtn.addEventListener("click", () => {
     const nextState = !isMaintenanceActive;
     set(maintenanceRef, nextState).catch(err => {
-        alert("Schreibfehler! Keine Berechtigung.");
+        alert("Schreibfehler! Überprüfe die Firebase-Rules.");
     });
 });
 
