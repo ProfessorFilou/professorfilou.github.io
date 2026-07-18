@@ -36,7 +36,7 @@ canvas{
 .main{
     width:100%;
     min-height:100vh;
-    padding:60px 18px;
+    padding:40px 16px;
     display:flex;
     flex-direction:column;
     align-items:center;
@@ -47,7 +47,7 @@ canvas{
 .header-container {
     position: relative;
     width: 100%;
-    min-height: 120px;
+    min-height: clamp(80px, 15vw, 140px);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -55,9 +55,9 @@ canvas{
 }
 
 h1{
-    font-size:clamp(42px,8vw,100px);
-    line-height:1;
-    letter-spacing:clamp(1px,0.5vw,6px);
+    font-size:clamp(34px, 7.5vw, 90px);
+    line-height:1.1;
+    letter-spacing:clamp(1px,0.4vw,5px);
     text-shadow:0 0 10px #00ffcc,0 0 20px #00ffcc,0 0 40px #00ffcc;
     animation:glow 2s infinite alternate;
     max-width:100%;
@@ -72,17 +72,17 @@ body.maintenance-active h1 {
 }
 
 .line{
-    width:min(320px,75vw);
+    width:min(280px,70vw);
     height:2px;
     background:#00ffcc;
-    margin:22px auto;
+    margin:20px auto;
     box-shadow:0 0 15px #00ffcc;
 }
 
 .text{
     color:#bfbfbf;
-    line-height:1.8;
-    font-size:clamp(16px,4vw,22px);
+    line-height:1.6;
+    font-size:clamp(15px, 3.5vw, 20px);
 }
 
 .socials, .projects-title, .projects, .footer-info {
@@ -97,10 +97,17 @@ body.maintenance-active .projects {
     pointer-events: none;
 }
 
+.socials {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
 .social{
-    width:74px;
-    height:74px;
-    border-radius:20px;
+    width:clamp(60px, 12vw, 74px);
+    height:clamp(60px, 12vw, 74px);
+    border-radius:16px;
     background:rgba(255,255,255,0.05);
     display:flex;
     justify-content:center;
@@ -115,65 +122,66 @@ body.maintenance-active .projects {
 }
 
 .social img{
-    width:38px;
-    height:38px;
+    width:50%;
+    height:50%;
     object-fit:contain;
 }
 
 .projects-title{
-    margin-top:65px;
-    font-size:clamp(26px,6vw,34px);
+    margin-top:50px;
+    font-size:clamp(22px, 5vw, 32px);
     color:#00ffcc;
     letter-spacing:2px;
 }
 
 .projects{
-    margin-top:30px;
+    margin-top:24px;
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
-    gap:16px;
-    width:min(1100px,100%);
+    grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
+    gap:12px;
+    width:100%;
+    max-width:960px;
 }
 
 .project-btn{
-    padding:18px 16px;
-    border-radius:18px;
+    padding:14px 12px;
+    border-radius:14px;
     text-decoration:none;
     color:white;
     background:rgba(255,255,255,0.05);
     border:1px solid rgba(255,255,255,0.08);
     transition:0.3s cubic-bezier(0.25, 1, 0.5, 1);
     backdrop-filter:blur(8px);
-    font-size:17px;
+    font-size:clamp(14px, 3.5vw, 16px);
     cursor:pointer;
     text-align:center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .project-btn:hover{
-    transform:translateY(-5px);
+    transform:translateY(-3px);
     border-color:#00ffcc;
-    box-shadow:0 0 15px #00ffcc,0 0 35px rgba(0,255,204,0.4);
+    box-shadow:0 0 12px #00ffcc,0 0 25px rgba(0,255,204,0.3);
     color:#00ffcc;
 }
 
 .footer{
-    margin-top:55px;
+    margin-top:45px;
     color:#666;
     font-size:14px;
     cursor: pointer;
     user-select: none;
     -webkit-user-select: none;
-    -moz-user-select: none;
-    pointer-events: auto;
     padding: 10px;
-    transition: opacity 0.1s ease;
 }
 
 .footer-info{
-    margin-top:14px;
+    margin-top:10px;
     color:#777;
     font-size:13px;
-    line-height:1.9;
+    line-height:1.8;
 }
 .footer-info b{
     color:#00ffcc;
@@ -182,7 +190,7 @@ body.maintenance-active .projects {
 
 @keyframes glow{
     from{text-shadow:0 0 10px #00ffcc,0 0 20px #00ffcc;}
-    to{text-shadow:0 0 20px #00ffcc,0 0 40px #00ffcc,0 0 80px #00ffcc;}
+    to{text-shadow:0 0 20px #00ffcc,0 0 40px #00ffcc,0 0 60px #00ffcc;}
 }
 
 /* ══ Konfetti ══ */
@@ -210,24 +218,24 @@ body.maintenance-active .projects {
 /* ════ PRESENCE ════ */
 #presence-fixed{
     position:fixed;
-    top:24px;
-    left:24px;
+    top:16px;
+    left:16px;
     z-index:300;
     display:flex;
     align-items:center;
-    gap:8px;
+    gap:6px;
     background:rgba(255,255,255,0.05);
     border:1px solid rgba(255,255,255,0.08);
     border-radius:20px;
-    padding:7px 14px;
+    padding:6px 12px;
     backdrop-filter:blur(8px);
-    font-size:13px;
+    font-size:12px;
     color:#bfbfbf;
 }
 
 #presence-dot{
-    width:9px;
-    height:9px;
+    width:8px;
+    height:8px;
     border-radius:50%;
     background:#444;
     display:inline-block;
@@ -237,14 +245,12 @@ body.maintenance-active .projects {
 #bulb-fixed {
     position: fixed;
     top: 0;
-    right: 40px;
+    right: 20px;
     z-index: 300;
 }
-@media(max-width:600px){ #bulb-fixed { right: 20px; } }
-
 .bulb-hit {
-    width: 60px;
-    height: 130px;
+    width: 50px;
+    height: 110px;
     cursor: pointer;
     user-select: none;
 }
@@ -278,8 +284,8 @@ body.maintenance-active .projects {
 /* ════ PFLANZE ════ */
 #plant-fixed{
     position:fixed;
-    bottom:24px;
-    right:24px;
+    bottom:20px;
+    right:20px;
     z-index:300;
 }
 @media(max-width:600px){
@@ -289,14 +295,14 @@ body.maintenance-active .projects {
     display:none;
     flex-direction:column;
     align-items:center;
-    margin-top:28px;
+    margin-top:24px;
 }
 @media(max-width:600px){ #plant-inline{ display:flex; } }
 
 .plant-hit{
     position:relative;
-    width:68px;
-    height:84px;
+    width:64px;
+    height:80px;
     cursor:pointer;
     display:flex;
     align-items:flex-end;
@@ -327,8 +333,8 @@ body.maintenance-active .projects {
 #plant-toast{
     position:fixed;
     z-index:400;
-    bottom:112px;
-    right:24px;
+    bottom:100px;
+    right:20px;
     background:rgba(3,16,12,0.94);
     border:1px solid rgba(0,255,204,0.45);
     border-radius:14px;
@@ -349,7 +355,7 @@ body.maintenance-active .projects {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 20px;
+    gap: clamp(10px, 3vw, 20px);
     opacity: 0;
     pointer-events: none;
     transform: scale(0.95);
@@ -363,8 +369,8 @@ body.maintenance-active .projects {
 }
 
 .hourglass-svg {
-    width: 65px;
-    height: 65px;
+    width: clamp(45px, 8vw, 65px);
+    height: clamp(45px, 8vw, 65px);
     overflow: visible;
     filter: drop-shadow(0 0 8px #00ffcc);
     animation: rotateHourglass 4s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
@@ -410,7 +416,7 @@ body.maintenance-active .projects {
 }
 
 .maintenance-text {
-    font-size: clamp(28px, 5vw, 54px);
+    font-size: clamp(24px, 6vw, 54px);
     color: #00ffcc;
     font-weight: bold;
     letter-spacing: 2px;
@@ -432,7 +438,7 @@ body.maintenance-active .projects {
     50% { opacity: 1; }
 }
 
-/* ════ VOLLFLÄCHIGES SEITE GESPERRT OVERLAY ════ */
+/* ════ RESPONSIVES SEITE GESPERRT OVERLAY ════ */
 #lockdown-overlay {
     position: fixed;
     inset: 0;
@@ -445,6 +451,7 @@ body.maintenance-active .projects {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    padding: 24px;
 }
 #lockdown-overlay.active {
     opacity: 1;
@@ -452,32 +459,34 @@ body.maintenance-active .projects {
 }
 
 .lockdown-svg {
-    width: 120px;
-    height: 120px;
+    width: clamp(80px, 15vw, 120px);
+    height: clamp(80px, 15vw, 120px);
     overflow: visible;
-    filter: drop-shadow(0 0 15px #ff3333);
-    animation: pulseWarn 2s infinite ease-in-out;
+    filter: drop-shadow(0 0 12px #ff3333);
+    animation: pulseWarn 2.5s infinite ease-in-out;
 }
 @keyframes pulseWarn {
-    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 15px #ff3333); }
-    50% { transform: scale(1.05); filter: drop-shadow(0 0 30px #ff0000); }
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 12px #ff3333); }
+    50% { transform: scale(1.04); filter: drop-shadow(0 0 25px #ff0000); }
 }
 
 .lockdown-text {
     margin-top: 25px;
-    font-size: clamp(22px, 5vw, 38px);
+    font-size: clamp(20px, 5.5vw, 32px);
     color: #ff3333;
-    font-weight: 900;
-    letter-spacing: 3px;
-    text-shadow: 0 0 10px rgba(255, 51, 51, 0.6);
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-shadow: 0 0 10px rgba(255, 51, 51, 0.4);
     text-align: center;
-    text-transform: uppercase;
+    max-width: 500px;
+    line-height: 1.4;
 }
 .lockdown-subtext {
-    margin-top: 10px;
-    font-size: clamp(14px, 3vw, 18px);
-    color: #666;
-    letter-spacing: 1px;
+    margin-top: 14px;
+    font-size: clamp(13px, 3.5vw, 16px);
+    color: #555;
+    letter-spacing: 0.5px;
+    text-align: center;
 }
 
 /* ════ CUSTOM POPUPS STYLING ════ */
@@ -493,6 +502,7 @@ body.maintenance-active .projects {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
+    padding: 16px;
 }
 .custom-popup-overlay.open {
     opacity: 1;
@@ -502,14 +512,16 @@ body.maintenance-active .projects {
     background: #0d0d0d;
     border: 1px solid #00ffcc;
     box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
-    padding: 30px;
+    padding: 24px;
     border-radius: 20px;
     text-align: center;
-    width: min(360px, 90vw);
+    width: 100%;
+    max-width: 360px;
 }
 .popup-card h3 {
     color: #00ffcc;
     margin-bottom: 12px;
+    font-size: 20px;
 }
 .popup-card p {
     color: #bbb;
@@ -527,7 +539,6 @@ body.maintenance-active .projects {
     margin-bottom: 20px;
     outline: none;
     text-align: center;
-    transition: border-color 0.3s;
 }
 .popup-input:focus {
     border-color: #00ffcc;
@@ -546,6 +557,7 @@ body.maintenance-active .projects {
     font-weight: bold;
     cursor: pointer;
     transition: 0.3s;
+    flex: 1;
 }
 .popup-btn:hover {
     background: #00ffcc;
@@ -575,15 +587,17 @@ body.maintenance-active .projects {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s;
+    padding: 16px;
 }
 #admin-overlay.open { opacity: 1; pointer-events: auto; }
 .admin-card {
     background: #0d0d0d;
     border: 1px solid #00ffcc;
-    padding: 30px;
+    padding: 24px;
     border-radius: 20px;
     text-align: center;
-    width: min(340px, 90vw);
+    width: 100%;
+    max-width: 340px;
 }
 .admin-btn {
     width: 100%;
@@ -634,8 +648,8 @@ body.maintenance-active .projects {
         <line x1="32" y1="22" x2="32" y2="40" stroke="#ff3333" stroke-width="5" stroke-linecap="round"/>
         <circle cx="32" cy="48" r="3" fill="#ff3333"/>
     </svg>
-    <div class="lockdown-text">System Lockdown</div>
-    <div class="lockdown-subtext">Access Denied • Connection Terminated</div>
+    <div class="lockdown-text">Diese Seite ist momentan nicht erreichbar.</div>
+    <div class="lockdown-subtext">Bitte haben Sie einen Moment Geduld.</div>
 </div>
 
 <div id="popup-setup" class="custom-popup-overlay">
@@ -835,7 +849,6 @@ let footerClicks = 0;
 let clickTimeout;
 let serverPassword = null;
 
-// Firebase Listener für Wartung
 onValue(maintenanceRef, (snap) => {
     isMaintenanceActive = snap.val() === true;
     if (isMaintenanceActive) {
@@ -848,7 +861,6 @@ onValue(maintenanceRef, (snap) => {
     updateAdminButtonsUI();
 });
 
-// Firebase Listener für Seitensperre
 onValue(lockdownRef, (snap) => {
     isLockdownActive = snap.val() === true;
     if (isLockdownActive) {
@@ -870,7 +882,6 @@ function fetchPassword() {
 }
 fetchPassword();
 
-// Footer Klick Detektor
 footerBtn.addEventListener("click", async (e) => {
     e.preventDefault();
     footerClicks++;
@@ -931,13 +942,8 @@ authPwInput.addEventListener("keypress", (e) => { if (e.key === "Enter") authPwC
 setupPwInput.addEventListener("keypress", (e) => { if (e.key === "Enter") setupPwSave.click(); });
 authPwCancel.addEventListener("click", () => { popupAuth.classList.remove("open"); authPwInput.value = ""; });
 
-toggleMBtn.addEventListener("click", () => {
-    set(maintenanceRef, !isMaintenanceActive);
-});
-
-toggleLBtn.addEventListener("click", () => {
-    set(lockdownRef, !isLockdownActive);
-});
+toggleMBtn.addEventListener("click", () => { set(maintenanceRef, !isMaintenanceActive); });
+toggleLBtn.addEventListener("click", () => { set(lockdownRef, !isLockdownActive); });
 
 document.getElementById("close-admin").addEventListener("click", () => {
     adminOverlay.classList.remove("open");
