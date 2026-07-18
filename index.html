@@ -275,7 +275,7 @@ body.maintenance-active .projects {
     animation: swing 0.8s ease-in-out;
 }
 
-/* ════ PFLANZE (SMOOTH BOUNCE) ════ */
+/* ════ PFLANZE ════ */
 #plant-fixed{
     position:fixed;
     bottom:24px;
@@ -309,7 +309,6 @@ body.maintenance-active .projects {
     transform-origin: bottom center;
 }
 
-/* Deutlich geschmeidigere Bézier-Kurven für organisches Schwingen */
 @keyframes pbounce {
     0%, 100% { transform: scale(1); }
     30% { transform: scale(0.88, 1.12) translateY(-6px); }
@@ -343,7 +342,7 @@ body.maintenance-active .projects {
 }
 #plant-toast.show{ opacity:1; transform:translateY(0) scale(1); }
 
-/* ════ NEUES INLINE WARTUNGSMODUS OVERLAY ════ */
+/* ════ INLINE WARTUNGSMODUS OVERLAY ════ */
 #maintenance-overlay {
     position: absolute;
     inset: 0;
@@ -363,7 +362,6 @@ body.maintenance-active .projects {
     transform: scale(1);
 }
 
-/* Wunderschöne, animierte Vektor-Sanduhr */
 .hourglass-svg {
     width: 65px;
     height: 65px;
@@ -432,6 +430,54 @@ body.maintenance-active .projects {
 @keyframes dotFade {
     0%, 100% { opacity: 0; }
     50% { opacity: 1; }
+}
+
+/* ════ VOLLFLÄCHIGES SEITE GESPERRT OVERLAY ════ */
+#lockdown-overlay {
+    position: fixed;
+    inset: 0;
+    background: #000000;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+#lockdown-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.lockdown-svg {
+    width: 120px;
+    height: 120px;
+    overflow: visible;
+    filter: drop-shadow(0 0 15px #ff3333);
+    animation: pulseWarn 2s infinite ease-in-out;
+}
+@keyframes pulseWarn {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 15px #ff3333); }
+    50% { transform: scale(1.05); filter: drop-shadow(0 0 30px #ff0000); }
+}
+
+.lockdown-text {
+    margin-top: 25px;
+    font-size: clamp(22px, 5vw, 38px);
+    color: #ff3333;
+    font-weight: 900;
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px rgba(255, 51, 51, 0.6);
+    text-align: center;
+    text-transform: uppercase;
+}
+.lockdown-subtext {
+    margin-top: 10px;
+    font-size: clamp(14px, 3vw, 18px);
+    color: #666;
+    letter-spacing: 1px;
 }
 
 /* ════ CUSTOM POPUPS STYLING ════ */
@@ -540,20 +586,30 @@ body.maintenance-active .projects {
     width: min(340px, 90vw);
 }
 .admin-btn {
+    width: 100%;
     padding: 12px 24px;
     background: #050505;
-    border: 1px solid #ff4444;
-    color: #ff4444;
+    border: 1px solid #ffaa00;
+    color: #ffaa00;
     border-radius: 10px;
     font-weight: bold;
     cursor: pointer;
-    margin-top: 20px;
+    margin-top: 14px;
     transition: 0.3s;
 }
 .admin-btn.active {
     border-color: #00ffcc;
     color: #00ffcc;
     box-shadow: 0 0 15px rgba(0,255,204,0.3);
+}
+.admin-btn.danger {
+    border-color: #ff3333;
+    color: #ff3333;
+}
+.admin-btn.danger.active {
+    background: #ff3333;
+    color: black;
+    box-shadow: 0 0 15px rgba(255,51,51,0.4);
 }
 .close-btn { 
     padding: 10px 20px; 
@@ -562,7 +618,8 @@ body.maintenance-active .projects {
     background: rgba(255,255,255,0.05); 
     color: white; 
     cursor: pointer; 
-    margin-top: 20px; 
+    margin-top: 24px; 
+    width: 100%;
 }
 </style>
 </head>
@@ -570,6 +627,16 @@ body.maintenance-active .projects {
 
 <canvas id="bg"></canvas>
 <div id="confetti-layer"></div>
+
+<div id="lockdown-overlay">
+    <svg class="lockdown-svg" viewBox="0 0 64 64">
+        <polygon points="32,6 58,54 6,54" fill="none" stroke="#ff3333" stroke-width="4" stroke-linejoin="round"/>
+        <line x1="32" y1="22" x2="32" y2="40" stroke="#ff3333" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="32" cy="48" r="3" fill="#ff3333"/>
+    </svg>
+    <div class="lockdown-text">System Lockdown</div>
+    <div class="lockdown-subtext">Access Denied • Connection Terminated</div>
+</div>
 
 <div id="popup-setup" class="custom-popup-overlay">
     <div class="popup-card">
@@ -594,10 +661,12 @@ body.maintenance-active .projects {
 
 <div id="admin-overlay">
     <div class="admin-card">
-        <h3 style="color:#00ffcc; margin-bottom:10px;">Dev Mode Panel</h3>
-        <p style="color:#666; font-size:13px; margin-bottom:20px;">Wartungsmodus global steuern</p>
-        <button id="toggle-maintenance" class="admin-btn">Modus: AUS</button>
-        <br>
+        <h3 style="color:#00ffcc; margin-bottom:5px;">Dev Mode Panel</h3>
+        <p style="color:#666; font-size:13px; margin-bottom:15px;">Live-Steuerung der App</p>
+        
+        <button id="toggle-maintenance" class="admin-btn">Wartung: AUS</button>
+        <button id="toggle-lockdown" class="admin-btn danger">Seite gesperrt: AUS</button>
+        
         <button id="close-admin" class="close-btn">Schließen</button>
     </div>
 </div>
@@ -739,14 +808,17 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db  = getDatabase(app);
 
-/* ═══════════════ LIVE DEV MODE / WARTUNGSMODUS ═══════════════ */
+/* ═══════════════ LIVE REALTIME NODES ═══════════════ */
 const maintenanceRef = ref(db, "live_features/maintenance_mode");
-const passwordRef = ref(db, "admin_settings/password");
+const lockdownRef    = ref(db, "live_features/lockdown_mode");
+const passwordRef    = ref(db, "admin_settings/password");
 
 const mOverlay = document.getElementById("maintenance-overlay");
+const lOverlay = document.getElementById("lockdown-overlay");
 const adminOverlay = document.getElementById("admin-overlay");
 const footerBtn = document.getElementById("secret-footer");
 const toggleMBtn = document.getElementById("toggle-maintenance");
+const toggleLBtn = document.getElementById("toggle-lockdown");
 
 const popupSetup = document.getElementById("popup-setup");
 const setupPwInput = document.getElementById("setup-pw-input");
@@ -758,10 +830,12 @@ const authPwConfirm = document.getElementById("auth-pw-confirm");
 const authPwCancel = document.getElementById("auth-pw-cancel");
 
 let isMaintenanceActive = false;
+let isLockdownActive = false;
 let footerClicks = 0;
 let clickTimeout;
 let serverPassword = null;
 
+// Firebase Listener für Wartung
 onValue(maintenanceRef, (snap) => {
     isMaintenanceActive = snap.val() === true;
     if (isMaintenanceActive) {
@@ -771,7 +845,18 @@ onValue(maintenanceRef, (snap) => {
         mOverlay.classList.remove("active");
         document.body.classList.remove("maintenance-active");
     }
-    updateAdminButtonUI();
+    updateAdminButtonsUI();
+});
+
+// Firebase Listener für Seitensperre
+onValue(lockdownRef, (snap) => {
+    isLockdownActive = snap.val() === true;
+    if (isLockdownActive) {
+        lOverlay.classList.add("active");
+    } else {
+        lOverlay.classList.remove("active");
+    }
+    updateAdminButtonsUI();
 });
 
 function fetchPassword() {
@@ -785,6 +870,7 @@ function fetchPassword() {
 }
 fetchPassword();
 
+// Footer Klick Detektor
 footerBtn.addEventListener("click", async (e) => {
     e.preventDefault();
     footerClicks++;
@@ -793,9 +879,7 @@ footerBtn.addEventListener("click", async (e) => {
     setTimeout(() => { footerBtn.style.opacity = "1"; }, 100);
 
     clearTimeout(clickTimeout);
-    clickTimeout = setTimeout(() => { 
-        footerClicks = 0; 
-    }, 4000); 
+    clickTimeout = setTimeout(() => { footerClicks = 0; }, 4000); 
 
     if (footerClicks >= 5) {
         footerClicks = 0;
@@ -804,7 +888,6 @@ footerBtn.addEventListener("click", async (e) => {
         try {
             const passwordPromise = fetchPassword();
             const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 1800));
-            
             const hasPassword = await Promise.race([passwordPromise, timeoutPromise]);
             
             if (!hasPassword) {
@@ -815,7 +898,6 @@ footerBtn.addEventListener("click", async (e) => {
                 setTimeout(() => authPwInput.focus(), 50);
             }
         } catch (err) {
-            console.warn("Firebase Timeout Fallback ausgelöst.");
             popupSetup.classList.add("open");
             setTimeout(() => setupPwInput.focus(), 50);
         }
@@ -824,24 +906,17 @@ footerBtn.addEventListener("click", async (e) => {
 
 setupPwSave.addEventListener("click", () => {
     const newPw = setupPwInput.value.trim();
-    if (!newPw) {
-        alert("Bitte gib ein gültiges Passwort ein!");
-        return;
-    }
-    
+    if (!newPw) return alert("Bitte Passwort eingeben!");
     set(passwordRef, newPw).then(() => {
         serverPassword = newPw;
         popupSetup.classList.remove("open");
         setupPwInput.value = "";
         adminOverlay.classList.add("open");
-    }).catch(err => {
-        alert("Fehler beim Speichern: " + err.message);
     });
 });
 
 authPwConfirm.addEventListener("click", () => {
-    const enteredPw = authPwInput.value.trim();
-    if (enteredPw === serverPassword) {
+    if (authPwInput.value.trim() === serverPassword) {
         popupAuth.classList.remove("open");
         authPwInput.value = "";
         adminOverlay.classList.add("open");
@@ -854,30 +929,35 @@ authPwConfirm.addEventListener("click", () => {
 
 authPwInput.addEventListener("keypress", (e) => { if (e.key === "Enter") authPwConfirm.click(); });
 setupPwInput.addEventListener("keypress", (e) => { if (e.key === "Enter") setupPwSave.click(); });
-
-authPwCancel.addEventListener("click", () => {
-    popupAuth.classList.remove("open");
-    authPwInput.value = "";
-});
+authPwCancel.addEventListener("click", () => { popupAuth.classList.remove("open"); authPwInput.value = ""; });
 
 toggleMBtn.addEventListener("click", () => {
-    const nextState = !isMaintenanceActive;
-    set(maintenanceRef, nextState).catch(err => {
-        alert("Fehler beim Umschalten: " + err.message);
-    });
+    set(maintenanceRef, !isMaintenanceActive);
+});
+
+toggleLBtn.addEventListener("click", () => {
+    set(lockdownRef, !isLockdownActive);
 });
 
 document.getElementById("close-admin").addEventListener("click", () => {
     adminOverlay.classList.remove("open");
 });
 
-function updateAdminButtonUI() {
+function updateAdminButtonsUI() {
     if (isMaintenanceActive) {
-        toggleMBtn.textContent = "Modus: AN";
+        toggleMBtn.textContent = "Wartung: AN";
         toggleMBtn.className = "admin-btn active";
     } else {
-        toggleMBtn.textContent = "Modus: AUS";
+        toggleMBtn.textContent = "Wartung: AUS";
         toggleMBtn.className = "admin-btn";
+    }
+
+    if (isLockdownActive) {
+        toggleLBtn.textContent = "Seite gesperrt: AN";
+        toggleLBtn.className = "admin-btn danger active";
+    } else {
+        toggleLBtn.textContent = "Seite gesperrt: AUS";
+        toggleLBtn.className = "admin-btn danger";
     }
 }
 
@@ -942,7 +1022,7 @@ onValue(plantRef, snap => {
 
 [hitDesktop, hitMobile].forEach(el => {
     el.addEventListener("click", () => {
-        if (cooling || isMaintenanceActive) return;
+        if (cooling || isMaintenanceActive || isLockdownActive) return;
         cooling = true; setTimeout(() => cooling = false, 700);
         everClicked = true;
         runTransaction(plantRef, cur => (cur || 0) + 1);
@@ -1006,7 +1086,7 @@ onValue(bulbRef, (snap) => {
     if (isOn) { bulbSvg.classList.add("is-on"); document.body.classList.add("light-on"); }
     else { bulbSvg.classList.remove("is-on"); document.body.classList.remove("light-on"); }
 });
-bulbEl.addEventListener("click", () => { if(!isMaintenanceActive) get(bulbRef).then(snap => set(bulbRef, !snap.val())); });
+bulbEl.addEventListener("click", () => { if(!isMaintenanceActive && !isLockdownActive) get(bulbRef).then(snap => set(bulbRef, !snap.val())); });
 </script>
 
 <script>
