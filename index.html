@@ -20,6 +20,12 @@ body{
     overflow-x:hidden;
     color:white;
     min-height:100vh;
+    transition: background 0.5s ease;
+}
+
+/* Globaler Lichteffekt im Hintergrund, wenn die Birne an ist */
+body.light-on {
+    background: #0a1916;
 }
 
 canvas{
@@ -118,6 +124,8 @@ h1{
     transition:0.3s;
     backdrop-filter:blur(8px);
     font-size:17px;
+    cursor:pointer;
+    text-align:center;
 }
 
 .project-btn:hover{
@@ -238,29 +246,30 @@ h1{
 }
 
 .bulb-svg.is-on #bulb-glass {
-    fill: rgba(0, 255, 204, 0.2);
+    fill: rgba(0, 255, 204, 0.25);
     stroke: #00ffcc;
-    filter: drop-shadow(0 0 15px #00ffcc) drop-shadow(0 0 30px rgba(0,255,204,0.6));
+    filter: drop-shadow(0 0 15px #00ffcc) drop-shadow(0 0 35px rgba(0,255,204,0.8));
 }
 
 .bulb-svg.is-on #bulb-filament {
     stroke: #fff;
-    filter: drop-shadow(0 0 4px #00ffcc);
+    filter: drop-shadow(0 0 5px #00ffcc);
 }
 
 @keyframes swing {
     0% { transform: rotate(0deg); }
-    20% { transform: rotate(8deg); }
-    40% { transform: rotate(-6deg); }
-    60% { transform: rotate(3deg); }
+    20% { transform: rotate(12deg); }
+    40% { transform: rotate(-9deg); }
+    60% { transform: rotate(5deg); }
+    80% { transform: rotate(-2deg); }
     100% { transform: rotate(0deg); }
 }
 .swinging {
     transform-origin: 50% 0%;
-    animation: swing 0.6s ease;
+    animation: swing 0.8s ease-in-out;
 }
 
-/* ════ PFLANZE (UNTEN RECHTS FIXIERT) ════ */
+/* ════ PFLANZE ════ */
 #plant-fixed{
     position:fixed;
     bottom:24px;
@@ -371,9 +380,7 @@ h1{
     text-align:center;
     white-space:nowrap;
     backdrop-filter:blur(16px);
-    box-shadow:0 0 0 1px rgba(0,255,204,0.06),
-               0 8px 28px rgba(0,0,0,0.55),
-               0 0 20px rgba(0,255,204,0.12);
+    box-shadow:0 0 0 1px rgba(0,255,204,0.06), 0 8px 28px rgba(0,0,0,0.55), 0 0 20px rgba(0,255,204,0.12);
     opacity:0;
     pointer-events:none;
     transform:translateY(6px) scale(0.94);
@@ -432,6 +439,107 @@ h1{
     70% { opacity:1; transform:translateY(-18px) translateX(-50%); }
     100%{ opacity:0; transform:translateY(-28px) translateX(-50%); }
 }
+
+/* ════ MULTIPLAYER TIC TAC TOE MODAL ════ */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+.modal-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+.modal-content {
+    background: #0d0d0d;
+    border: 1px solid rgba(0,255,204,0.2);
+    box-shadow: 0 0 30px rgba(0,255,204,0.1);
+    border-radius: 24px;
+    width: min(400px, 92vw);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+.close-modal {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 22px;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.close-modal:hover { color: #ff4444; }
+
+#ttt-status {
+    font-size: 16px;
+    color: #bfbfbf;
+    margin-bottom: 12px;
+    text-align: center;
+    min-height: 24px;
+}
+#ttt-timer {
+    font-size: 14px;
+    color: #ff4444;
+    margin-bottom: 12px;
+    font-weight: bold;
+}
+#ttt-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    width: min(260px, 75vw);
+    height: min(260px, 75vw);
+    margin-bottom: 20px;
+}
+.ttt-cell {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 36px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+    user-select: none;
+}
+.ttt-cell:hover {
+    border-color: #00ffcc;
+    background: rgba(0,255,204,0.03);
+}
+.ttt-cell.X { color: #00ffcc; text-shadow: 0 0 8px #00ffcc; }
+.ttt-cell.O { color: #ff4444; text-shadow: 0 0 8px #ff4444; }
+
+.ttt-btn {
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.05);
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.3s;
+    margin: 4px;
+}
+.ttt-btn:hover {
+    border-color: #ff4444;
+    color: #ff4444;
+}
+.hidden { display: none !important; }
 </style>
 </head>
 <body>
@@ -468,27 +576,45 @@ h1{
     <div class="tsub" id="pt-sub">heute gegossen 💧</div>
 </div>
 
+<div class="modal-overlay" id="ttt-modal">
+    <div class="modal-content">
+        <button class="close-modal" id="close-ttt">×</button>
+        <h2 style="color:#00ffcc; margin-bottom:12px; font-size:22px;">Tic Tac Toe Live</h2>
+        <div id="ttt-status">Warte...</div>
+        <div id="ttt-timer" class="hidden">02:00</div>
+        
+        <div id="ttt-board" class="hidden">
+            <div class="ttt-cell" data-index="0"></div>
+            <div class="ttt-cell" data-index="1"></div>
+            <div class="ttt-cell" data-index="2"></div>
+            <div class="ttt-cell" data-index="3"></div>
+            <div class="ttt-cell" data-index="4"></div>
+            <div class="ttt-cell" data-index="5"></div>
+            <div class="ttt-cell" data-index="6"></div>
+            <div class="ttt-cell" data-index="7"></div>
+            <div class="ttt-cell" data-index="8"></div>
+        </div>
+        
+        <div style="display:flex; justify-content:center; width:100%;">
+            <button id="ttt-btn-resign" class="ttt-btn hidden">Aufgeben</button>
+            <button id="ttt-btn-requeue" class="ttt-btn hidden" style="border-color:#00ffcc; color:#00ffcc;">Neues Match</button>
+        </div>
+    </div>
+</div>
+
 <svg style="display:none">
 <defs>
 <g id="plant-shape">
     <rect x="20" y="65" width="28" height="17" rx="4"   fill="#5a3e28"/>
     <rect x="15" y="60" width="38" height="8"  rx="3.5" fill="#7a5235"/>
     <rect x="18" y="62" width="9"  height="3"  rx="2"   fill="rgba(255,255,255,0.13)"/>
-    <line id="p-stem" x1="34" y1="60" x2="34" y2="40"
-          stroke="#2e7d32" stroke-width="3" stroke-linecap="round"
-          style="transition:y2 1s ease;"/>
-    <ellipse class="lf" id="p-l1" cx="23" cy="54" rx="12" ry="5"
-             fill="#2e7d32" transform="rotate(-34 23 54)" opacity="0.42"/>
-    <ellipse class="lf" id="p-l2" cx="45" cy="50" rx="12" ry="5"
-             fill="#388e3c" transform="rotate(34 45 50)"  opacity="0.42"/>
-    <ellipse class="lf" id="p-l3" cx="22" cy="46" rx="10" ry="4.2"
-             fill="#43a047" transform="rotate(-24 22 46)" opacity="0"/>
-    <ellipse class="lf" id="p-l4" cx="46" cy="42" rx="10" ry="4.2"
-             fill="#66bb6a" transform="rotate(24 46 42)"  opacity="0"/>
-    <ellipse class="lf" id="p-l5" cx="25" cy="37" rx="8"  ry="3.5"
-             fill="#81c784" transform="rotate(-17 25 37)" opacity="0"/>
-    <ellipse class="lf" id="p-l6" cx="43" cy="33" rx="8"  ry="3.5"
-             fill="#a5d6a7" transform="rotate(17 43 33)"  opacity="0"/>
+    <line id="p-stem" x1="34" y1="60" x2="34" y2="40" stroke="#2e7d32" stroke-width="3" stroke-linecap="round" style="transition:y2 1s ease;"/>
+    <ellipse class="lf" id="p-l1" cx="23" cy="54" rx="12" ry="5" fill="#2e7d32" transform="rotate(-34 23 54)" opacity="0.42"/>
+    <ellipse class="lf" id="p-l2" cx="45" cy="50" rx="12" ry="5" fill="#388e3c" transform="rotate(34 45 50)"  opacity="0.42"/>
+    <ellipse class="lf" id="p-l3" cx="22" cy="46" rx="10" ry="4.2" fill="#43a047" transform="rotate(-24 22 46)" opacity="0"/>
+    <ellipse class="lf" id="p-l4" cx="46" cy="42" rx="10" ry="4.2" fill="#66bb6a" transform="rotate(24 46 42)"  opacity="0"/>
+    <ellipse class="lf" id="p-l5" cx="25" cy="37" rx="8"  ry="3.5" fill="#81c784" transform="rotate(-17 25 37)" opacity="0"/>
+    <ellipse class="lf" id="p-l6" cx="43" cy="33" rx="8"  ry="3.5" fill="#a5d6a7" transform="rotate(17 43 33)"  opacity="0"/>
     <g id="p-flower" opacity="0" style="transition:opacity 0.9s ease;">
         <circle cx="34" cy="25" r="4"   fill="#f06292"/>
         <circle cx="34" cy="17" r="4"   fill="#f06292"/>
@@ -525,6 +651,8 @@ h1{
     <div class="projects-title">My Projects</div>
 
     <div class="projects">
+        <div class="project-btn" id="trigger-ttt" style="color:#00ffcc; font-weight:bold; border-color:rgba(0,255,204,0.3);">🎮 TicTacToe Live</div>
+        
         <a class="project-btn" href="https://professorfilou.de/BankingGame"   target="_blank">BankGame</a>
         <a class="project-btn" href="https://professorfilou.de/EmojiClick/"         target="_blank">EmojiClick</a>
         <a class="project-btn" href="https://professorfilou.de/DropDown/"            target="_blank">DropDown</a>
@@ -855,24 +983,249 @@ const bulbRef = ref(db, "live_features/light_bulb");
 const bulbEl = document.getElementById("hit-bulb");
 const bulbSvg = bulbEl.querySelector(".bulb-svg");
 
-let currentBulbState = false;
-
 onValue(bulbRef, (snap) => {
-    currentBulbState = snap.val() === true;
-    if (currentBulbState) {
-        bulbSvg.classList.add("is-on");
-    } else {
-        bulbSvg.classList.remove("is-on");
-    }
-});
-
-bulbEl.addEventListener("click", () => {
+    const isOn = snap.val() === true;
+    
+    // Wackeln bei JEDER Änderung triggern
     bulbSvg.classList.remove("swinging");
     void bulbSvg.offsetWidth; 
     bulbSvg.classList.add("swinging");
     
-    set(bulbRef, !currentBulbState);
+    if (isOn) {
+        bulbSvg.classList.add("is-on");
+        document.body.classList.add("light-on");
+    } else {
+        bulbSvg.classList.remove("is-on");
+        document.body.classList.remove("light-on");
+    }
 });
+
+bulbEl.addEventListener("click", () => {
+    get(bulbRef).then(snap => {
+        set(bulbRef, !snap.val());
+    });
+});
+
+
+/* ═══════════════ LIVE TIC TAC TOE MODAL LOGIK ═══════════════ */
+const myId = Math.random().toString(36).slice(2, 9);
+let gameId = null;
+let mySign = null; 
+let isMyTurn = false;
+let gameData = null;
+let countdownInterval = null;
+
+const modalOverlay = document.getElementById("ttt-modal");
+const triggerBtn = document.getElementById("trigger-ttt");
+const closeBtn = document.getElementById("close-ttt");
+
+const tttStatusEl = document.getElementById("ttt-status");
+const tttTimerEl = document.getElementById("ttt-timer");
+const tttBoardEl = document.getElementById("ttt-board");
+const tttBtnResign = document.getElementById("ttt-btn-resign");
+const tttBtnRequeue = document.getElementById("ttt-btn-requeue");
+const tttCells = document.querySelectorAll(".ttt-cell");
+
+triggerBtn.addEventListener("click", () => {
+    modalOverlay.classList.add("open");
+    findMatch();
+});
+
+closeBtn.addEventListener("click", leaveGameGracefully);
+
+function findMatch() {
+    tttStatusEl.textContent = "Suche nach einem Gegner...";
+    tttBtnRequeue.classList.add("hidden");
+    tttBoardEl.classList.add("hidden");
+    
+    const lobbyRef = ref(db, "tictactoe_lobby");
+    runTransaction(lobbyRef, (currentLobby) => {
+        if (!currentLobby) {
+            return { waitingPlayer: myId, gameId: myId };
+        } else if (currentLobby.waitingPlayer === myId) {
+            return currentLobby; 
+        } else {
+            gameId = currentLobby.gameId;
+            return null; 
+        }
+    }).then((result) => {
+        if (result.committed && result.snapshot.val()) {
+            const lobbyData = result.snapshot.val();
+            gameId = lobbyData.gameId;
+            mySign = "X";
+            listenToGame();
+        } else {
+            mySign = "O";
+            set(ref(db, "tictactoe_games/" + gameId), {
+                playerX: gameId,
+                playerO: myId,
+                board: ["", "", "", "", "", "", "", "", ""],
+                turn: "X",
+                status: "playing",
+                lastAction: Date.now()
+            }).then(() => {
+                listenToGame();
+            });
+        }
+    });
+}
+
+function listenToGame() {
+    const gameRef = ref(db, "tictactoe_games/" + gameId);
+    
+    onDisconnect(gameRef).runTransaction((currentData) => {
+        if (currentData) {
+            currentData.status = "aborted_disconnect";
+            currentData.winner = mySign === "X" ? "O" : "X";
+        }
+        return currentData;
+    });
+
+    onValue(gameRef, (snap) => {
+        gameData = snap.val();
+        
+        if (!gameData) {
+            if (mySign === "X") {
+                tttStatusEl.textContent = "Warte auf Mitspieler... ⏳";
+                tttBoardEl.classList.add("hidden");
+                tttBtnResign.classList.remove("hidden");
+            }
+            return;
+        }
+
+        tttBoardEl.classList.remove("hidden");
+        tttBtnResign.classList.remove("hidden");
+        
+        gameData.board.forEach((val, idx) => {
+            tttCells[idx].textContent = val;
+            tttCells[idx].className = `ttt-cell ${val}`;
+        });
+
+        startTimeoutTimer(gameData.lastAction);
+
+        if (gameData.status === "playing") {
+            isMyTurn = gameData.turn === mySign;
+            tttStatusEl.textContent = isMyTurn ? `Du bist dran! (${mySign})` : "Gegner überlegt...";
+        } else {
+            endGame(gameData);
+        }
+    });
+}
+
+function startTimeoutTimer(lastActionTime) {
+    clearInterval(countdownInterval);
+    tttTimerEl.classList.remove("hidden");
+    const duration = 120000; 
+
+    countdownInterval = setInterval(() => {
+        const remaining = duration - (Date.now() - lastActionTime);
+
+        if (remaining <= 0) {
+            clearInterval(countdownInterval);
+            tttTimerEl.textContent = "Zeit abgelaufen!";
+            if (gameData && gameData.status === "playing" && gameData.turn === mySign) {
+                set(ref(db, `tictactoe_games/${gameId}/status`), "aborted_timeout");
+                set(ref(db, `tictactoe_games/${gameId}/winner`), mySign === "X" ? "O" : "X");
+            }
+        } else {
+            const minutes = Math.floor(remaining / 60000);
+            const seconds = Math.floor((remaining % 60000) / 1000);
+            tttTimerEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+    }, 1000);
+}
+
+tttCells.forEach(cell => {
+    cell.addEventListener("click", () => {
+        const idx = cell.getAttribute("data-index");
+        if (!isMyTurn || gameData.board[idx] !== "" || gameData.status !== "playing") return;
+
+        let newBoard = [...gameData.board];
+        newBoard[idx] = mySign;
+
+        const winner = checkWinner(newBoard);
+        let nextStatus = "playing";
+        let finalWinner = "";
+
+        if (winner) { nextStatus = "finished"; finalWinner = winner; }
+        else if (!newBoard.includes("")) { nextStatus = "draw"; }
+
+        set(ref(db, "tictactoe_games/" + gameId), {
+            ...gameData,
+            board: newBoard,
+            turn: mySign === "X" ? "O" : "X",
+            status: nextStatus,
+            winner: finalWinner,
+            lastAction: Date.now()
+        });
+    });
+});
+
+function checkWinner(b) {
+    const lines = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]];
+    for (let l of lines) {
+        if (b[l[0]] && b[l[0]] === b[l[1]] && b[l[0]] === b[l[2]]) return b[l[0]];
+    }
+    return null;
+}
+
+tttBtnResign.addEventListener("click", () => {
+    if (!gameId) return;
+    if (!gameData) {
+        remove(ref(db, "tictactoe_lobby"));
+        remove(ref(db, "tictactoe_games/" + gameId));
+        resetUI();
+        return;
+    }
+    if (gameData.status === "playing") {
+        set(ref(db, `tictactoe_games/${gameId}/status`), "resigned");
+        set(ref(db, `tictactoe_games/${gameId}/winner`), mySign === "X" ? "O" : "X");
+    }
+});
+
+function leaveGameGracefully() {
+    if (gameId && gameData && gameData.status === "playing") {
+        set(ref(db, `tictactoe_games/${gameId}/status`), "resigned");
+        set(ref(db, `tictactoe_games/${gameId}/winner`), mySign === "X" ? "O" : "X");
+    } else if (gameId && !gameData) {
+        remove(ref(db, "tictactoe_lobby"));
+        remove(ref(db, "tictactoe_games/" + gameId));
+    }
+    clearInterval(countdownInterval);
+    modalOverlay.classList.remove("open");
+    resetUI();
+}
+
+function endGame(data) {
+    clearInterval(countdownInterval);
+    tttTimerEl.classList.add("hidden");
+    tttBtnResign.classList.add("hidden");
+    tttBtnRequeue.classList.remove("hidden");
+
+    if (data.status === "finished") {
+        tttStatusEl.textContent = data.winner === mySign ? "Du hast gewonnen! 🎉" : "Du hast verloren. 💥";
+    } else if (data.status === "draw") {
+        tttStatusEl.textContent = "Unentschieden! 🤝";
+    } else if (data.status === "resigned") {
+        tttStatusEl.textContent = data.winner === mySign ? "Gegner hat aufgegeben! 🏆" : "Du hast aufgegeben.";
+    } else if (data.status === "aborted_timeout") {
+        tttStatusEl.textContent = data.winner === mySign ? "Gegner inaktiv! ⏱️" : "Du warst inaktiv.";
+    } else if (data.status === "aborted_disconnect") {
+        tttStatusEl.textContent = "Gegner hat das Spiel verlassen.";
+    }
+}
+
+function resetUI() {
+    clearInterval(countdownInterval);
+    gameId = null; mySign = null; isMyTurn = false; gameData = null;
+    tttStatusEl.textContent = "Spiel beendet.";
+    tttTimerEl.classList.add("hidden");
+    tttBoardEl.classList.add("hidden");
+    tttBtnResign.classList.add("hidden");
+    tttBtnRequeue.classList.add("hidden");
+}
+
+tttBtnRequeue.addEventListener("click", findMatch);
 </script>
 
 <script>
@@ -915,4 +1268,4 @@ function animate() {
 animate();
 </script>
 </body>
-</html>
+</html>s
