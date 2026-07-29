@@ -4,9 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ProfessorFilou</title>
-
 <link rel="icon" type="image/jpeg" href="ProfessorFilouLOGO.jpg">
-
 <style>
 *{
     margin:0;
@@ -14,7 +12,6 @@
     box-sizing:border-box;
     font-family:Arial, Helvetica, sans-serif;
 }
-
 body{
     background:#050505;
     overflow-x:hidden;
@@ -22,17 +19,14 @@ body{
     min-height:100vh;
     transition: background 0.5s ease;
 }
-
 body.light-on {
     background: #0a1916;
 }
-
 canvas{
     position:fixed;
     inset:0;
     z-index:-1;
 }
-
 .main{
     width:100%;
     min-height:100vh;
@@ -42,7 +36,6 @@ canvas{
     align-items:center;
     text-align:center;
 }
-
 /* Header Container für den nahtlosen Wechsel */
 .header-container {
     position: relative;
@@ -53,7 +46,6 @@ canvas{
     align-items: center;
     margin-bottom: 10px;
 }
-
 h1{
     font-size:clamp(34px, 7.5vw, 90px);
     line-height:1.1;
@@ -64,13 +56,11 @@ h1{
     overflow-wrap:anywhere;
     transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1), transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
-
 body.maintenance-active h1 {
     opacity: 0;
     transform: scale(0.95);
     pointer-events: none;
 }
-
 .line{
     width:min(280px,70vw);
     height:2px;
@@ -78,17 +68,14 @@ body.maintenance-active h1 {
     margin:20px auto;
     box-shadow:0 0 15px #00ffcc;
 }
-
 .text{
     color:#bfbfbf;
     line-height:1.6;
     font-size:clamp(15px, 3.5vw, 20px);
 }
-
 .socials, .projects-title, .projects, .footer-info {
     transition: opacity 0.4s ease;
 }
-
 /* Wenn Wartungsmodus aktiv ist, blenden wir den Rest leicht aus und sperren Klicks */
 body.maintenance-active .socials,
 body.maintenance-active .projects-title,
@@ -96,14 +83,12 @@ body.maintenance-active .projects {
     opacity: 0.25;
     pointer-events: none;
 }
-
 .socials {
     display: flex;
     gap: 12px;
     justify-content: center;
     margin-top: 20px;
 }
-
 .social{
     width:clamp(60px, 12vw, 74px);
     height:clamp(60px, 12vw, 74px);
@@ -115,25 +100,21 @@ body.maintenance-active .projects {
     border:1px solid rgba(255,255,255,0.08);
     transition:0.3s cubic-bezier(0.25, 1, 0.5, 1);
 }
-
 .social:hover{
     transform:translateY(-5px) scale(1.05);
     box-shadow:0 0 15px #00ffcc,0 0 35px rgba(0,255,204,0.5);
 }
-
 .social img{
     width:50%;
     height:50%;
     object-fit:contain;
 }
-
 .projects-title{
     margin-top:50px;
     font-size:clamp(22px, 5vw, 32px);
     color:#00ffcc;
     letter-spacing:2px;
 }
-
 .projects{
     margin-top:24px;
     display:grid;
@@ -142,7 +123,6 @@ body.maintenance-active .projects {
     width:100%;
     max-width:960px;
 }
-
 .project-btn{
     padding:14px 12px;
     border-radius:14px;
@@ -159,14 +139,12 @@ body.maintenance-active .projects {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-
 .project-btn:hover{
     transform:translateY(-3px);
     border-color:#00ffcc;
     box-shadow:0 0 12px #00ffcc,0 0 25px rgba(0,255,204,0.3);
     color:#00ffcc;
 }
-
 .footer{
     margin-top:45px;
     color:#666;
@@ -176,7 +154,6 @@ body.maintenance-active .projects {
     -webkit-user-select: none;
     padding: 10px;
 }
-
 .footer-info{
     margin-top:10px;
     color:#777;
@@ -187,12 +164,10 @@ body.maintenance-active .projects {
     color:#00ffcc;
     font-weight:700;
 }
-
 @keyframes glow{
     from{text-shadow:0 0 10px #00ffcc,0 0 20px #00ffcc;}
     to{text-shadow:0 0 20px #00ffcc,0 0 40px #00ffcc,0 0 60px #00ffcc;}
 }
-
 /* ══ Konfetti ══ */
 #confetti-layer{
     position:fixed;
@@ -211,10 +186,9 @@ body.maintenance-active .projects {
     animation:conffall linear forwards;
 }
 @keyframes conffall{
-    0%   { transform:translateY(-20px) rotate(0deg);   opacity:1; }
+    0% { transform:translateY(-20px) rotate(0deg); opacity:1; }
     100% { transform:translateY(105vh) rotate(720deg); opacity:1; }
 }
-
 /* ════ PRESENCE ════ */
 #presence-fixed{
     position:fixed;
@@ -231,8 +205,11 @@ body.maintenance-active .projects {
     backdrop-filter:blur(8px);
     font-size:12px;
     color:#bfbfbf;
+    transition: top 0.35s ease;
 }
-
+body.banner-active #presence-fixed {
+    top: 62px;
+}
 #presence-dot{
     width:8px;
     height:8px;
@@ -240,13 +217,16 @@ body.maintenance-active .projects {
     background:#444;
     display:inline-block;
 }
-
 /* ════ GLÜHBIRNE ════ */
 #bulb-fixed {
     position: fixed;
     top: 0;
     right: 20px;
     z-index: 300;
+    transition: top 0.35s ease;
+}
+body.banner-active #bulb-fixed {
+    top: 48px;
 }
 .bulb-hit {
     width: 50px;
@@ -280,7 +260,6 @@ body.maintenance-active .projects {
     transform-origin: 50% 0%;
     animation: swing 0.8s ease-in-out;
 }
-
 /* ════ PFLANZE ════ */
 #plant-fixed{
     position:fixed;
@@ -298,7 +277,6 @@ body.maintenance-active .projects {
     margin-top:24px;
 }
 @media(max-width:600px){ #plant-inline{ display:flex; } }
-
 .plant-hit{
     position:relative;
     width:64px;
@@ -314,7 +292,6 @@ body.maintenance-active .projects {
     overflow:visible;
     transform-origin: bottom center;
 }
-
 @keyframes pbounce {
     0%, 100% { transform: scale(1); }
     30% { transform: scale(0.88, 1.12) translateY(-6px); }
@@ -329,7 +306,6 @@ body.maintenance-active .projects {
 .plant-svg.drowning {
     animation: pbounce 0.7s cubic-bezier(0.25, 1, 0.5, 1) 2;
 }
-
 #plant-toast{
     position:fixed;
     z-index:400;
@@ -347,7 +323,6 @@ body.maintenance-active .projects {
     transition:opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1), transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 }
 #plant-toast.show{ opacity:1; transform:translateY(0) scale(1); }
-
 /* ════ INLINE WARTUNGSMODUS OVERLAY ════ */
 #maintenance-overlay {
     position: absolute;
@@ -367,7 +342,6 @@ body.maintenance-active .projects {
     pointer-events: auto;
     transform: scale(1);
 }
-
 .hourglass-svg {
     width: clamp(45px, 8vw, 65px);
     height: clamp(45px, 8vw, 65px);
@@ -398,7 +372,6 @@ body.maintenance-active .projects {
     stroke-dasharray: 4, 4;
     animation: streamSand 0.6s linear infinite;
 }
-
 @keyframes rotateHourglass {
     0%, 85% { transform: rotate(0deg); }
     95%, 100% { transform: rotate(180deg); }
@@ -414,7 +387,6 @@ body.maintenance-active .projects {
 @keyframes streamSand {
     to { stroke-dashoffset: -8; }
 }
-
 .maintenance-text {
     font-size: clamp(24px, 6vw, 54px);
     color: #00ffcc;
@@ -424,7 +396,6 @@ body.maintenance-active .projects {
     display: flex;
     align-items: baseline;
 }
-
 .dot-stream span {
     opacity: 0;
     animation: dotFade 1.6s infinite ease;
@@ -432,12 +403,10 @@ body.maintenance-active .projects {
 .dot-stream span:nth-child(1) { animation-delay: 0.0s; }
 .dot-stream span:nth-child(2) { animation-delay: 0.4s; }
 .dot-stream span:nth-child(3) { animation-delay: 0.8s; }
-
 @keyframes dotFade {
     0%, 100% { opacity: 0; }
     50% { opacity: 1; }
 }
-
 /* ════ RESPONSIVES SEITE GESPERRT OVERLAY ════ */
 #lockdown-overlay {
     position: fixed;
@@ -457,7 +426,6 @@ body.maintenance-active .projects {
     opacity: 1;
     pointer-events: auto;
 }
-
 .lockdown-svg {
     width: clamp(80px, 15vw, 120px);
     height: clamp(80px, 15vw, 120px);
@@ -469,7 +437,6 @@ body.maintenance-active .projects {
     0%, 100% { transform: scale(1); filter: drop-shadow(0 0 12px #ff3333); }
     50% { transform: scale(1.04); filter: drop-shadow(0 0 25px #ff0000); }
 }
-
 .lockdown-text {
     margin-top: 25px;
     font-size: clamp(20px, 5.5vw, 32px);
@@ -488,7 +455,6 @@ body.maintenance-active .projects {
     letter-spacing: 0.5px;
     text-align: center;
 }
-
 /* Kleiner dezenter Admin-Button im Lockdown */
 .lockdown-admin-trigger {
     position: absolute;
@@ -517,7 +483,6 @@ body.maintenance-active .projects {
     stroke: #ff3333;
     fill: none;
 }
-
 /* ════ CUSTOM POPUPS STYLING ════ */
 .custom-popup-overlay {
     position: fixed;
@@ -602,7 +567,6 @@ body.maintenance-active .projects {
     color: #fff;
     box-shadow: none;
 }
-
 /* ════ ADMIN PANEL OVERLAY ════ */
 #admin-overlay {
     position: fixed;
@@ -654,22 +618,105 @@ body.maintenance-active .projects {
     color: black;
     box-shadow: 0 0 15px rgba(255,51,51,0.4);
 }
-.close-btn { 
-    padding: 10px 20px; 
-    border-radius: 10px; 
-    border: 1px solid rgba(255,255,255,0.1); 
-    background: rgba(255,255,255,0.05); 
-    color: white; 
-    cursor: pointer; 
-    margin-top: 24px; 
+.close-btn {
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.05);
+    color: white;
+    cursor: pointer;
+    margin-top: 24px;
     width: 100%;
+}
+
+/* ════ PROMO BANNER ════ */
+#promo-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 250;
+    background: linear-gradient(90deg, rgba(0,20,18,0.97), rgba(0,40,35,0.97), rgba(0,20,18,0.97));
+    border-bottom: 1px solid rgba(0,255,204,0.35);
+    box-shadow: 0 4px 24px rgba(0,255,204,0.12);
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.35s ease;
+}
+#promo-banner.show {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+.promo-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+.promo-text {
+    font-size: clamp(13px, 2.8vw, 15px);
+    color: #d0fff5;
+    line-height: 1.35;
+    text-align: center;
+}
+.promo-text b {
+    color: #00ffcc;
+    font-weight: 700;
+    text-shadow: 0 0 8px rgba(0,255,204,0.45);
+}
+.promo-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #00ffcc;
+    color: #04120f;
+    font-weight: 700;
+    font-size: 13px;
+    border-radius: 999px;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+    box-shadow: 0 0 14px rgba(0,255,204,0.35);
+}
+.promo-btn:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 0 22px rgba(0,255,204,0.55);
+    background: #7dffea;
+}
+@media (max-width: 520px) {
+    .promo-inner {
+        padding: 9px 12px;
+        gap: 10px;
+    }
+    .promo-btn {
+        padding: 7px 14px;
+        font-size: 12px;
+    }
 }
 </style>
 </head>
 <body>
-
 <canvas id="bg"></canvas>
 <div id="confetti-layer"></div>
+
+<!-- PROMO BANNER -->
+<div id="promo-banner">
+    <div class="promo-inner">
+        <div class="promo-text">
+            mache jetzt easy &amp; cool deine eigene website mit <b>ProBuilder</b> by ProfessorFilou
+        </div>
+        <a class="promo-btn" href="https://professorfilou.de/Website" target="_blank" rel="noopener">
+            Durchstarten →
+        </a>
+    </div>
+</div>
 
 <div id="lockdown-overlay">
     <svg class="lockdown-svg" viewBox="0 0 64 64">
@@ -679,7 +726,7 @@ body.maintenance-active .projects {
     </svg>
     <div class="lockdown-text">Diese Seite ist momentan nicht erreichbar.</div>
     <div class="lockdown-subtext">Bitte haben Sie einen Moment Geduld.</div>
-    
+   
     <button class="lockdown-admin-trigger" id="lockdown-panel-trigger" title="Admin Panel">
         <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -687,7 +734,6 @@ body.maintenance-active .projects {
         </svg>
     </button>
 </div>
-
 <div id="popup-setup" class="custom-popup-overlay">
     <div class="popup-card">
         <h3>Passwort festlegen</h3>
@@ -696,7 +742,6 @@ body.maintenance-active .projects {
         <button id="setup-pw-save" class="popup-btn">Passwort speichern</button>
     </div>
 </div>
-
 <div id="popup-auth" class="custom-popup-overlay">
     <div class="popup-card">
         <h3>Admin-Verifizierung</h3>
@@ -708,24 +753,21 @@ body.maintenance-active .projects {
         </div>
     </div>
 </div>
-
 <div id="admin-overlay">
     <div class="admin-card">
         <h3 style="color:#00ffcc; margin-bottom:5px;">Dev Mode Panel</h3>
         <p style="color:#666; font-size:13px; margin-bottom:15px;">Live-Steuerung der App</p>
-        
+       
         <button id="toggle-maintenance" class="admin-btn">Wartung: AUS</button>
         <button id="toggle-lockdown" class="admin-btn danger">Seite gesperrt: AUS</button>
-        
+       
         <button id="close-admin" class="close-btn">Schließen</button>
     </div>
 </div>
-
 <div id="presence-fixed">
     <span id="presence-dot"></span>
     <span id="presence-count">–</span>
 </div>
-
 <div id="bulb-fixed">
     <div class="bulb-hit" id="hit-bulb">
         <svg class="bulb-svg" viewBox="0 0 100 150" xmlns="http://www.w3.org/2000/svg">
@@ -736,7 +778,6 @@ body.maintenance-active .projects {
         </svg>
     </div>
 </div>
-
 <div id="plant-fixed">
     <div class="plant-hit" id="hit-desktop">
         <svg class="plant-svg" viewBox="0 0 68 84" xmlns="http://www.w3.org/2000/svg" overflow="visible">
@@ -744,48 +785,45 @@ body.maintenance-active .projects {
         </svg>
     </div>
 </div>
-
 <div id="plant-toast">
     <strong id="pt-num">1×</strong>
     <div class="tsub" id="pt-sub">heute gegossen 💧</div>
 </div>
-
 <svg style="display:none">
 <defs>
 <g id="plant-shape">
-    <rect x="20" y="65" width="28" height="17" rx="4"   fill="#5a3e28"/>
-    <rect x="15" y="60" width="38" height="8"  rx="3.5" fill="#7a5235"/>
-    <rect x="18" y="62" width="9"  height="3"  rx="2"   fill="rgba(255,255,255,0.13)"/>
+    <rect x="20" y="65" width="28" height="17" rx="4" fill="#5a3e28"/>
+    <rect x="15" y="60" width="38" height="8" rx="3.5" fill="#7a5235"/>
+    <rect x="18" y="62" width="9" height="3" rx="2" fill="rgba(255,255,255,0.13)"/>
     <line id="p-stem" x1="34" y1="60" x2="34" y2="40" stroke="#2e7d32" stroke-width="3" stroke-linecap="round" style="transition:y2 1s ease;"/>
     <ellipse class="lf" id="p-l1" cx="23" cy="54" rx="12" ry="5" fill="#2e7d32" transform="rotate(-34 23 54)" opacity="0.42"/>
-    <ellipse class="lf" id="p-l2" cx="45" cy="50" rx="12" ry="5" fill="#388e3c" transform="rotate(34 45 50)"  opacity="0.42"/>
+    <ellipse class="lf" id="p-l2" cx="45" cy="50" rx="12" ry="5" fill="#388e3c" transform="rotate(34 45 50)" opacity="0.42"/>
     <ellipse class="lf" id="p-l3" cx="22" cy="46" rx="10" ry="4.2" fill="#43a047" transform="rotate(-24 22 46)" opacity="0"/>
-    <ellipse class="lf" id="p-l4" cx="46" cy="42" rx="10" ry="4.2" fill="#66bb6a" transform="rotate(24 46 42)"  opacity="0"/>
-    <ellipse class="lf" id="p-l5" cx="25" cy="37" rx="8"  ry="3.5" fill="#81c784" transform="rotate(-17 25 37)" opacity="0"/>
-    <ellipse class="lf" id="p-l6" cx="43" cy="33" rx="8"  ry="3.5" fill="#a5d6a7" transform="rotate(17 43 33)"  opacity="0"/>
+    <ellipse class="lf" id="p-l4" cx="46" cy="42" rx="10" ry="4.2" fill="#66bb6a" transform="rotate(24 46 42)" opacity="0"/>
+    <ellipse class="lf" id="p-l5" cx="25" cy="37" rx="8" ry="3.5" fill="#81c784" transform="rotate(-17 25 37)" opacity="0"/>
+    <ellipse class="lf" id="p-l6" cx="43" cy="33" rx="8" ry="3.5" fill="#a5d6a7" transform="rotate(17 43 33)" opacity="0"/>
     <g id="p-flower" opacity="0" style="transition:opacity 0.9s ease;">
-        <circle cx="34" cy="25" r="4"   fill="#f06292"/>
-        <circle cx="34" cy="17" r="4"   fill="#f06292"/>
-        <circle cx="41" cy="21" r="4"   fill="#f48fb1"/>
-        <circle cx="27" cy="21" r="4"   fill="#f48fb1"/>
+        <circle cx="34" cy="25" r="4" fill="#f06292"/>
+        <circle cx="34" cy="17" r="4" fill="#f06292"/>
+        <circle cx="41" cy="21" r="4" fill="#f48fb1"/>
+        <circle cx="27" cy="21" r="4" fill="#f48fb1"/>
         <circle cx="34" cy="21" r="5.5" fill="#fff176"/>
         <circle cx="34" cy="21" r="2.5" fill="#f9a825"/>
     </g>
 </g>
 </defs>
 </svg>
-
 <div class="main">
     <div class="header-container">
         <h1>ProfessorFilou</h1>
-        
+       
         <div id="maintenance-overlay">
             <svg class="hourglass-svg" viewBox="0 0 64 64">
                 <path class="hourglass-glass" d="M16,8 L48,8 L48,16 C48,26 38,32 32,32 C26,32 16,26 16,16 Z" />
                 <path class="hourglass-glass" d="M16,56 L48,56 L48,48 C48,38 38,32 32,32 C26,32 16,38 16,48 Z" />
                 <line class="hourglass-glass" x1="12" y1="8" x2="52" y2="8" />
                 <line class="hourglass-glass" x1="12" y1="56" x2="52" y2="56" />
-                
+               
                 <path class="sand-top" d="M18,16 L46,16 C44,24 36,29 32,30 C28,29 20,24 18,16 Z" />
                 <path class="sand-bottom" d="M20,48 L44,48 C46,51 46,54 46,54 L18,54 C18,54 18,51 20,48 Z" />
                 <line class="sand-stream" x1="32" y1="30" x2="32" y2="50" />
@@ -796,42 +834,37 @@ body.maintenance-active .projects {
             </div>
         </div>
     </div>
-
     <div class="line"></div>
     <div class="text">❤️ Minecraft</div>
-
     <div class="socials">
         <a class="social" href="https://github.com/professorfilou" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg"></a>
         <a class="social" href="https://youtube.com/@professorfilou" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png"></a>
         <a class="social" href="https://twitch.tv/professorfilou" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/d/d3/Twitch_Glitch_Logo_Purple.svg"></a>
     </div>
-
     <div class="projects-title">My Projects</div>
     <div class="projects">
-        <a class="project-btn" href="https://professorfilou.de/BankingGame"   target="_blank">BankGame</a>
-        <a class="project-btn" href="https://professorfilou.de/EmojiClick/"         target="_blank">EmojiClick</a>
-        <a class="project-btn" href="https://professorfilou.de/DropDown/"            target="_blank">DropDown</a>
-        <a class="project-btn" href="https://professorfilou.de/WhoAmIWeb/"          target="_blank">WhoAmIWeb</a>
-        <a class="project-btn" href="https://professorfilou.de/WeatherWeb/"         target="_blank">WeatherWeb</a>
-        <a class="project-btn" href="https://professorfilou.de/Tycoon/"              target="_blank">Tycoon</a>
-        <a class="project-btn" href="https://professorfilou.de/finn.fun/"           target="_blank">finn.fun</a>
-        <a class="project-btn" href="https://professorfilou.de/Lade/"                target="_blank">Lade</a>
-        <a class="project-btn" href="https://professorfilou.de/Search/"              target="_blank">Search</a>
-        <a class="project-btn" href="https://professorfilou.de/Quiz/"                target="_blank">Quiz</a>
-        <a class="project-btn" href="https://professorfilou.de/FinnGPT/"             target="_blank">FinnGPT</a>
-        <a class="project-btn" href="https://professorfilou.de/Pong/"                target="_blank">Pong</a>
-        <a class="project-btn" href="https://professorfilou.de/Windows/"             target="_blank">Windows</a>
-        <a class="project-btn" href="https://professorfilou.de/Terminal/"            target="_blank">Terminal</a>
-        <a class="project-btn" href="https://professorfilou.de/SportRules"           target="_blank">SportRules</a>
+        <a class="project-btn" href="https://professorfilou.de/BankingGame" target="_blank">BankGame</a>
+        <a class="project-btn" href="https://professorfilou.de/EmojiClick/" target="_blank">EmojiClick</a>
+        <a class="project-btn" href="https://professorfilou.de/DropDown/" target="_blank">DropDown</a>
+        <a class="project-btn" href="https://professorfilou.de/WhoAmIWeb/" target="_blank">WhoAmIWeb</a>
+        <a class="project-btn" href="https://professorfilou.de/WeatherWeb/" target="_blank">WeatherWeb</a>
+        <a class="project-btn" href="https://professorfilou.de/Tycoon/" target="_blank">Tycoon</a>
+        <a class="project-btn" href="https://professorfilou.de/finn.fun/" target="_blank">finn.fun</a>
+        <a class="project-btn" href="https://professorfilou.de/Lade/" target="_blank">Lade</a>
+        <a class="project-btn" href="https://professorfilou.de/Search/" target="_blank">Search</a>
+        <a class="project-btn" href="https://professorfilou.de/Quiz/" target="_blank">Quiz</a>
+        <a class="project-btn" href="https://professorfilou.de/FinnGPT/" target="_blank">FinnGPT</a>
+        <a class="project-btn" href="https://professorfilou.de/Pong/" target="_blank">Pong</a>
+        <a class="project-btn" href="https://professorfilou.de/Windows/" target="_blank">Windows</a>
+        <a class="project-btn" href="https://professorfilou.de/Terminal/" target="_blank">Terminal</a>
+        <a class="project-btn" href="https://professorfilou.de/SportRules" target="_blank">SportRules</a>
     </div>
-
     <div class="footer" id="secret-footer">© ProfessorFilou</div>
-    
+   
     <div class="footer-info">
         👀 <b id="visit-count">…</b> Besuche<br>
         🎂 Seite ist <b id="site-age">…</b> online
     </div>
-
     <div id="plant-inline" style="position:relative;">
         <div class="plant-hit" id="hit-mobile">
             <svg class="plant-svg" viewBox="0 0 68 84" xmlns="http://www.w3.org/2000/svg" overflow="visible">
@@ -840,28 +873,25 @@ body.maintenance-active .projects {
         </div>
     </div>
 </div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getDatabase, ref, runTransaction, onValue, get, set, onDisconnect } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
-
 const firebaseConfig = {
-    apiKey:            "AIzaSyCAh2AsbxLqU2Gx9s0YbZo8PR4fpG3WDw8",
-    authDomain:        "professorfilou-e8eea.firebaseapp.com",
-    databaseURL:       "https://professorfilou-e8eea-default-rtdb.firebaseio.com",
-    projectId:         "professorfilou-e8eea",
-    storageBucket:     "professorfilou-e8eea.firebasestorage.app",
+    apiKey: "AIzaSyCAh2AsbxLqU2Gx9s0YbZo8PR4fpG3WDw8",
+    authDomain: "professorfilou-e8eea.firebaseapp.com",
+    databaseURL: "https://professorfilou-e8eea-default-rtdb.firebaseio.com",
+    projectId: "professorfilou-e8eea",
+    storageBucket: "professorfilou-e8eea.firebasestorage.app",
     messagingSenderId: "280418084891",
-    appId:             "1:280418084891:web:1750e554b152810033f0be"
+    appId: "1:280418084891:web:1750e554b152810033f0be"
 };
-
 const app = initializeApp(firebaseConfig);
-const db  = getDatabase(app);
-
+const db = getDatabase(app);
 /* ═══════════════ LIVE REALTIME NODES ═══════════════ */
 const maintenanceRef = ref(db, "live_features/maintenance_mode");
-const lockdownRef    = ref(db, "live_features/lockdown_mode");
-const passwordRef    = ref(db, "admin_settings/password");
+const lockdownRef = ref(db, "live_features/lockdown_mode");
+const passwordRef = ref(db, "admin_settings/password");
+const promoEndRef = ref(db, "live_features/promo_banner_end");   // Timestamp (ms) – Banner läuft bis zu diesem Zeitpunkt
 
 const mOverlay = document.getElementById("maintenance-overlay");
 const lOverlay = document.getElementById("lockdown-overlay");
@@ -870,21 +900,21 @@ const footerBtn = document.getElementById("secret-footer");
 const lockdownTrigger = document.getElementById("lockdown-panel-trigger");
 const toggleMBtn = document.getElementById("toggle-maintenance");
 const toggleLBtn = document.getElementById("toggle-lockdown");
-
 const popupSetup = document.getElementById("popup-setup");
 const setupPwInput = document.getElementById("setup-pw-input");
 const setupPwSave = document.getElementById("setup-pw-save");
-
 const popupAuth = document.getElementById("popup-auth");
 const authPwInput = document.getElementById("auth-pw-input");
 const authPwConfirm = document.getElementById("auth-pw-confirm");
 const authPwCancel = document.getElementById("auth-pw-cancel");
+const promoBanner = document.getElementById("promo-banner");
 
 let isMaintenanceActive = false;
 let isLockdownActive = false;
 let footerClicks = 0;
 let clickTimeout;
 let serverPassword = null;
+let promoEndTs = null;
 
 onValue(maintenanceRef, (snap) => {
     isMaintenanceActive = snap.val() === true;
@@ -896,8 +926,8 @@ onValue(maintenanceRef, (snap) => {
         document.body.classList.remove("maintenance-active");
     }
     updateAdminButtonsUI();
+    updatePromoBannerVisibility();
 });
-
 onValue(lockdownRef, (snap) => {
     isLockdownActive = snap.val() === true;
     if (isLockdownActive) {
@@ -906,7 +936,38 @@ onValue(lockdownRef, (snap) => {
         lOverlay.classList.remove("active");
     }
     updateAdminButtonsUI();
+    updatePromoBannerVisibility();
 });
+
+/* ═══════════════ PROMO BANNER (3 Wochen via Firebase) ═══════════════ */
+const THREE_WEEKS_MS = 21 * 24 * 60 * 60 * 1000;
+
+function updatePromoBannerVisibility() {
+    const now = Date.now();
+    const shouldShow = promoEndTs && now < promoEndTs && !isLockdownActive && !isMaintenanceActive;
+    if (shouldShow) {
+        promoBanner.classList.add("show");
+        document.body.classList.add("banner-active");
+    } else {
+        promoBanner.classList.remove("show");
+        document.body.classList.remove("banner-active");
+    }
+}
+
+onValue(promoEndRef, (snap) => {
+    if (snap.exists() && typeof snap.val() === "number") {
+        promoEndTs = snap.val();
+    } else {
+        // Erste Initialisierung: 3 Wochen ab jetzt speichern
+        const end = Date.now() + THREE_WEEKS_MS;
+        set(promoEndRef, end);
+        promoEndTs = end;
+    }
+    updatePromoBannerVisibility();
+});
+
+// Alle 30 Sekunden nochmal prüfen (falls jemand lange auf der Seite bleibt)
+setInterval(updatePromoBannerVisibility, 30000);
 
 function fetchPassword() {
     return get(passwordRef).then(snap => {
@@ -918,14 +979,13 @@ function fetchPassword() {
     }).catch(() => false);
 }
 fetchPassword();
-
 // Zentrale Funktion zum Starten der Admin-Authentifizierung
 async function triggerAdminLogin() {
     try {
         const passwordPromise = fetchPassword();
         const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 1800));
         const hasPassword = await Promise.race([passwordPromise, timeoutPromise]);
-        
+       
         if (!hasPassword) {
             popupSetup.classList.add("open");
             setTimeout(() => setupPwInput.focus(), 50);
@@ -938,30 +998,25 @@ async function triggerAdminLogin() {
         setTimeout(() => setupPwInput.focus(), 50);
     }
 }
-
 // 5x Klick Erkennung auf Footer (wenn Seite offen)
 footerBtn.addEventListener("click", (e) => {
     e.preventDefault();
     footerClicks++;
     footerBtn.style.opacity = "0.3";
     setTimeout(() => { footerBtn.style.opacity = "1"; }, 100);
-
     clearTimeout(clickTimeout);
-    clickTimeout = setTimeout(() => { footerClicks = 0; }, 4000); 
-
+    clickTimeout = setTimeout(() => { footerClicks = 0; }, 4000);
     if (footerClicks >= 5) {
         footerClicks = 0;
         clearTimeout(clickTimeout);
         triggerAdminLogin();
     }
 });
-
 // Direktes Öffnen über den roten Button im Lockdown-Modus
 lockdownTrigger.addEventListener("click", (e) => {
     e.stopPropagation();
     triggerAdminLogin();
 });
-
 setupPwSave.addEventListener("click", () => {
     const newPw = setupPwInput.value.trim();
     if (!newPw) return alert("Bitte Passwort eingeben!");
@@ -972,7 +1027,6 @@ setupPwSave.addEventListener("click", () => {
         adminOverlay.classList.add("open");
     });
 });
-
 authPwConfirm.addEventListener("click", () => {
     if (authPwInput.value.trim() === serverPassword) {
         popupAuth.classList.remove("open");
@@ -984,18 +1038,14 @@ authPwConfirm.addEventListener("click", () => {
         authPwInput.focus();
     }
 });
-
 authPwInput.addEventListener("keypress", (e) => { if (e.key === "Enter") authPwConfirm.click(); });
 setupPwInput.addEventListener("keypress", (e) => { if (e.key === "Enter") setupPwSave.click(); });
 authPwCancel.addEventListener("click", () => { popupAuth.classList.remove("open"); authPwInput.value = ""; });
-
 toggleMBtn.addEventListener("click", () => { set(maintenanceRef, !isMaintenanceActive); });
 toggleLBtn.addEventListener("click", () => { set(lockdownRef, !isLockdownActive); });
-
 document.getElementById("close-admin").addEventListener("click", () => {
     adminOverlay.classList.remove("open");
 });
-
 function updateAdminButtonsUI() {
     if (isMaintenanceActive) {
         toggleMBtn.textContent = "Wartung: AN";
@@ -1004,7 +1054,6 @@ function updateAdminButtonsUI() {
         toggleMBtn.textContent = "Wartung: AUS";
         toggleMBtn.className = "admin-btn";
     }
-
     if (isLockdownActive) {
         toggleLBtn.textContent = "Seite gesperrt: AN";
         toggleLBtn.className = "admin-btn danger active";
@@ -1013,16 +1062,14 @@ function updateAdminButtonsUI() {
         toggleLBtn.className = "admin-btn danger";
     }
 }
-
 /* ═══════════════ BESUCHERZÄHLER ═══════════════ */
 const SITE_BORN = new Date("2026-05-31T00:00:00");
 const visitsRef = ref(db, "visits/total");
-const visitEl   = document.getElementById("visit-count");
+const visitEl = document.getElementById("visit-count");
 runTransaction(visitsRef, cur => (cur || 0) + 1);
 onValue(visitsRef, snap => { visitEl.textContent = (snap.val() || 0).toLocaleString("de-DE"); });
-
 function updateAge() {
-    const days  = Math.floor((new Date() - SITE_BORN) / 86400000);
+    const days = Math.floor((new Date() - SITE_BORN) / 86400000);
     const ageEl = document.getElementById("site-age");
     if (days < 0) ageEl.textContent = "bald";
     else if (days === 0) ageEl.textContent = "seit heute";
@@ -1030,7 +1077,6 @@ function updateAge() {
     else ageEl.textContent = days + " Tage";
 }
 updateAge();
-
 /* ═══════════════ LIVE PRESENCE ═══════════════ */
 const sessionId = Math.random().toString(36).slice(2);
 const sessionRef = ref(db, "presence/" + sessionId);
@@ -1038,7 +1084,6 @@ const connectedRef = ref(db, ".info/connected");
 const presenceRef = ref(db, "presence");
 const dot = document.getElementById("presence-dot");
 const countEl = document.getElementById("presence-count");
-
 onValue(connectedRef, snap => {
     if (!snap.val()) return;
     onDisconnect(sessionRef).remove();
@@ -1049,7 +1094,6 @@ onValue(presenceRef, snap => {
     countEl.textContent = count <= 1 ? "nur du hier" : count + " gerade hier";
     dot.style.background = count <= 1 ? "#666" : "#00ffcc";
 });
-
 /* ═══════════════ PFLANZE ═══════════════ */
 const plantRef = ref(db, "easter_egg/plant_" + new Date().toISOString().slice(0, 10));
 const hitDesktop = document.getElementById("hit-desktop");
@@ -1060,9 +1104,7 @@ const ptSub = document.getElementById("pt-sub");
 const stem = document.getElementById("p-stem");
 const flower = document.getElementById("p-flower");
 const lf = id => document.getElementById(id);
-
 let waterCount = 0, cooling = false, toastTimer = null, everClicked = false;
-
 onValue(plantRef, snap => {
     waterCount = (snap.val() || 0) % 100;
     if (snap.val() > 0 && snap.val() % 100 === 0) {
@@ -1072,7 +1114,6 @@ onValue(plantRef, snap => {
     applyGrowth(waterCount);
     if (everClicked) showToast(waterCount);
 });
-
 [hitDesktop, hitMobile].forEach(el => {
     el.addEventListener("click", () => {
         if (cooling || isMaintenanceActive || isLockdownActive) return;
@@ -1082,7 +1123,6 @@ onValue(plantRef, snap => {
         spawnDrop(el); bounce(el);
     });
 });
-
 function applyGrowth(n) {
     const s1 = Math.min(1, n / 24), s2 = Math.max(0, Math.min(1, (n - 24) / 30)), s3 = Math.max(0, Math.min(1, (n - 54) / 30));
     lf("p-l1").setAttribute("opacity", 0.38 + s1 * 0.62); lf("p-l2").setAttribute("opacity", 0.38 + s1 * 0.62);
@@ -1091,7 +1131,6 @@ function applyGrowth(n) {
     stem.setAttribute("y2", n >= 55 ? "26" : "40");
     flower.setAttribute("opacity", Math.max(0, Math.min(1, (n - 84) / 15)));
 }
-
 function playDrown() {
     [hitDesktop, hitMobile].forEach(el => {
         const svg = el.querySelector(".plant-svg");
@@ -1101,38 +1140,33 @@ function playDrown() {
         }, { once: true });
     });
 }
-
 function showToast(n) {
     clearTimeout(toastTimer); ptNum.textContent = n + "×";
     ptSub.textContent = n >= 80 ? "Voll aufgeblüht! 🌸" : n >= 50 ? "Halbzeit! 🌳" : n >= 10 ? "Sie wächst! 🌱" : "Heute gegossen 💧";
     toast.classList.add("show"); toastTimer = setTimeout(() => toast.classList.remove("show"), 3200);
 }
-
-function spawnDrop(a) { 
-    const d = document.createElement("div"); 
-    d.style.position = "absolute"; 
-    d.style.fontSize = "18px"; 
-    d.style.animation = "wfall 0.7s ease-in forwards"; 
+function spawnDrop(a) {
+    const d = document.createElement("div");
+    d.style.position = "absolute";
+    d.style.fontSize = "18px";
+    d.style.animation = "wfall 0.7s ease-in forwards";
     d.style.left = "50%";
     d.style.top = "20px";
     d.style.transform = "translateX(-50%)";
     d.style.pointerEvents = "none";
-    d.textContent = "💧"; 
-    a.appendChild(d); 
-    setTimeout(() => d.remove(), 700); 
+    d.textContent = "💧";
+    a.appendChild(d);
+    setTimeout(() => d.remove(), 700);
 }
-
-function bounce(a) { 
-    const s = a.querySelector(".plant-svg"); 
-    s.style.animation = "pbounce 0.5s cubic-bezier(0.25, 1, 0.5, 1)"; 
-    s.addEventListener("animationend", () => s.style.animation=""); 
+function bounce(a) {
+    const s = a.querySelector(".plant-svg");
+    s.style.animation = "pbounce 0.5s cubic-bezier(0.25, 1, 0.5, 1)";
+    s.addEventListener("animationend", () => s.style.animation="");
 }
-
 /* ═══════════════ LIVE GLÜHBIRNE ═══════════════ */
 const bulbRef = ref(db, "live_features/light_bulb");
 const bulbEl = document.getElementById("hit-bulb");
 const bulbSvg = bulbEl.querySelector(".bulb-svg");
-
 onValue(bulbRef, (snap) => {
     const isOn = snap.val() === true;
     bulbSvg.classList.remove("swinging"); void bulbSvg.offsetWidth; bulbSvg.classList.add("swinging");
@@ -1141,7 +1175,6 @@ onValue(bulbRef, (snap) => {
 });
 bulbEl.addEventListener("click", () => { if(!isMaintenanceActive && !isLockdownActive) get(bulbRef).then(snap => set(bulbRef, !snap.val())); });
 </script>
-
 <script>
 /* ═══════════════ CANVAS BACKGROUND ═══════════════ */
 const canvas = document.getElementById("bg"); const ctx = canvas.getContext("2d");
