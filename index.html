@@ -277,6 +277,25 @@ body.maintenance-active .cursor-toggle-wrap {
     background: linear-gradient(135deg, #e8a060, #c07030);
     box-shadow: 0 0 6px rgba(200,120,50,0.4);
 }
+/* Dezente Wochen-Klickzahl */
+.click-count {
+    position: absolute;
+    bottom: 4px;
+    right: 6px;
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.28);
+    letter-spacing: 0.2px;
+    pointer-events: none;
+    line-height: 1;
+    transition: color 0.25s ease;
+}
+.project-btn:hover .click-count {
+    color: rgba(0,255,204,0.55);
+}
+.project-btn.top-glow .click-count {
+    color: rgba(255,255,255,0.35);
+}
 .footer{
     margin-top:45px;
     color:#666;
@@ -1459,6 +1478,14 @@ function renderProjects(stats) {
         a.rel = "noopener";
         a.textContent = p.label;
         a.dataset.id = p.id;
+
+        // Dezente Wochen-Klickzahl (unten rechts)
+        if (p.clicks > 0) {
+            const countEl = document.createElement("span");
+            countEl.className = "click-count";
+            countEl.textContent = p.clicks;
+            a.appendChild(countEl);
+        }
 
         if (p.special === "rainbow") {
             a.classList.add("rainbow-chat");
