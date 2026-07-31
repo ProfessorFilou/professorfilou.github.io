@@ -73,12 +73,12 @@ body.maintenance-active h1 {
     line-height:1.6;
     font-size:clamp(15px, 3.5vw, 20px);
 }
-.socials, .projects-title, .projects, .footer-info, .last-visited, .cursor-toggle-wrap {
+.socials, .projects-title-row, .projects, .footer-info, .last-visited, .cursor-toggle-wrap {
     transition: opacity 0.4s ease;
 }
 /* Wenn Wartungsmodus aktiv ist, blenden wir den Rest leicht aus und sperren Klicks */
 body.maintenance-active .socials,
-body.maintenance-active .projects-title,
+body.maintenance-active .projects-title-row,
 body.maintenance-active .projects,
 body.maintenance-active .last-visited,
 body.maintenance-active .cursor-toggle-wrap {
@@ -111,11 +111,55 @@ body.maintenance-active .cursor-toggle-wrap {
     height:50%;
     object-fit:contain;
 }
+.projects-title-row {
+    margin-top: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
 .projects-title{
-    margin-top:50px;
     font-size:clamp(22px, 5vw, 32px);
     color:#00ffcc;
     letter-spacing:2px;
+}
+.random-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid rgba(0,255,204,0.25);
+    background: rgba(255,255,255,0.04);
+    cursor: pointer;
+    transition: 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    padding: 0;
+    color: #00ffcc;
+}
+.random-btn:hover {
+    transform: translateY(-2px) rotate(12deg);
+    border-color: #00ffcc;
+    box-shadow: 0 0 14px rgba(0,255,204,0.35);
+    background: rgba(0,255,204,0.1);
+}
+.random-btn:active {
+    transform: scale(0.92) rotate(-8deg);
+}
+.random-btn svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+}
+.random-btn.rolling svg {
+    animation: diceRoll 0.55s cubic-bezier(0.25, 1, 0.5, 1);
+}
+@keyframes diceRoll {
+    0%   { transform: rotate(0deg) scale(1); }
+    30%  { transform: rotate(90deg) scale(1.15); }
+    60%  { transform: rotate(200deg) scale(0.9); }
+    100% { transform: rotate(360deg) scale(1); }
 }
 .projects{
     margin-top:24px;
@@ -978,7 +1022,19 @@ body.maintenance-active .cursor-toggle-wrap {
         <a class="social" href="https://youtube.com/@professorfilou" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png"></a>
         <a class="social" href="https://twitch.tv/professorfilou" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/d/d3/Twitch_Glitch_Logo_Purple.svg"></a>
     </div>
-    <div class="projects-title">My Projects</div>
+    <div class="projects-title-row">
+        <div class="projects-title">My Projects</div>
+        <button class="random-btn" id="random-project-btn" type="button" title="Zufälliges Projekt">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="3" y="3" width="18" height="18" rx="4" stroke="currentColor" stroke-width="1.8"/>
+                <circle cx="8.2" cy="8.2" r="1.35" fill="currentColor"/>
+                <circle cx="15.8" cy="8.2" r="1.35" fill="currentColor"/>
+                <circle cx="12" cy="12" r="1.35" fill="currentColor"/>
+                <circle cx="8.2" cy="15.8" r="1.35" fill="currentColor"/>
+                <circle cx="15.8" cy="15.8" r="1.35" fill="currentColor"/>
+            </svg>
+        </button>
+    </div>
     <div class="projects" id="projects-container">
         <!-- Buttons werden dynamisch nach Beliebtheit sortiert eingefügt -->
     </div>
@@ -1516,6 +1572,22 @@ onValue(clicksRootRef, (snap) => {
 
 // Initial render (falls noch keine Daten)
 renderProjects({});
+
+/* ═══════════════ RANDOM PROJECT (Würfel) ═══════════════ */
+const randomBtn = document.getElementById("random-project-btn");
+let randomCooldown = false;
+randomBtn.addEventListener("click", () => {
+    if (randomCooldown || isMaintenanceActive || isLockdownActive) return;
+    randomCooldown = true;
+    randomBtn.classList.add("rolling");
+    setTimeout(() => {
+        const pick = PROJECTS[Math.floor(Math.random() * PROJECTS.length)];
+        trackClick(pick.id, pick.label);
+        window.open(pick.href, "_blank", "noopener");
+        randomBtn.classList.remove("rolling");
+        randomCooldown = false;
+    }, 520);
+});
 </script>
 <script>
 /* ═══════════════ CANVAS BACKGROUND ═══════════════ */
