@@ -73,14 +73,15 @@ body.maintenance-active h1 {
     line-height:1.6;
     font-size:clamp(15px, 3.5vw, 20px);
 }
-.socials, .projects-title, .projects, .footer-info, .last-visited {
+.socials, .projects-title, .projects, .footer-info, .last-visited, .cursor-toggle-wrap {
     transition: opacity 0.4s ease;
 }
 /* Wenn Wartungsmodus aktiv ist, blenden wir den Rest leicht aus und sperren Klicks */
 body.maintenance-active .socials,
 body.maintenance-active .projects-title,
 body.maintenance-active .projects,
-body.maintenance-active .last-visited {
+body.maintenance-active .last-visited,
+body.maintenance-active .cursor-toggle-wrap {
     opacity: 0.25;
     pointer-events: none;
 }
@@ -294,6 +295,84 @@ body.maintenance-active .last-visited {
 .footer-info b{
     color:#00ffcc;
     font-weight:700;
+}
+/* ════ CURSOR MODE ════ */
+.cursor-toggle-wrap {
+    margin-top: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+.cursor-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    color: #888;
+    font-size: 12px;
+    cursor: pointer;
+    transition: 0.25s ease;
+    user-select: none;
+}
+.cursor-toggle:hover {
+    border-color: rgba(0,255,204,0.35);
+    color: #bbb;
+}
+.cursor-toggle.active {
+    border-color: rgba(0,255,204,0.5);
+    background: rgba(0,255,204,0.08);
+    color: #00ffcc;
+    box-shadow: 0 0 12px rgba(0,255,204,0.2);
+}
+.cursor-toggle .ct-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #444;
+    transition: 0.25s;
+}
+.cursor-toggle.active .ct-dot {
+    background: #00ffcc;
+    box-shadow: 0 0 6px #00ffcc;
+}
+#cursors-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 500;
+    overflow: hidden;
+}
+.remote-cursor {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    margin-left: -2px;
+    margin-top: -2px;
+    pointer-events: none;
+    transition: transform 0.08s linear;
+    will-change: transform;
+    filter: drop-shadow(0 0 4px rgba(0,0,0,0.5));
+}
+.remote-cursor svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+.remote-cursor .rc-label {
+    position: absolute;
+    top: 16px;
+    left: 12px;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 5px;
+    border-radius: 4px;
+    white-space: nowrap;
+    opacity: 0.85;
+    color: #050505;
 }
 @keyframes glow{
     from{text-shadow:0 0 10px #00ffcc,0 0 20px #00ffcc;}
@@ -756,6 +835,7 @@ body.maintenance-active .last-visited {
 <body>
 <canvas id="bg"></canvas>
 <div id="confetti-layer"></div>
+<div id="cursors-layer"></div>
 <div id="lockdown-overlay">
     <svg class="lockdown-svg" viewBox="0 0 64 64">
         <polygon points="32,6 58,54 6,54" fill="none" stroke="#ff3333" stroke-width="4" stroke-linejoin="round"/>
@@ -889,6 +969,12 @@ body.maintenance-active .last-visited {
     <div class="footer-info">
         👀 <b id="visit-count">…</b> Besuche<br>
         🎂 Seite ist <b id="site-age">…</b> online
+    </div>
+    <div class="cursor-toggle-wrap">
+        <button class="cursor-toggle" id="cursor-toggle" type="button" title="Zeigt deinen Cursor für andere Besucher">
+            <span class="ct-dot"></span>
+            <span id="cursor-toggle-label">Cursor teilen: AUS</span>
+        </button>
     </div>
     <div id="plant-inline" style="position:relative;">
         <div class="plant-hit" id="hit-mobile">
@@ -1083,6 +1169,105 @@ onValue(presenceRef, snap => {
     const count = snap.exists() ? Object.keys(snap.val()).length : 0;
     countEl.textContent = count <= 1 ? "nur du hier" : count + " gerade hier";
     dot.style.background = count <= 1 ? "#666" : "#00ffcc";
+});
+
+/* ═══════════════ LIVE CURSOR MODE ═══════════════ */
+const CURSOR_COLORS = ["#00ffcc", "#ff6b9d", "#ffcc00", "#7b2fff", "#00b4ff", "#ff6b00", "#66ff66", "#ff4488"];
+function colorFromId(id) {
+    let h = 0;
+    for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+    return CURSOR_COLORS[h % CURSOR_COLORS.length];
+}
+const myCursorColor = colorFromId(sessionId);
+const myCursorRef = ref(db, "cursors/" + sessionId);
+const cursorsRef = ref(db, "cursors");
+const cursorsLayer = document.getElementById("cursors-layer");
+const cursorToggleBtn = document.getElementById("cursor-toggle");
+const cursorToggleLabel = document.getElementById("cursor-toggle-label");
+let cursorSharing = false;
+let lastCursorSend = 0;
+const remoteCursors = new Map(); // id -> DOM element
+
+// Cleanup own cursor on disconnect (always registered)
+onValue(connectedRef, snap => {
+    if (!snap.val()) return;
+    onDisconnect(myCursorRef).remove();
+});
+
+function setCursorSharing(on) {
+    cursorSharing = on;
+    cursorToggleBtn.classList.toggle("active", on);
+    cursorToggleLabel.textContent = on ? "Cursor teilen: AN" : "Cursor teilen: AUS";
+    if (!on) {
+        set(myCursorRef, null);
+    }
+}
+cursorToggleBtn.addEventListener("click", () => {
+    if (isMaintenanceActive || isLockdownActive) return;
+    setCursorSharing(!cursorSharing);
+});
+
+function sendCursorPos(e) {
+    if (!cursorSharing || isMaintenanceActive || isLockdownActive) return;
+    const now = Date.now();
+    if (now - lastCursorSend < 40) return; // ~25fps throttle
+    lastCursorSend = now;
+    // relative 0–1 so different screen sizes still look ok
+    const x = e.clientX / window.innerWidth;
+    const y = e.clientY / window.innerHeight;
+    set(myCursorRef, { x, y, c: myCursorColor, t: now });
+}
+window.addEventListener("mousemove", sendCursorPos, { passive: true });
+window.addEventListener("touchmove", (e) => {
+    if (!e.touches[0]) return;
+    sendCursorPos({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY });
+}, { passive: true });
+
+function makeCursorEl(color) {
+    const el = document.createElement("div");
+    el.className = "remote-cursor";
+    el.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none">
+            <path d="M5.5 3.5 L5.5 18.5 L10 14 L13.5 21 L16 20 L12.5 13 L19 13 Z"
+                  fill="${color}" stroke="#050505" stroke-width="1.2" stroke-linejoin="round"/>
+        </svg>
+        <span class="rc-label" style="background:${color}"></span>
+    `;
+    return el;
+}
+
+onValue(cursorsRef, (snap) => {
+    const data = snap.exists() ? snap.val() : {};
+    const seen = new Set();
+    const now = Date.now();
+
+    for (const [id, val] of Object.entries(data)) {
+        if (id === sessionId) continue; // eigenen Cursor nicht anzeigen
+        if (!val || typeof val.x !== "number" || typeof val.y !== "number") continue;
+        // stale cursors (>8s) ignorieren
+        if (val.t && now - val.t > 8000) continue;
+
+        seen.add(id);
+        let el = remoteCursors.get(id);
+        if (!el) {
+            el = makeCursorEl(val.c || colorFromId(id));
+            cursorsLayer.appendChild(el);
+            remoteCursors.set(id, el);
+        }
+        const px = val.x * window.innerWidth;
+        const py = val.y * window.innerHeight;
+        el.style.transform = `translate(${px}px, ${py}px)`;
+        const label = el.querySelector(".rc-label");
+        if (label) label.textContent = ""; // anonym, nur Farbe
+    }
+
+    // entferne Cursors die nicht mehr da sind
+    for (const [id, el] of remoteCursors.entries()) {
+        if (!seen.has(id)) {
+            el.remove();
+            remoteCursors.delete(id);
+        }
+    }
 });
 
 /* ═══════════════ PFLANZE ═══════════════ */
