@@ -73,13 +73,14 @@ body.maintenance-active h1 {
     line-height:1.6;
     font-size:clamp(15px, 3.5vw, 20px);
 }
-.socials, .projects-title, .projects, .footer-info {
+.socials, .projects-title, .projects, .footer-info, .last-visited {
     transition: opacity 0.4s ease;
 }
 /* Wenn Wartungsmodus aktiv ist, blenden wir den Rest leicht aus und sperren Klicks */
 body.maintenance-active .socials,
 body.maintenance-active .projects-title,
-body.maintenance-active .projects {
+body.maintenance-active .projects,
+body.maintenance-active .last-visited {
     opacity: 0.25;
     pointer-events: none;
 }
@@ -122,6 +123,25 @@ body.maintenance-active .projects {
     gap:12px;
     width:100%;
     max-width:960px;
+}
+.last-visited {
+    margin-top: 16px;
+    font-size: 13px;
+    color: #666;
+    letter-spacing: 0.3px;
+    min-height: 20px;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+}
+.last-visited.show {
+    opacity: 1;
+}
+.last-visited b {
+    color: #00ffcc;
+    font-weight: 600;
+}
+.last-visited .lv-time {
+    color: #888;
 }
 .project-btn{
     padding:14px 12px;
@@ -863,6 +883,7 @@ body.maintenance-active .projects {
     <div class="projects" id="projects-container">
         <!-- Buttons werden dynamisch nach Beliebtheit sortiert eingefügt -->
     </div>
+    <div class="last-visited" id="last-visited"></div>
     <div class="footer" id="secret-footer">© ProfessorFilou</div>
   
     <div class="footer-info">
@@ -1191,11 +1212,48 @@ function sumLast7Days(dayMap) {
     return total;
 }
 
-function trackClick(projectId) {
+const lastClickedRef = ref(db, "project_clicks_meta/last");
+
+function trackClick(projectId, label) {
     const today = new Date().toISOString().slice(0, 10);
     const dayRef = ref(db, `project_clicks/${projectId}/${today}`);
     runTransaction(dayRef, cur => (cur || 0) + 1);
+    set(lastClickedRef, { id: projectId, label: label, ts: Date.now() });
 }
+
+function formatRelativeTime(ts) {
+    const diff = Math.max(0, Date.now() - ts);
+    const sec = Math.floor(diff / 1000);
+    if (sec < 10) return "gerade eben";
+    if (sec < 60) return "vor " + sec + " Sek";
+    const min = Math.floor(sec / 60);
+    if (min < 60) return "vor " + min + " Min";
+    const hrs = Math.floor(min / 60);
+    if (hrs < 24) return "vor " + hrs + " Std";
+    const days = Math.floor(hrs / 24);
+    if (days === 1) return "gestern";
+    return "vor " + days + " Tagen";
+}
+
+const lastVisitedEl = document.getElementById("last-visited");
+let lastClickedData = null;
+
+function updateLastVisitedUI() {
+    if (!lastClickedData || !lastClickedData.label || !lastClickedData.ts) {
+        lastVisitedEl.classList.remove("show");
+        lastVisitedEl.innerHTML = "";
+        return;
+    }
+    lastVisitedEl.innerHTML = 'Zuletzt: <b>' + lastClickedData.label + '</b> <span class="lv-time">· ' + formatRelativeTime(lastClickedData.ts) + '</span>';
+    lastVisitedEl.classList.add("show");
+}
+
+onValue(lastClickedRef, (snap) => {
+    lastClickedData = snap.exists() ? snap.val() : null;
+    updateLastVisitedUI();
+});
+// Relative Zeit jede Minute aktualisieren
+setInterval(updateLastVisitedUI, 30000);
 
 function renderProjects(stats) {
     // stats: { projectId: { "2026-07-25": 3, ... } }
@@ -1230,7 +1288,7 @@ function renderProjects(stats) {
 
         a.addEventListener("click", () => {
             if (!isMaintenanceActive && !isLockdownActive) {
-                trackClick(p.id);
+                trackClick(p.id, p.label);
             }
         });
 
