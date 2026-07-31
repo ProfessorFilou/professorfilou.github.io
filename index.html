@@ -138,12 +138,61 @@ body.maintenance-active .projects {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    position: relative;
 }
 .project-btn:hover{
     transform:translateY(-3px);
     border-color:#00ffcc;
     box-shadow:0 0 12px #00ffcc,0 0 25px rgba(0,255,204,0.3);
     color:#00ffcc;
+}
+/* Rainbow Chat – immer hervorgehoben */
+.project-btn.rainbow-chat {
+    background: linear-gradient(135deg, rgba(255,0,128,0.12), rgba(0,255,204,0.12), rgba(120,0,255,0.12));
+    border: 1px solid transparent;
+    background-clip: padding-box;
+    color: #fff;
+    font-weight: 600;
+    animation: rainbowBorder 3s linear infinite;
+    box-shadow: 0 0 12px rgba(255,0,128,0.25), 0 0 20px rgba(0,255,204,0.2);
+}
+.project-btn.rainbow-chat:hover {
+    color: #fff;
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 0 18px rgba(255,0,128,0.4), 0 0 30px rgba(0,255,204,0.35);
+}
+/* Top-3 Glow: fading rainbow outline */
+.project-btn.top-glow {
+    animation: rainbowGlow 2.5s ease-in-out infinite;
+}
+@keyframes rainbowBorder {
+    0%   { border-color: #ff0080; box-shadow: 0 0 12px rgba(255,0,128,0.35); }
+    25%  { border-color: #ffcc00; box-shadow: 0 0 12px rgba(255,204,0,0.35); }
+    50%  { border-color: #00ffcc; box-shadow: 0 0 12px rgba(0,255,204,0.35); }
+    75%  { border-color: #7b2fff; box-shadow: 0 0 12px rgba(123,47,255,0.35); }
+    100% { border-color: #ff0080; box-shadow: 0 0 12px rgba(255,0,128,0.35); }
+}
+@keyframes rainbowGlow {
+    0% {
+        border-color: #ff0080;
+        box-shadow: 0 0 8px #ff0080, 0 0 18px rgba(255,0,128,0.45), 0 0 28px rgba(255,0,128,0.2);
+    }
+    25% {
+        border-color: #ffcc00;
+        box-shadow: 0 0 8px #ffcc00, 0 0 18px rgba(255,204,0,0.45), 0 0 28px rgba(255,204,0,0.2);
+    }
+    50% {
+        border-color: #00ffcc;
+        box-shadow: 0 0 8px #00ffcc, 0 0 18px rgba(0,255,204,0.45), 0 0 28px rgba(0,255,204,0.2);
+    }
+    75% {
+        border-color: #7b2fff;
+        box-shadow: 0 0 8px #7b2fff, 0 0 18px rgba(123,47,255,0.45), 0 0 28px rgba(123,47,255,0.2);
+    }
+    100% {
+        border-color: #ff0080;
+        box-shadow: 0 0 8px #ff0080, 0 0 18px rgba(255,0,128,0.45), 0 0 28px rgba(255,0,128,0.2);
+    }
 }
 .footer{
     margin-top:45px;
@@ -205,10 +254,6 @@ body.maintenance-active .projects {
     backdrop-filter:blur(8px);
     font-size:12px;
     color:#bfbfbf;
-    transition: top 0.35s ease;
-}
-body.banner-active #presence-fixed {
-    top: 62px;
 }
 #presence-dot{
     width:8px;
@@ -223,10 +268,6 @@ body.banner-active #presence-fixed {
     top: 0;
     right: 20px;
     z-index: 300;
-    transition: top 0.35s ease;
-}
-body.banner-active #bulb-fixed {
-    top: 48px;
 }
 .bulb-hit {
     width: 50px;
@@ -470,7 +511,7 @@ body.banner-active #bulb-fixed {
     justify-content: center;
     align-items: center;
     transition: all 0.2s ease;
-    z-index: 100000; /* Liegt über dem Overlay */
+    z-index: 100000;
 }
 .lockdown-admin-trigger:hover {
     border-color: #ff3333;
@@ -489,7 +530,7 @@ body.banner-active #bulb-fixed {
     inset: 0;
     background: rgba(0,0,0,0.8);
     backdrop-filter: blur(8px);
-    z-index: 120000; /* Höher als Lockdown */
+    z-index: 120000;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -573,7 +614,7 @@ body.banner-active #bulb-fixed {
     inset: 0;
     background: rgba(0,0,0,0.85);
     backdrop-filter: blur(10px);
-    z-index: 110000; /* Höher als Lockdown */
+    z-index: 110000;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -628,96 +669,11 @@ body.banner-active #bulb-fixed {
     margin-top: 24px;
     width: 100%;
 }
-
-/* ════ PROMO BANNER ════ */
-#promo-banner {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 250;
-    background: linear-gradient(90deg, rgba(0,20,18,0.97), rgba(0,40,35,0.97), rgba(0,20,18,0.97));
-    border-bottom: 1px solid rgba(0,255,204,0.35);
-    box-shadow: 0 4px 24px rgba(0,255,204,0.12);
-    transform: translateY(-100%);
-    opacity: 0;
-    pointer-events: none;
-    transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.35s ease;
-}
-#promo-banner.show {
-    transform: translateY(0);
-    opacity: 1;
-    pointer-events: auto;
-}
-.promo-inner {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 10px 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
-    flex-wrap: wrap;
-}
-.promo-text {
-    font-size: clamp(13px, 2.8vw, 15px);
-    color: #d0fff5;
-    line-height: 1.35;
-    text-align: center;
-}
-.promo-text b {
-    color: #00ffcc;
-    font-weight: 700;
-    text-shadow: 0 0 8px rgba(0,255,204,0.45);
-}
-.promo-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    background: #00ffcc;
-    color: #04120f;
-    font-weight: 700;
-    font-size: 13px;
-    border-radius: 999px;
-    text-decoration: none;
-    white-space: nowrap;
-    transition: 0.25s cubic-bezier(0.25, 1, 0.5, 1);
-    box-shadow: 0 0 14px rgba(0,255,204,0.35);
-}
-.promo-btn:hover {
-    transform: translateY(-2px) scale(1.03);
-    box-shadow: 0 0 22px rgba(0,255,204,0.55);
-    background: #7dffea;
-}
-@media (max-width: 520px) {
-    .promo-inner {
-        padding: 9px 12px;
-        gap: 10px;
-    }
-    .promo-btn {
-        padding: 7px 14px;
-        font-size: 12px;
-    }
-}
 </style>
 </head>
 <body>
 <canvas id="bg"></canvas>
 <div id="confetti-layer"></div>
-
-<!-- PROMO BANNER -->
-<div id="promo-banner">
-    <div class="promo-inner">
-        <div class="promo-text">
-            mache jetzt easy &amp; cool deine eigene website mit <b>ProBuilder</b> by ProfessorFilou
-        </div>
-        <a class="promo-btn" href="https://professorfilou.de/Website" target="_blank" rel="noopener">
-            Durchstarten →
-        </a>
-    </div>
-</div>
-
 <div id="lockdown-overlay">
     <svg class="lockdown-svg" viewBox="0 0 64 64">
         <polygon points="32,6 58,54 6,54" fill="none" stroke="#ff3333" stroke-width="4" stroke-linejoin="round"/>
@@ -726,7 +682,7 @@ body.banner-active #bulb-fixed {
     </svg>
     <div class="lockdown-text">Diese Seite ist momentan nicht erreichbar.</div>
     <div class="lockdown-subtext">Bitte haben Sie einen Moment Geduld.</div>
-   
+  
     <button class="lockdown-admin-trigger" id="lockdown-panel-trigger" title="Admin Panel">
         <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -757,10 +713,10 @@ body.banner-active #bulb-fixed {
     <div class="admin-card">
         <h3 style="color:#00ffcc; margin-bottom:5px;">Dev Mode Panel</h3>
         <p style="color:#666; font-size:13px; margin-bottom:15px;">Live-Steuerung der App</p>
-       
+      
         <button id="toggle-maintenance" class="admin-btn">Wartung: AUS</button>
         <button id="toggle-lockdown" class="admin-btn danger">Seite gesperrt: AUS</button>
-       
+      
         <button id="close-admin" class="close-btn">Schließen</button>
     </div>
 </div>
@@ -816,14 +772,14 @@ body.banner-active #bulb-fixed {
 <div class="main">
     <div class="header-container">
         <h1>ProfessorFilou</h1>
-       
+      
         <div id="maintenance-overlay">
             <svg class="hourglass-svg" viewBox="0 0 64 64">
                 <path class="hourglass-glass" d="M16,8 L48,8 L48,16 C48,26 38,32 32,32 C26,32 16,26 16,16 Z" />
                 <path class="hourglass-glass" d="M16,56 L48,56 L48,48 C48,38 38,32 32,32 C26,32 16,38 16,48 Z" />
                 <line class="hourglass-glass" x1="12" y1="8" x2="52" y2="8" />
                 <line class="hourglass-glass" x1="12" y1="56" x2="52" y2="56" />
-               
+              
                 <path class="sand-top" d="M18,16 L46,16 C44,24 36,29 32,30 C28,29 20,24 18,16 Z" />
                 <path class="sand-bottom" d="M20,48 L44,48 C46,51 46,54 46,54 L18,54 C18,54 18,51 20,48 Z" />
                 <line class="sand-stream" x1="32" y1="30" x2="32" y2="50" />
@@ -842,25 +798,11 @@ body.banner-active #bulb-fixed {
         <a class="social" href="https://twitch.tv/professorfilou" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/d/d3/Twitch_Glitch_Logo_Purple.svg"></a>
     </div>
     <div class="projects-title">My Projects</div>
-    <div class="projects">
-        <a class="project-btn" href="https://professorfilou.de/BankingGame" target="_blank">BankGame</a>
-        <a class="project-btn" href="https://professorfilou.de/EmojiClick/" target="_blank">EmojiClick</a>
-        <a class="project-btn" href="https://professorfilou.de/DropDown/" target="_blank">DropDown</a>
-        <a class="project-btn" href="https://professorfilou.de/WhoAmIWeb/" target="_blank">WhoAmIWeb</a>
-        <a class="project-btn" href="https://professorfilou.de/WeatherWeb/" target="_blank">WeatherWeb</a>
-        <a class="project-btn" href="https://professorfilou.de/Tycoon/" target="_blank">Tycoon</a>
-        <a class="project-btn" href="https://professorfilou.de/finn.fun/" target="_blank">finn.fun</a>
-        <a class="project-btn" href="https://professorfilou.de/Lade/" target="_blank">Lade</a>
-        <a class="project-btn" href="https://professorfilou.de/Search/" target="_blank">Search</a>
-        <a class="project-btn" href="https://professorfilou.de/Quiz/" target="_blank">Quiz</a>
-        <a class="project-btn" href="https://professorfilou.de/FinnGPT/" target="_blank">FinnGPT</a>
-        <a class="project-btn" href="https://professorfilou.de/Pong/" target="_blank">Pong</a>
-        <a class="project-btn" href="https://professorfilou.de/Windows/" target="_blank">Windows</a>
-        <a class="project-btn" href="https://professorfilou.de/Terminal/" target="_blank">Terminal</a>
-        <a class="project-btn" href="https://professorfilou.de/SportRules" target="_blank">SportRules</a>
+    <div class="projects" id="projects-container">
+        <!-- Buttons werden dynamisch nach Beliebtheit sortiert eingefügt -->
     </div>
     <div class="footer" id="secret-footer">© ProfessorFilou</div>
-   
+  
     <div class="footer-info">
         👀 <b id="visit-count">…</b> Besuche<br>
         🎂 Seite ist <b id="site-age">…</b> online
@@ -887,12 +829,11 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+
 /* ═══════════════ LIVE REALTIME NODES ═══════════════ */
 const maintenanceRef = ref(db, "live_features/maintenance_mode");
 const lockdownRef = ref(db, "live_features/lockdown_mode");
 const passwordRef = ref(db, "admin_settings/password");
-const promoEndRef = ref(db, "live_features/promo_banner_end");   // Timestamp (ms) – Banner läuft bis zu diesem Zeitpunkt
-
 const mOverlay = document.getElementById("maintenance-overlay");
 const lOverlay = document.getElementById("lockdown-overlay");
 const adminOverlay = document.getElementById("admin-overlay");
@@ -907,14 +848,11 @@ const popupAuth = document.getElementById("popup-auth");
 const authPwInput = document.getElementById("auth-pw-input");
 const authPwConfirm = document.getElementById("auth-pw-confirm");
 const authPwCancel = document.getElementById("auth-pw-cancel");
-const promoBanner = document.getElementById("promo-banner");
-
 let isMaintenanceActive = false;
 let isLockdownActive = false;
 let footerClicks = 0;
 let clickTimeout;
 let serverPassword = null;
-let promoEndTs = null;
 
 onValue(maintenanceRef, (snap) => {
     isMaintenanceActive = snap.val() === true;
@@ -926,7 +864,6 @@ onValue(maintenanceRef, (snap) => {
         document.body.classList.remove("maintenance-active");
     }
     updateAdminButtonsUI();
-    updatePromoBannerVisibility();
 });
 onValue(lockdownRef, (snap) => {
     isLockdownActive = snap.val() === true;
@@ -936,38 +873,7 @@ onValue(lockdownRef, (snap) => {
         lOverlay.classList.remove("active");
     }
     updateAdminButtonsUI();
-    updatePromoBannerVisibility();
 });
-
-/* ═══════════════ PROMO BANNER (3 Wochen via Firebase) ═══════════════ */
-const THREE_WEEKS_MS = 21 * 24 * 60 * 60 * 1000;
-
-function updatePromoBannerVisibility() {
-    const now = Date.now();
-    const shouldShow = promoEndTs && now < promoEndTs && !isLockdownActive && !isMaintenanceActive;
-    if (shouldShow) {
-        promoBanner.classList.add("show");
-        document.body.classList.add("banner-active");
-    } else {
-        promoBanner.classList.remove("show");
-        document.body.classList.remove("banner-active");
-    }
-}
-
-onValue(promoEndRef, (snap) => {
-    if (snap.exists() && typeof snap.val() === "number") {
-        promoEndTs = snap.val();
-    } else {
-        // Erste Initialisierung: 3 Wochen ab jetzt speichern
-        const end = Date.now() + THREE_WEEKS_MS;
-        set(promoEndRef, end);
-        promoEndTs = end;
-    }
-    updatePromoBannerVisibility();
-});
-
-// Alle 30 Sekunden nochmal prüfen (falls jemand lange auf der Seite bleibt)
-setInterval(updatePromoBannerVisibility, 30000);
 
 function fetchPassword() {
     return get(passwordRef).then(snap => {
@@ -979,13 +885,13 @@ function fetchPassword() {
     }).catch(() => false);
 }
 fetchPassword();
-// Zentrale Funktion zum Starten der Admin-Authentifizierung
+
 async function triggerAdminLogin() {
     try {
         const passwordPromise = fetchPassword();
         const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 1800));
         const hasPassword = await Promise.race([passwordPromise, timeoutPromise]);
-       
+      
         if (!hasPassword) {
             popupSetup.classList.add("open");
             setTimeout(() => setupPwInput.focus(), 50);
@@ -998,7 +904,7 @@ async function triggerAdminLogin() {
         setTimeout(() => setupPwInput.focus(), 50);
     }
 }
-// 5x Klick Erkennung auf Footer (wenn Seite offen)
+
 footerBtn.addEventListener("click", (e) => {
     e.preventDefault();
     footerClicks++;
@@ -1012,7 +918,6 @@ footerBtn.addEventListener("click", (e) => {
         triggerAdminLogin();
     }
 });
-// Direktes Öffnen über den roten Button im Lockdown-Modus
 lockdownTrigger.addEventListener("click", (e) => {
     e.stopPropagation();
     triggerAdminLogin();
@@ -1062,6 +967,7 @@ function updateAdminButtonsUI() {
         toggleLBtn.className = "admin-btn danger";
     }
 }
+
 /* ═══════════════ BESUCHERZÄHLER ═══════════════ */
 const SITE_BORN = new Date("2026-05-31T00:00:00");
 const visitsRef = ref(db, "visits/total");
@@ -1077,6 +983,7 @@ function updateAge() {
     else ageEl.textContent = days + " Tage";
 }
 updateAge();
+
 /* ═══════════════ LIVE PRESENCE ═══════════════ */
 const sessionId = Math.random().toString(36).slice(2);
 const sessionRef = ref(db, "presence/" + sessionId);
@@ -1094,6 +1001,7 @@ onValue(presenceRef, snap => {
     countEl.textContent = count <= 1 ? "nur du hier" : count + " gerade hier";
     dot.style.background = count <= 1 ? "#666" : "#00ffcc";
 });
+
 /* ═══════════════ PFLANZE ═══════════════ */
 const plantRef = ref(db, "easter_egg/plant_" + new Date().toISOString().slice(0, 10));
 const hitDesktop = document.getElementById("hit-desktop");
@@ -1163,6 +1071,7 @@ function bounce(a) {
     s.style.animation = "pbounce 0.5s cubic-bezier(0.25, 1, 0.5, 1)";
     s.addEventListener("animationend", () => s.style.animation="");
 }
+
 /* ═══════════════ LIVE GLÜHBIRNE ═══════════════ */
 const bulbRef = ref(db, "live_features/light_bulb");
 const bulbEl = document.getElementById("hit-bulb");
@@ -1174,6 +1083,103 @@ onValue(bulbRef, (snap) => {
     else { bulbSvg.classList.remove("is-on"); document.body.classList.remove("light-on"); }
 });
 bulbEl.addEventListener("click", () => { if(!isMaintenanceActive && !isLockdownActive) get(bulbRef).then(snap => set(bulbRef, !snap.val())); });
+
+/* ═══════════════ PROJECT BUTTONS + CLICK TRACKING (7 Tage) ═══════════════ */
+const PROJECTS = [
+    { id: "probuilder",  label: "ProBuilder",  href: "https://professorfilou.de/Website", special: null },
+    { id: "chat",        label: "Chat",        href: "https://professorfilou.de/Chat",    special: "rainbow" },
+    { id: "bankgame",    label: "BankGame",    href: "https://professorfilou.de/BankingGame" },
+    { id: "emojiclick",  label: "EmojiClick",  href: "https://professorfilou.de/EmojiClick/" },
+    { id: "dropdown",    label: "DropDown",    href: "https://professorfilou.de/DropDown/" },
+    { id: "whoamiweb",   label: "WhoAmIWeb",   href: "https://professorfilou.de/WhoAmIWeb/" },
+    { id: "weatherweb",  label: "WeatherWeb",  href: "https://professorfilou.de/WeatherWeb/" },
+    { id: "tycoon",      label: "Tycoon",      href: "https://professorfilou.de/Tycoon/" },
+    { id: "finnfun",     label: "finn.fun",    href: "https://professorfilou.de/finn.fun/" },
+    { id: "lade",        label: "Lade",        href: "https://professorfilou.de/Lade/" },
+    { id: "search",      label: "Search",      href: "https://professorfilou.de/Search/" },
+    { id: "quiz",        label: "Quiz",        href: "https://professorfilou.de/Quiz/" },
+    { id: "finngpt",     label: "FinnGPT",     href: "https://professorfilou.de/FinnGPT/" },
+    { id: "pong",        label: "Pong",        href: "https://professorfilou.de/Pong/" },
+    { id: "windows",     label: "Windows",     href: "https://professorfilou.de/Windows/" },
+    { id: "terminal",    label: "Terminal",    href: "https://professorfilou.de/Terminal/" },
+    { id: "sportrules",  label: "SportRules",  href: "https://professorfilou.de/SportRules" }
+];
+
+const projectsContainer = document.getElementById("projects-container");
+const clicksRootRef = ref(db, "project_clicks");
+
+function getDateKeysLast7Days() {
+    const keys = [];
+    const now = new Date();
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - i);
+        keys.push(d.toISOString().slice(0, 10)); // YYYY-MM-DD
+    }
+    return keys;
+}
+
+function sumLast7Days(dayMap) {
+    if (!dayMap) return 0;
+    const keys = getDateKeysLast7Days();
+    let total = 0;
+    for (const k of keys) {
+        total += (dayMap[k] || 0);
+    }
+    return total;
+}
+
+function trackClick(projectId) {
+    const today = new Date().toISOString().slice(0, 10);
+    const dayRef = ref(db, `project_clicks/${projectId}/${today}`);
+    runTransaction(dayRef, cur => (cur || 0) + 1);
+}
+
+function renderProjects(stats) {
+    // stats: { projectId: { "2026-07-25": 3, ... } }
+    const withCounts = PROJECTS.map(p => ({
+        ...p,
+        clicks: sumLast7Days(stats[p.id])
+    }));
+
+    // Sortiere nach Klicks absteigend (bei Gleichstand Originalreihenfolge beibehalten)
+    withCounts.sort((a, b) => b.clicks - a.clicks);
+
+    projectsContainer.innerHTML = "";
+    withCounts.forEach((p, index) => {
+        const a = document.createElement("a");
+        a.className = "project-btn";
+        a.href = p.href;
+        a.target = "_blank";
+        a.rel = "noopener";
+        a.textContent = p.label;
+        a.dataset.id = p.id;
+
+        if (p.special === "rainbow") {
+            a.classList.add("rainbow-chat");
+        }
+        if (index < 3) {
+            a.classList.add("top-glow");
+        }
+
+        a.addEventListener("click", () => {
+            if (!isMaintenanceActive && !isLockdownActive) {
+                trackClick(p.id);
+            }
+        });
+
+        projectsContainer.appendChild(a);
+    });
+}
+
+// Live-Updates der Stats → Buttons neu sortieren
+onValue(clicksRootRef, (snap) => {
+    const data = snap.exists() ? snap.val() : {};
+    renderProjects(data);
+});
+
+// Initial render (falls noch keine Daten)
+renderProjects({});
 </script>
 <script>
 /* ═══════════════ CANVAS BACKGROUND ═══════════════ */
