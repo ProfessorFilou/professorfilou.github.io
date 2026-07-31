@@ -228,6 +228,34 @@ body.maintenance-active .projects {
     color: #fff;
     box-shadow: 0 0 16px rgba(0,255,204,0.25);
 }
+/* Mini Rank-Badges #1 #2 #3 */
+.rank-badge {
+    position: absolute;
+    top: 4px;
+    right: 5px;
+    font-size: 9px;
+    font-weight: 800;
+    line-height: 1;
+    padding: 2px 5px;
+    border-radius: 6px;
+    letter-spacing: 0.3px;
+    pointer-events: none;
+    z-index: 2;
+    color: #050505;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+}
+.rank-badge.rank-1 {
+    background: linear-gradient(135deg, #ffd700, #ffaa00);
+    box-shadow: 0 0 8px rgba(255,200,0,0.55);
+}
+.rank-badge.rank-2 {
+    background: linear-gradient(135deg, #e0e0e0, #a8a8a8);
+    box-shadow: 0 0 6px rgba(200,200,200,0.4);
+}
+.rank-badge.rank-3 {
+    background: linear-gradient(135deg, #e8a060, #c07030);
+    box-shadow: 0 0 6px rgba(200,120,50,0.4);
+}
 .footer{
     margin-top:45px;
     color:#666;
@@ -1194,6 +1222,10 @@ function renderProjects(stats) {
         }
         if (index < 3) {
             a.classList.add("top-glow");
+            const badge = document.createElement("span");
+            badge.className = "rank-badge rank-" + (index + 1);
+            badge.textContent = "#" + (index + 1);
+            a.appendChild(badge);
         }
 
         a.addEventListener("click", () => {
