@@ -857,23 +857,40 @@ body.maintenance-active .cursor-toggle-wrap {
 .admin-card {
     background: #0d0d0d;
     border: 1px solid #00ffcc;
-    padding: 24px;
+    padding: 22px;
     border-radius: 20px;
     text-align: center;
     width: 100%;
-    max-width: 340px;
+    max-width: 380px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+.admin-section {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    text-align: left;
+}
+.admin-section-title {
+    font-size: 11px;
+    color: #666;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    text-align: center;
 }
 .admin-btn {
     width: 100%;
-    padding: 12px 24px;
+    padding: 11px 18px;
     background: #050505;
     border: 1px solid #ffaa00;
     color: #ffaa00;
     border-radius: 10px;
     font-weight: bold;
     cursor: pointer;
-    margin-top: 14px;
+    margin-top: 8px;
     transition: 0.3s;
+    font-size: 13px;
 }
 .admin-btn.active {
     border-color: #00ffcc;
@@ -889,6 +906,60 @@ body.maintenance-active .cursor-toggle-wrap {
     color: black;
     box-shadow: 0 0 15px rgba(255,51,51,0.4);
 }
+.admin-btn.soft {
+    border-color: rgba(0,255,204,0.35);
+    color: #00ffcc;
+}
+.admin-btn.soft:hover {
+    background: rgba(0,255,204,0.1);
+}
+.admin-input {
+    width: 100%;
+    padding: 10px 12px;
+    background: #151515;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: white;
+    font-size: 13px;
+    outline: none;
+    margin-top: 6px;
+}
+.admin-input:focus {
+    border-color: #00ffcc;
+}
+.admin-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+.admin-row .admin-btn {
+    margin-top: 0;
+    flex: 1;
+}
+.admin-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+.admin-stat {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 10px 8px;
+    text-align: center;
+}
+.admin-stat .as-val {
+    display: block;
+    font-size: 16px;
+    font-weight: 700;
+    color: #00ffcc;
+}
+.admin-stat .as-label {
+    display: block;
+    font-size: 10px;
+    color: #666;
+    margin-top: 3px;
+}
 .close-btn {
     padding: 10px 20px;
     border-radius: 10px;
@@ -896,8 +967,37 @@ body.maintenance-active .cursor-toggle-wrap {
     background: rgba(255,255,255,0.05);
     color: white;
     cursor: pointer;
-    margin-top: 24px;
+    margin-top: 18px;
     width: 100%;
+}
+/* Live Status auf der Seite */
+#live-status {
+    margin-top: 12px;
+    font-size: 13px;
+    color: #00ffcc;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    min-height: 0;
+}
+#live-status.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+#live-status .ls-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #00ffcc;
+    box-shadow: 0 0 6px #00ffcc;
+    margin-right: 6px;
+    vertical-align: middle;
+    animation: lsPulse 1.6s ease-in-out infinite;
+}
+@keyframes lsPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
 }
 </style>
 </head>
@@ -943,11 +1043,46 @@ body.maintenance-active .cursor-toggle-wrap {
 <div id="admin-overlay">
     <div class="admin-card">
         <h3 style="color:#00ffcc; margin-bottom:5px;">Dev Mode Panel</h3>
-        <p style="color:#666; font-size:13px; margin-bottom:15px;">Live-Steuerung der App</p>
-      
-        <button id="toggle-maintenance" class="admin-btn">Wartung: AUS</button>
-        <button id="toggle-lockdown" class="admin-btn danger">Seite gesperrt: AUS</button>
-      
+        <p style="color:#666; font-size:13px; margin-bottom:8px;">Live-Steuerung der App</p>
+
+        <div class="admin-section" style="border-top:none; padding-top:0; margin-top:0;">
+            <div class="admin-section-title">Modi</div>
+            <button id="toggle-maintenance" class="admin-btn">Wartung: AUS</button>
+            <button id="toggle-lockdown" class="admin-btn danger">Seite gesperrt: AUS</button>
+        </div>
+
+        <div class="admin-section">
+            <div class="admin-section-title">Live-Status</div>
+            <input type="text" id="admin-status-input" class="admin-input" placeholder="z.B. live auf Twitch" maxlength="60">
+            <div class="admin-row">
+                <button id="admin-status-save" class="admin-btn soft">Setzen</button>
+                <button id="admin-status-clear" class="admin-btn danger">Löschen</button>
+            </div>
+        </div>
+
+        <div class="admin-section">
+            <div class="admin-section-title">Aktionen</div>
+            <button id="admin-confetti" class="admin-btn soft">🎉 Konfetti auslösen</button>
+            <button id="admin-toggle-bulb" class="admin-btn soft">💡 Licht umschalten</button>
+            <button id="admin-reset-plant" class="admin-btn soft">🌱 Pflanze heute reset</button>
+        </div>
+
+        <div class="admin-section">
+            <div class="admin-section-title">Stats (live)</div>
+            <div class="admin-stats">
+                <div class="admin-stat"><span class="as-val" id="admin-stat-visits">–</span><span class="as-label">Besuche</span></div>
+                <div class="admin-stat"><span class="as-val" id="admin-stat-online">–</span><span class="as-label">Online</span></div>
+                <div class="admin-stat"><span class="as-val" id="admin-stat-cursors">–</span><span class="as-label">Cursor aktiv</span></div>
+                <div class="admin-stat"><span class="as-val" id="admin-stat-top">–</span><span class="as-label">Top Projekt</span></div>
+            </div>
+        </div>
+
+        <div class="admin-section">
+            <div class="admin-section-title">Gefahrzone</div>
+            <button id="admin-clear-clicks" class="admin-btn danger">Klick-Stats löschen</button>
+            <button id="admin-change-pw" class="admin-btn danger">Passwort ändern</button>
+        </div>
+
         <button id="close-admin" class="close-btn">Schließen</button>
     </div>
 </div>
@@ -1023,6 +1158,7 @@ body.maintenance-active .cursor-toggle-wrap {
     </div>
     <div class="line"></div>
     <div class="text">❤️ Minecraft</div>
+    <div id="live-status"></div>
     <div class="socials">
         <a class="social" href="https://github.com/professorfilou" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg"></a>
         <a class="social" href="https://youtube.com/@professorfilou" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png"></a>
@@ -1067,7 +1203,7 @@ body.maintenance-active .cursor-toggle-wrap {
 </div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getDatabase, ref, runTransaction, onValue, get, set, onDisconnect } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { getDatabase, ref, runTransaction, onValue, get, set, onDisconnect, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 const firebaseConfig = {
     apiKey: "AIzaSyCAh2AsbxLqU2Gx9s0YbZo8PR4fpG3WDw8",
     authDomain: "professorfilou-e8eea.firebaseapp.com",
@@ -1218,12 +1354,106 @@ function updateAdminButtonsUI() {
     }
 }
 
+/* ═══════════════ ADMIN EXTRA FEATURES ═══════════════ */
+const statusRef = ref(db, "live_features/status_text");
+const liveStatusEl = document.getElementById("live-status");
+const adminStatusInput = document.getElementById("admin-status-input");
+const adminStatVisits = document.getElementById("admin-stat-visits");
+const adminStatOnline = document.getElementById("admin-stat-online");
+const adminStatCursors = document.getElementById("admin-stat-cursors");
+const adminStatTop = document.getElementById("admin-stat-top");
+
+onValue(statusRef, (snap) => {
+    const txt = snap.exists() ? String(snap.val() || "").trim() : "";
+    if (txt) {
+        liveStatusEl.innerHTML = '<span class="ls-dot"></span>' + txt.replace(/</g, "&lt;");
+        liveStatusEl.classList.add("show");
+        if (adminStatusInput) adminStatusInput.value = txt;
+    } else {
+        liveStatusEl.innerHTML = "";
+        liveStatusEl.classList.remove("show");
+        if (adminStatusInput && document.activeElement !== adminStatusInput) adminStatusInput.value = "";
+    }
+});
+
+document.getElementById("admin-status-save").addEventListener("click", () => {
+    const v = adminStatusInput.value.trim().slice(0, 60);
+    set(statusRef, v || null);
+});
+document.getElementById("admin-status-clear").addEventListener("click", () => {
+    set(statusRef, null);
+    adminStatusInput.value = "";
+});
+adminStatusInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") document.getElementById("admin-status-save").click();
+});
+
+// Konfetti
+function spawnConfetti(count = 80) {
+    const layer = document.getElementById("confetti-layer");
+    if (!layer) return;
+    const colors = ["#00ffcc", "#ff6b9d", "#ffcc00", "#7b2fff", "#00b4ff", "#ff6b00", "#66ff66"];
+    for (let i = 0; i < count; i++) {
+        const p = document.createElement("div");
+        p.className = "confetti-piece";
+        p.style.left = Math.random() * 100 + "vw";
+        p.style.background = colors[Math.floor(Math.random() * colors.length)];
+        p.style.width = (6 + Math.random() * 8) + "px";
+        p.style.height = (8 + Math.random() * 10) + "px";
+        p.style.animationDuration = (2 + Math.random() * 2.5) + "s";
+        p.style.animationDelay = (Math.random() * 0.4) + "s";
+        p.style.borderRadius = Math.random() > 0.5 ? "2px" : "50%";
+        layer.appendChild(p);
+        setTimeout(() => p.remove(), 5000);
+    }
+}
+document.getElementById("admin-confetti").addEventListener("click", () => spawnConfetti(100));
+
+// Licht umschalten
+document.getElementById("admin-toggle-bulb").addEventListener("click", () => {
+    const bulbRefAdmin = ref(db, "live_features/light_bulb");
+    get(bulbRefAdmin).then(snap => set(bulbRefAdmin, !snap.val()));
+});
+
+// Pflanze heute reset
+document.getElementById("admin-reset-plant").addEventListener("click", () => {
+    if (!confirm("Pflanzen-Stand von heute wirklich auf 0 setzen?")) return;
+    const todayKey = "easter_egg/plant_" + new Date().toISOString().slice(0, 10);
+    set(ref(db, todayKey), 0);
+});
+
+// Klick-Stats löschen
+document.getElementById("admin-clear-clicks").addEventListener("click", () => {
+    if (!confirm("Wirklich ALLE Projekt-Klick-Stats der letzten Woche löschen?")) return;
+    if (!confirm("Letzte Warnung – das kann nicht rückgängig gemacht werden.")) return;
+    remove(ref(db, "project_clicks"));
+    remove(ref(db, "project_clicks_meta"));
+});
+
+// Passwort ändern
+document.getElementById("admin-change-pw").addEventListener("click", () => {
+    const np = prompt("Neues Admin-Passwort eingeben:");
+    if (np === null) return;
+    const trimmed = np.trim();
+    if (!trimmed) return alert("Passwort darf nicht leer sein.");
+    const confirmPw = prompt("Passwort wiederholen:");
+    if (confirmPw !== trimmed) return alert("Passwörter stimmen nicht überein.");
+    set(passwordRef, trimmed).then(() => {
+        serverPassword = trimmed;
+        alert("Passwort gespeichert.");
+    });
+});
+
 /* ═══════════════ BESUCHERZÄHLER ═══════════════ */
 const SITE_BORN = new Date("2026-05-31T00:00:00");
 const visitsRef = ref(db, "visits/total");
 const visitEl = document.getElementById("visit-count");
 runTransaction(visitsRef, cur => (cur || 0) + 1);
-onValue(visitsRef, snap => { visitEl.textContent = (snap.val() || 0).toLocaleString("de-DE"); });
+onValue(visitsRef, snap => {
+    const n = snap.val() || 0;
+    visitEl.textContent = n.toLocaleString("de-DE");
+    if (adminStatVisits) adminStatVisits.textContent = n.toLocaleString("de-DE");
+});
 function updateAge() {
     const days = Math.floor((new Date() - SITE_BORN) / 86400000);
     const ageEl = document.getElementById("site-age");
@@ -1250,6 +1480,7 @@ onValue(presenceRef, snap => {
     const count = snap.exists() ? Object.keys(snap.val()).length : 0;
     countEl.textContent = count <= 1 ? "nur du hier" : count + " gerade hier";
     dot.style.background = count <= 1 ? "#666" : "#00ffcc";
+    if (adminStatOnline) adminStatOnline.textContent = String(count);
 });
 
 /* ═══════════════ LIVE CURSOR MODE ═══════════════ */
@@ -1348,6 +1579,12 @@ onValue(cursorsRef, (snap) => {
             el.remove();
             remoteCursors.delete(id);
         }
+    }
+    // Admin: aktive Cursor (inkl. eigene wenn sharing)
+    if (adminStatCursors) {
+        let active = seen.size;
+        if (data[sessionId] && data[sessionId].t && now - data[sessionId].t < 8000) active++;
+        adminStatCursors.textContent = String(active);
     }
 });
 
@@ -1530,6 +1767,12 @@ function renderProjects(stats) {
 
     // Sortiere nach Klicks absteigend (bei Gleichstand Originalreihenfolge beibehalten)
     withCounts.sort((a, b) => b.clicks - a.clicks);
+
+    if (adminStatTop) {
+        const top = withCounts[0];
+        adminStatTop.textContent = top && top.clicks > 0 ? top.label : "–";
+        adminStatTop.title = top && top.clicks > 0 ? (top.clicks + " Klicks / 7 Tage") : "";
+    }
 
     projectsContainer.innerHTML = "";
     withCounts.forEach((p, index) => {
