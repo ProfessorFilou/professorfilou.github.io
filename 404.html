@@ -1,35 +1,152 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Seite nicht gefunden – ProfessorFilou</title>
-  <!-- Hier deine CSS-Dateien / Styles einbinden, genau wie auf der Startseite -->
-  <style>
-    /* Beispiel-Styles – ersetze durch dein Design */
-    body {
-      font-family: system-ui, sans-serif;
-      text-align: center;
-      padding: 4rem 1rem;
-      background: #f8f8f8;
-      color: #333;
-    }
-    h1 { font-size: 2.5rem; margin-bottom: 1rem; }
-    p { font-size: 1.2rem; margin-bottom: 2rem; }
-    a {
-      display: inline-block;
-      padding: 0.8rem 1.6rem;
-      background: #000;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 8px;
-    }
-    a:hover { opacity: 0.9; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seite nicht gefunden – ProfessorFilou</title>
+<link rel="icon" type="image/jpeg" href="ProfessorFilouLOGO.jpg">
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+a {
+    text-decoration: none !important;
+    color: inherit;
+}
+body{
+    background:#050505;
+    overflow-x:hidden;
+    color:white;
+    min-height:100vh;
+    cursor: default;
+}
+canvas{
+    position:fixed;
+    inset:0;
+    z-index:-1;
+}
+.main{
+    width:100%;
+    min-height:100vh;
+    padding:40px 16px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+}
+h1{
+    font-size:clamp(48px, 12vw, 110px);
+    line-height:1.1;
+    letter-spacing:clamp(1px,0.4vw,5px);
+    text-shadow:0 0 10px #00ffcc,0 0 20px #00ffcc,0 0 40px #00ffcc;
+    animation:glow 2s infinite alternate;
+    margin-bottom: 8px;
+}
+.line{
+    width:min(180px,50vw);
+    height:2px;
+    background:#00ffcc;
+    margin:24px auto;
+    box-shadow:0 0 15px #00ffcc;
+}
+.error-code{
+    font-size:clamp(18px, 4vw, 24px);
+    color:#00ffcc;
+    letter-spacing:3px;
+    margin-bottom: 12px;
+    opacity: 0.9;
+}
+.text{
+    color:#bfbfbf;
+    line-height:1.6;
+    font-size:clamp(15px, 3.5vw, 20px);
+    max-width: 420px;
+    margin-bottom: 36px;
+}
+.home-btn{
+    display:inline-block;
+    padding:14px 28px;
+    border-radius:14px;
+    color:white;
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(0,255,204,0.25);
+    transition:0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    backdrop-filter:blur(8px);
+    font-size:clamp(15px, 3.5vw, 17px);
+    box-shadow: 0 0 10px rgba(0,255,204,0.18), 0 0 22px rgba(0,255,204,0.08);
+}
+.home-btn:hover{
+    transform:translateY(-3px);
+    border-color:#00ffcc;
+    box-shadow:0 0 14px #00ffcc,0 0 28px rgba(0,255,204,0.35);
+    color:#00ffcc;
+}
+.footer{
+    margin-top:50px;
+    color:#666;
+    font-size:14px;
+}
+@keyframes glow{
+    from{text-shadow:0 0 10px #00ffcc,0 0 20px #00ffcc;}
+    to{text-shadow:0 0 20px #00ffcc,0 0 40px #00ffcc,0 0 60px #00ffcc;}
+}
+</style>
 </head>
 <body>
-  <h1>Tut uns leid 😕</h1>
-  <p>Diese Seite existiert nicht oder wurde falsch eingegeben.</p>
-  <a href="/">Zurück zur Startseite</a>
+<canvas id="bg"></canvas>
+
+<div class="main">
+    <div class="error-code">404</div>
+    <h1>Ups…</h1>
+    <div class="line"></div>
+    <div class="text">
+        Diese Seite existiert nicht<br>
+        oder wurde falsch eingegeben.
+    </div>
+    <a href="/" class="home-btn">Zurück zur Startseite</a>
+    <div class="footer">© ProfessorFilou</div>
+</div>
+
+<script>
+const canvas = document.getElementById("bg");
+const ctx = canvas.getContext("2d");
+function resize() {
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+}
+resize();
+window.addEventListener("resize", resize);
+
+const particles = [];
+for (let i = 0; i < 140; i++) {
+    particles.push({
+        x: Math.random() * innerWidth,
+        y: Math.random() * innerHeight,
+        r: Math.random() * 2,
+        dx: (Math.random() - 0.5) * 0.45,
+        dy: (Math.random() - 0.5) * 0.45
+    });
+}
+
+function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (const p of particles) {
+        p.x += p.dx;
+        p.y += p.dy;
+        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = "#00ffcc";
+        ctx.fill();
+    }
+    requestAnimationFrame(animate);
+}
+animate();
+</script>
 </body>
 </html>
