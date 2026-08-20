@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Seite nicht gefunden – ProfessorFilou</title>
+<title>404 – ProfessorFilou</title>
 <link rel="icon" type="image/jpeg" href="ProfessorFilouLOGO.jpg">
 <style>
 *{
@@ -38,61 +38,147 @@ canvas{
     justify-content:center;
     text-align:center;
 }
-h1{
-    font-size:clamp(48px, 12vw, 110px);
-    line-height:1.1;
-    letter-spacing:clamp(1px,0.4vw,5px);
-    text-shadow:0 0 10px #00ffcc,0 0 20px #00ffcc,0 0 40px #00ffcc;
-    animation:glow 2s infinite alternate;
-    margin-bottom: 8px;
+
+/* 404 Code */
+.error-code{
+    font-size:clamp(64px, 18vw, 160px);
+    font-weight:900;
+    letter-spacing:clamp(2px, 1vw, 12px);
+    color:#00ffcc;
+    text-shadow:
+        0 0 10px #00ffcc,
+        0 0 25px #00ffcc,
+        0 0 50px rgba(0,255,204,0.6),
+        0 0 90px rgba(0,255,204,0.3);
+    animation: glowPulse 2.4s ease-in-out infinite alternate;
+    line-height:1;
+    margin-bottom: 6px;
 }
+
+/* Titel */
+h1{
+    font-size:clamp(26px, 6vw, 42px);
+    letter-spacing:1px;
+    margin-top: 8px;
+    color: #fff;
+    text-shadow: 0 0 12px rgba(0,255,204,0.4);
+}
+
 .line{
-    width:min(180px,50vw);
+    width:min(160px,45vw);
     height:2px;
     background:#00ffcc;
-    margin:24px auto;
+    margin:22px auto 28px;
     box-shadow:0 0 15px #00ffcc;
 }
-.error-code{
-    font-size:clamp(18px, 4vw, 24px);
-    color:#00ffcc;
-    letter-spacing:3px;
-    margin-bottom: 12px;
-    opacity: 0.9;
-}
+
 .text{
     color:#bfbfbf;
-    line-height:1.6;
-    font-size:clamp(15px, 3.5vw, 20px);
-    max-width: 420px;
-    margin-bottom: 36px;
+    line-height:1.7;
+    font-size:clamp(15px, 3.6vw, 19px);
+    max-width: 440px;
+    margin-bottom: 38px;
 }
+
+/* Cooler Button – exakt wie deine Project-Buttons */
 .home-btn{
-    display:inline-block;
-    padding:14px 28px;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:15px 32px;
     border-radius:14px;
     color:white;
     background:rgba(255,255,255,0.05);
-    border:1px solid rgba(0,255,204,0.25);
+    border:1px solid rgba(0,255,204,0.28);
     transition:0.3s cubic-bezier(0.25, 1, 0.5, 1);
     backdrop-filter:blur(8px);
     font-size:clamp(15px, 3.5vw, 17px);
-    box-shadow: 0 0 10px rgba(0,255,204,0.18), 0 0 22px rgba(0,255,204,0.08);
+    font-weight:600;
+    box-shadow: 0 0 12px rgba(0,255,204,0.2), 0 0 28px rgba(0,255,204,0.1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
 }
 .home-btn:hover{
-    transform:translateY(-3px);
+    transform:translateY(-4px) scale(1.03);
     border-color:#00ffcc;
-    box-shadow:0 0 14px #00ffcc,0 0 28px rgba(0,255,204,0.35);
+    box-shadow:0 0 18px #00ffcc,0 0 40px rgba(0,255,204,0.4);
     color:#00ffcc;
 }
-.footer{
-    margin-top:50px;
-    color:#666;
-    font-size:14px;
+.home-btn:active{
+    transform:translateY(-1px) scale(0.98);
 }
-@keyframes glow{
-    from{text-shadow:0 0 10px #00ffcc,0 0 20px #00ffcc;}
-    to{text-shadow:0 0 20px #00ffcc,0 0 40px #00ffcc,0 0 60px #00ffcc;}
+
+/* Kleines Arrow-Icon */
+.home-btn svg{
+    width:18px;
+    height:18px;
+    transition: transform 0.3s ease;
+}
+.home-btn:hover svg{
+    transform: translateX(-3px);
+}
+
+.footer{
+    margin-top:52px;
+    color:#555;
+    font-size:13px;
+    letter-spacing:0.5px;
+}
+
+/* Hourglass */
+.hourglass-wrap{
+    margin-bottom: 18px;
+}
+.hourglass-svg{
+    width: clamp(52px, 11vw, 72px);
+    height: clamp(52px, 11vw, 72px);
+    overflow: visible;
+    filter: drop-shadow(0 0 10px #00ffcc);
+    animation: rotateHourglass 4.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+}
+.hourglass-glass{
+    fill: none;
+    stroke: #00ffcc;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.sand-top{
+    fill: #00ffcc;
+    animation: emptyTop 4.2s ease-in-out infinite;
+    transform-origin: 32px 32px;
+}
+.sand-bottom{
+    fill: #00ffcc;
+    animation: fillBottom 4.2s ease-in-out infinite;
+    transform-origin: 32px 32px;
+}
+.sand-stream{
+    stroke: #00ffcc;
+    stroke-width: 2;
+    stroke-dasharray: 4, 4;
+    animation: streamSand 0.55s linear infinite;
+}
+
+@keyframes glowPulse{
+    from{ text-shadow:0 0 10px #00ffcc,0 0 20px #00ffcc,0 0 40px rgba(0,255,204,0.4); }
+    to{ text-shadow:0 0 18px #00ffcc,0 0 35px #00ffcc,0 0 70px rgba(0,255,204,0.7),0 0 100px rgba(0,255,204,0.3); }
+}
+@keyframes rotateHourglass{
+    0%, 82% { transform: rotate(0deg); }
+    92%, 100% { transform: rotate(180deg); }
+}
+@keyframes emptyTop{
+    0% { transform: scaleY(1); }
+    78%, 100% { transform: scaleY(0); }
+}
+@keyframes fillBottom{
+    0% { transform: translateY(18px) scaleY(0); }
+    78%, 100% { transform: translateY(0) scaleY(1); }
+}
+@keyframes streamSand{
+    to { stroke-dashoffset: -8; }
 }
 </style>
 </head>
@@ -100,20 +186,43 @@ h1{
 <canvas id="bg"></canvas>
 
 <div class="main">
+
+    <!-- Hourglass -->
+    <div class="hourglass-wrap">
+        <svg class="hourglass-svg" viewBox="0 0 64 64">
+            <path class="hourglass-glass" d="M16,8 L48,8 L48,16 C48,26 38,32 32,32 C26,32 16,26 16,16 Z" />
+            <path class="hourglass-glass" d="M16,56 L48,56 L48,48 C48,38 38,32 32,32 C26,32 16,38 16,48 Z" />
+            <line class="hourglass-glass" x1="12" y1="8" x2="52" y2="8" />
+            <line class="hourglass-glass" x1="12" y1="56" x2="52" y2="56" />
+            <path class="sand-top" d="M18,16 L46,16 C44,24 36,29 32,30 C28,29 20,24 18,16 Z" />
+            <path class="sand-bottom" d="M20,48 L44,48 C46,51 46,54 46,54 L18,54 C18,54 18,51 20,48 Z" />
+            <line class="sand-stream" x1="32" y1="30" x2="32" y2="50" />
+        </svg>
+    </div>
+
     <div class="error-code">404</div>
-    <h1>Ups…</h1>
+    <h1>Seite nicht gefunden</h1>
     <div class="line"></div>
+
     <div class="text">
         Diese Seite existiert nicht<br>
         oder wurde falsch eingegeben.
     </div>
-    <a href="/" class="home-btn">Zurück zur Startseite</a>
+
+    <a href="/" class="home-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Zurück zur Startseite
+    </a>
+
     <div class="footer">© ProfessorFilou</div>
 </div>
 
 <script>
 const canvas = document.getElementById("bg");
 const ctx = canvas.getContext("2d");
+
 function resize() {
     canvas.width = innerWidth;
     canvas.height = innerHeight;
@@ -122,13 +231,13 @@ resize();
 window.addEventListener("resize", resize);
 
 const particles = [];
-for (let i = 0; i < 140; i++) {
+for (let i = 0; i < 160; i++) {
     particles.push({
         x: Math.random() * innerWidth,
         y: Math.random() * innerHeight,
-        r: Math.random() * 2,
-        dx: (Math.random() - 0.5) * 0.45,
-        dy: (Math.random() - 0.5) * 0.45
+        r: Math.random() * 2.2,
+        dx: (Math.random() - 0.5) * 0.5,
+        dy: (Math.random() - 0.5) * 0.5
     });
 }
 
