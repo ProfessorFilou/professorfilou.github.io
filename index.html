@@ -222,7 +222,7 @@ body.maintenance-active .cursor-toggle-wrap{
     backdrop-filter:blur(14px);
     -webkit-backdrop-filter:blur(14px);
     border:1px solid var(--border);
-    transition:0.3s cubic-bezier(0.25,1,0.5,1);
+    transition:transform 0.4s cubic-bezier(0.25,1,0.5,1), border-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
     font-size:clamp(13px, 3.2vw, 15px);
     font-weight:500;
     cursor:pointer;
@@ -233,7 +233,20 @@ body.maintenance-active .cursor-toggle-wrap{
     gap:9px;
     overflow:hidden;
     text-align:center;
+    transform-style:preserve-3d;
+    will-change:transform;
 }
+.project-btn.js-tilt{ overflow:visible; }
+.project-btn .pb-glare{
+    position:absolute;
+    inset:0;
+    border-radius:inherit;
+    pointer-events:none;
+    opacity:0;
+    transition:opacity 0.25s ease;
+    background:radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,0.25), transparent 55%);
+}
+.project-btn.tilt-active .pb-glare{ opacity:1; }
 .project-btn .pb-icon{
     width:26px;
     height:26px;
@@ -429,23 +442,63 @@ body.maintenance-active .cursor-toggle-wrap{
     0%,100%{transform:scale(1);} 30%{transform:scale(0.88,1.12) translateY(-6px);}
     50%{transform:scale(1.06,0.94) translateY(2px);} 70%{transform:scale(0.98,1.02) translateY(-1px);}
 }
-@keyframes wfall{ 0%{transform:translateY(-40px); opacity:0;} 30%{opacity:1;} 100%{transform:translateY(20px); opacity:0;} }
 .plant-svg.drowning{ animation:pbounce 0.7s cubic-bezier(0.25,1,0.5,1) 2; }
+.water-drop{
+    position:absolute; left:50%; top:6px; width:11px; height:15px;
+    transform:translateX(-50%);
+    animation:dropFall 0.6s cubic-bezier(0.55,0,1,0.45) forwards;
+    pointer-events:none;
+}
+.water-drop svg{ width:100%; height:100%; display:block; }
+@keyframes dropFall{
+    0%{ transform:translate(-50%,-4px) rotate(-8deg) scale(0.8); opacity:0; }
+    18%{ opacity:1; }
+    100%{ transform:translate(-50%,44px) rotate(5deg) scale(1); opacity:0.95; }
+}
+.water-ripple{
+    position:absolute; left:50%; bottom:12px; width:8px; height:3px; margin-left:-4px;
+    border:1.4px solid rgba(79,216,255,0.75); border-radius:50%;
+    animation:rippleGrow 0.55s ease-out forwards;
+    pointer-events:none;
+}
+@keyframes rippleGrow{
+    0%{ width:6px; height:2.4px; margin-left:-3px; opacity:0.9; }
+    100%{ width:32px; height:9px; margin-left:-16px; opacity:0; }
+}
 #plant-toast{
     position:fixed; z-index:400; bottom:100px; right:20px;
-    background:rgba(6,8,16,0.94);
-    backdrop-filter:blur(14px);
-    border:1px solid rgba(0,255,204,0.4);
-    border-radius:14px;
-    padding:9px 15px;
-    color:var(--cyan);
-    font-size:13px;
+    background:rgba(8,10,18,0.92);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    border:1px solid rgba(0,255,204,0.35);
+    box-shadow:0 10px 30px rgba(0,0,0,0.4), 0 0 20px rgba(0,255,204,0.08);
+    border-radius:16px;
+    padding:11px 16px 12px;
+    min-width:168px;
     opacity:0;
     pointer-events:none;
     transform:translateY(6px) scale(0.94);
     transition:opacity 0.3s cubic-bezier(0.25,1,0.5,1), transform 0.3s cubic-bezier(0.25,1,0.5,1);
 }
 #plant-toast.show{ opacity:1; transform:translateY(0) scale(1); }
+.pt-row{ display:flex; align-items:center; gap:10px; }
+.pt-icon{ font-size:19px; line-height:1; filter:drop-shadow(0 0 6px rgba(0,255,204,0.35)); }
+.pt-copy strong{ color:var(--cyan); font-size:13.5px; font-weight:700; }
+.pt-copy .tsub{ color:var(--text-dim); font-size:11.5px; margin-top:1px; }
+.pt-bar{
+    margin-top:9px; height:5px; border-radius:99px;
+    background:rgba(255,255,255,0.08);
+    overflow:hidden;
+}
+.pt-bar-fill{
+    height:100%; width:0%; border-radius:99px;
+    background:linear-gradient(90deg, var(--cyan), var(--blue), var(--pink));
+    transition:width 0.6s cubic-bezier(0.25,1,0.5,1);
+}
+@media(max-width:600px){
+    #plant-toast{ left:50%; right:auto; bottom:18px; transform:translateX(-50%) translateY(6px) scale(0.94); }
+    #plant-toast.show{ transform:translateX(-50%) translateY(0) scale(1); }
+}
 
 /* ═══ WARTUNGSMODUS OVERLAY ═══ */
 #maintenance-overlay{
@@ -708,30 +761,63 @@ body.maintenance-active .cursor-toggle-wrap{
     </div>
 </div>
 <div id="plant-toast">
-    <strong id="pt-num">1×</strong>
-    <div class="tsub" id="pt-sub">heute gegossen 💧</div>
+    <div class="pt-row">
+        <span class="pt-icon">🌿</span>
+        <div class="pt-copy">
+            <strong id="pt-num">1×</strong>
+            <div class="tsub" id="pt-sub">heute gegossen</div>
+        </div>
+    </div>
+    <div class="pt-bar"><div class="pt-bar-fill" id="pt-bar-fill"></div></div>
 </div>
 
 <svg style="display:none">
 <defs>
+<linearGradient id="potGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#a8623a"/>
+    <stop offset="100%" stop-color="#6e3d22"/>
+</linearGradient>
+<linearGradient id="rimGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#c07a4e"/>
+    <stop offset="100%" stop-color="#8a4f2c"/>
+</linearGradient>
+<radialGradient id="flowerCenterGrad" cx="35%" cy="35%" r="70%">
+    <stop offset="0%" stop-color="#fff8d6"/>
+    <stop offset="55%" stop-color="#ffd54f"/>
+    <stop offset="100%" stop-color="#f9a825"/>
+</radialGradient>
+<g id="leaf-tpl">
+    <path d="M0,0 C6,-2.5 8,-9 0,-16 C-8,-9 -6,-2.5 0,0 Z"/>
+    <path d="M0,-1 C4.5,-3 5.5,-8 0,-14" fill="none" stroke="rgba(0,0,0,0.18)" stroke-width="0.6"/>
+</g>
+<g id="petal-tpl">
+    <path d="M0,0 C3.2,-1.8 3.4,-6.4 0,-9.5 C-3.4,-6.4 -3.2,-1.8 0,0 Z"/>
+</g>
 <g id="plant-shape">
-    <rect x="20" y="65" width="28" height="17" rx="4" fill="#5a3e28"/>
-    <rect x="15" y="60" width="38" height="8" rx="3.5" fill="#7a5235"/>
-    <rect x="18" y="62" width="9" height="3" rx="2" fill="rgba(255,255,255,0.13)"/>
-    <line id="p-stem" x1="34" y1="60" x2="34" y2="40" stroke="#2e7d32" stroke-width="3" stroke-linecap="round" style="transition:y2 1s ease;"/>
-    <ellipse class="lf" id="p-l1" cx="23" cy="54" rx="12" ry="5" fill="#2e7d32" transform="rotate(-34 23 54)" opacity="0.42"/>
-    <ellipse class="lf" id="p-l2" cx="45" cy="50" rx="12" ry="5" fill="#388e3c" transform="rotate(34 45 50)" opacity="0.42"/>
-    <ellipse class="lf" id="p-l3" cx="22" cy="46" rx="10" ry="4.2" fill="#43a047" transform="rotate(-24 22 46)" opacity="0"/>
-    <ellipse class="lf" id="p-l4" cx="46" cy="42" rx="10" ry="4.2" fill="#66bb6a" transform="rotate(24 46 42)" opacity="0"/>
-    <ellipse class="lf" id="p-l5" cx="25" cy="37" rx="8" ry="3.5" fill="#81c784" transform="rotate(-17 25 37)" opacity="0"/>
-    <ellipse class="lf" id="p-l6" cx="43" cy="33" rx="8" ry="3.5" fill="#a5d6a7" transform="rotate(17 43 33)" opacity="0"/>
-    <g id="p-flower" opacity="0" style="transition:opacity 0.9s ease;">
-        <circle cx="34" cy="25" r="4" fill="#f06292"/>
-        <circle cx="34" cy="17" r="4" fill="#f06292"/>
-        <circle cx="41" cy="21" r="4" fill="#f48fb1"/>
-        <circle cx="27" cy="21" r="4" fill="#f48fb1"/>
-        <circle cx="34" cy="21" r="5.5" fill="#fff176"/>
-        <circle cx="34" cy="21" r="2.5" fill="#f9a825"/>
+    <ellipse cx="34" cy="83" rx="15" ry="2.2" fill="rgba(0,0,0,0.32)"/>
+    <path d="M20,66 L48,66 L44,84 L24,84 Z" fill="url(#potGrad)" stroke="#4a2a17" stroke-width="1"/>
+    <path d="M22,66 L30,66 L27.5,84 L24,84 Z" fill="rgba(255,255,255,0.08)"/>
+    <rect x="17.5" y="61" width="33" height="7.5" rx="3" fill="url(#rimGrad)" stroke="#4a2a17" stroke-width="0.8"/>
+    <rect x="20" y="62.3" width="11" height="2.4" rx="1.2" fill="rgba(255,255,255,0.22)"/>
+    <ellipse cx="34" cy="65.5" rx="12.5" ry="3.1" fill="#2e1d12"/>
+    <ellipse cx="34" cy="65.5" rx="12.5" ry="3.1" fill="none" stroke="rgba(0,0,0,0.4)" stroke-width="0.6"/>
+    <circle cx="30" cy="65" r="0.6" fill="#1a100a"/>
+    <circle cx="38" cy="66" r="0.6" fill="#1a100a"/>
+    <circle cx="34" cy="64.3" r="0.5" fill="#1a100a"/>
+    <path id="p-stem" d="M34,63 Q34,63 34,63" fill="none" stroke="#2e7d32" stroke-width="2.6" stroke-linecap="round" style="transition:d 1s ease;"/>
+    <use class="lf" id="p-l1" href="#leaf-tpl" transform="translate(21,57) rotate(-42) scale(1.15)" fill="#2e7d32" opacity="0.42"/>
+    <use class="lf" id="p-l2" href="#leaf-tpl" transform="translate(47,53) rotate(42) scale(1.15)" fill="#388e3c" opacity="0.42"/>
+    <use class="lf" id="p-l3" href="#leaf-tpl" transform="translate(19,45) rotate(-30) scale(1)" fill="#43a047" opacity="0"/>
+    <use class="lf" id="p-l4" href="#leaf-tpl" transform="translate(49,42) rotate(30) scale(1)" fill="#66bb6a" opacity="0"/>
+    <use class="lf" id="p-l5" href="#leaf-tpl" transform="translate(23,34) rotate(-20) scale(0.85)" fill="#81c784" opacity="0"/>
+    <use class="lf" id="p-l6" href="#leaf-tpl" transform="translate(45,31) rotate(20) scale(0.85)" fill="#a5d6a7" opacity="0"/>
+    <g id="p-flower" opacity="0" style="transition:opacity 0.9s ease;" transform="translate(34,21)">
+        <use href="#petal-tpl" transform="rotate(0) translate(0,-5.5)" fill="#f4739e"/>
+        <use href="#petal-tpl" transform="rotate(72) translate(0,-5.5)" fill="#f8a1c1"/>
+        <use href="#petal-tpl" transform="rotate(144) translate(0,-5.5)" fill="#f4739e"/>
+        <use href="#petal-tpl" transform="rotate(216) translate(0,-5.5)" fill="#f8a1c1"/>
+        <use href="#petal-tpl" transform="rotate(288) translate(0,-5.5)" fill="#f4739e"/>
+        <circle r="3.2" fill="url(#flowerCenterGrad)"/>
     </g>
 </g>
 
@@ -753,6 +839,7 @@ body.maintenance-active .cursor-toggle-wrap{
 <g id="icon-windows"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></g>
 <g id="icon-terminal"><rect x="2.5" y="4" width="19" height="16" rx="2.5"/><path d="M6.5 9.5l3 2.5-3 2.5"/><line x1="11.5" y1="14.5" x2="16" y2="14.5"/></g>
 <g id="icon-sportrules"><path d="M12 2c3.5 3.5 5 6.5 5 9.5A5 5 0 0 1 7 11.5C7 8.5 8.5 5.5 12 2Z"/><line x1="12" y1="16.3" x2="12" y2="22"/><line x1="8.5" y1="22" x2="15.5" y2="22"/></g>
+<g id="icon-radio"><circle cx="12" cy="14" r="2"/><path d="M8.5 10.5a5 5 0 0 1 7 0"/><path d="M6 8a8.5 8.5 0 0 1 12 0"/><path d="M3.5 5.5a12 12 0 0 1 17 0"/></g>
 
 <!-- Social Icons -->
 <g id="icon-github"><path d="M12 2C6.5 2 2 6.6 2 12.2c0 4.5 2.9 8.3 6.8 9.6.5.1.7-.2.7-.5v-1.9c-2.8.6-3.4-1.3-3.4-1.3-.4-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1.1 1.5 1.1.9 1.5 2.3 1.1 2.9.8.1-.7.4-1.1.6-1.4-2.3-.3-4.6-1.1-4.6-5.1 0-1.1.4-2 1.1-2.8-.1-.3-.5-1.4.1-2.9 0 0 .9-.3 2.9 1.1a10 10 0 0 1 5.3 0c2-1.4 2.9-1.1 2.9-1.1.6 1.5.2 2.6.1 2.9.7.8 1.1 1.7 1.1 2.8 0 4-2.3 4.8-4.6 5.1.4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5A10.1 10.1 0 0 0 22 12.2C22 6.6 17.5 2 12 2Z" fill="currentColor" stroke="none"/></g>
@@ -1155,12 +1242,19 @@ onValue(plantRef, snap => {
         spawnDrop(el); bounce(el);
     });
 });
+function stemPath(n) {
+    const t = Math.min(1, n / 55);
+    const topY = 63 - t * 40;
+    const midY = 63 - t * 21;
+    const swayX = 34 - t * 4.5;
+    return `M34,63 Q${swayX.toFixed(1)},${midY.toFixed(1)} 34,${topY.toFixed(1)}`;
+}
 function applyGrowth(n) {
     const s1 = Math.min(1, n / 24), s2 = Math.max(0, Math.min(1, (n - 24) / 30)), s3 = Math.max(0, Math.min(1, (n - 54) / 30));
     lf("p-l1").setAttribute("opacity", 0.38 + s1 * 0.62); lf("p-l2").setAttribute("opacity", 0.38 + s1 * 0.62);
     lf("p-l3").setAttribute("opacity", s2); lf("p-l4").setAttribute("opacity", s2);
     lf("p-l5").setAttribute("opacity", s3); lf("p-l6").setAttribute("opacity", s3);
-    stem.setAttribute("y2", n >= 55 ? "26" : "40");
+    stem.setAttribute("d", stemPath(n));
     flower.setAttribute("opacity", Math.max(0, Math.min(1, (n - 84) / 15)));
 }
 function playDrown() {
@@ -1170,18 +1264,25 @@ function playDrown() {
         svg.addEventListener("animationend", () => { applyGrowth(0); svg.className = "plant-svg"; }, { once: true });
     });
 }
+const ptBarFill = document.getElementById("pt-bar-fill");
 function showToast(n) {
     clearTimeout(toastTimer); ptNum.textContent = n + "×";
-    ptSub.textContent = n >= 80 ? "Voll aufgeblüht! 🌸" : n >= 50 ? "Halbzeit! 🌳" : n >= 10 ? "Sie wächst! 🌱" : "Heute gegossen 💧";
+    ptSub.textContent = n >= 80 ? "Voll aufgeblüht 🌸" : n >= 50 ? "Halbzeit 🌳" : n >= 10 ? "Sie wächst 🌱" : "Heute gegossen";
+    if (ptBarFill) ptBarFill.style.width = Math.min(100, n) + "%";
     toast.classList.add("show"); toastTimer = setTimeout(() => toast.classList.remove("show"), 3200);
 }
 function spawnDrop(a) {
     const d = document.createElement("div");
-    d.style.position = "absolute"; d.style.fontSize = "18px";
-    d.style.animation = "wfall 0.7s ease-in forwards";
-    d.style.left = "50%"; d.style.top = "20px"; d.style.transform = "translateX(-50%)";
-    d.style.pointerEvents = "none"; d.textContent = "💧";
-    a.appendChild(d); setTimeout(() => d.remove(), 700);
+    d.className = "water-drop";
+    d.innerHTML = '<svg viewBox="0 0 12 16"><path d="M6,0 C6,0 11.5,9 11.5,12 a5.5,5.5 0 1,1 -11,0 C0.5,9 6,0 6,0 Z" fill="#4fd8ff" opacity="0.88"/><ellipse cx="4.3" cy="9" rx="1.2" ry="2" fill="rgba(255,255,255,0.55)"/></svg>';
+    a.appendChild(d);
+    setTimeout(() => { spawnRipple(a); d.remove(); }, 600);
+}
+function spawnRipple(a) {
+    const r = document.createElement("div");
+    r.className = "water-ripple";
+    a.appendChild(r);
+    setTimeout(() => r.remove(), 600);
 }
 function bounce(a) {
     const s = a.querySelector(".plant-svg");
@@ -1219,11 +1320,36 @@ const PROJECTS = [
     { id: "pong",        label: "Pong",        href: "https://professorfilou.de/Pong/",                         icon: "icon-pong" },
     { id: "windows",     label: "Windows",     href: "https://professorfilou.de/Windows/",                      icon: "icon-windows" },
     { id: "terminal",    label: "Terminal",    href: "https://professorfilou.de/Terminal/",                     icon: "icon-terminal" },
-    { id: "sportrules",  label: "SportRules",  href: "https://professorfilou.de/SportRules",                    icon: "icon-sportrules" }
+    { id: "sportrules",  label: "SportRules",  href: "https://professorfilou.de/SportRules",                    icon: "icon-sportrules" },
+    { id: "radio",       label: "Radio",       href: "https://professorfilou.de/Radio",                         icon: "icon-radio" }
 ];
 
 const projectsContainer = document.getElementById("projects-container");
 const clicksRootRef = ref(db, "project_clicks");
+const supportsTilt = window.matchMedia("(hover: hover) and (pointer: fine)").matches
+    && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function attachTilt(card) {
+    card.classList.add("js-tilt");
+    const glare = document.createElement("span");
+    glare.className = "pb-glare";
+    card.appendChild(glare);
+    card.addEventListener("mousemove", (e) => {
+        const rect = card.getBoundingClientRect();
+        const px = (e.clientX - rect.left) / rect.width;
+        const py = (e.clientY - rect.top) / rect.height;
+        const rx = (0.5 - py) * 12;
+        const ry = (px - 0.5) * 12;
+        card.style.transform = `perspective(650px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) translateY(-4px)`;
+        card.style.setProperty("--mx", (px * 100).toFixed(1) + "%");
+        card.style.setProperty("--my", (py * 100).toFixed(1) + "%");
+        card.classList.add("tilt-active");
+    });
+    card.addEventListener("mouseleave", () => {
+        card.style.transform = "";
+        card.classList.remove("tilt-active");
+    });
+}
 
 function getDateKeysLast7Days() {
     const keys = [];
@@ -1321,6 +1447,7 @@ function renderProjects(stats) {
         a.addEventListener("click", () => {
             if (!isMaintenanceActive && !isLockdownActive) { trackClick(p.id, p.label); }
         });
+        if (supportsTilt) { attachTilt(a); }
         projectsContainer.appendChild(a);
     });
 }
