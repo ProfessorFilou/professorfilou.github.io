@@ -155,6 +155,9 @@ body.maintenance-active .cursor-toggle-wrap{
     border:1px solid var(--border);
     transition:0.3s cubic-bezier(0.25,1,0.5,1);
     color:var(--text-dim);
+    cursor:pointer;
+    font:inherit;
+    padding:0;
 }
 .social:hover{
     transform:translateY(-4px);
@@ -1175,6 +1178,24 @@ body.countdown-mode .party-band-cake{ filter:drop-shadow(0 4px 12px rgba(0,255,2
         </div>
     </div>
 </div>
+
+<div id="popup-contact" class="custom-popup-overlay">
+    <div class="popup-card" style="max-width:400px; text-align:left;">
+        <h3 style="text-align:center;">Kontakt</h3>
+        <p style="text-align:center; margin-bottom:16px;">Schreib mir eine Nachricht – ich melde mich zurück.</p>
+        <form id="contact-form">
+            <input type="text" name="name" id="contact-name" class="popup-input" placeholder="Name" required autocomplete="name" style="text-align:left; margin-bottom:12px;">
+            <input type="email" name="email" id="contact-email" class="popup-input" placeholder="E-Mail" required autocomplete="email" style="text-align:left; margin-bottom:12px;">
+            <textarea name="message" id="contact-message" class="popup-input" placeholder="Deine Nachricht …" required rows="4" style="text-align:left; margin-bottom:16px; resize:vertical; min-height:100px; font-family:inherit;"></textarea>
+            <div id="contact-status" style="display:none; text-align:center; margin-bottom:12px; font-size:13px;"></div>
+            <div class="popup-btn-group">
+                <button type="submit" id="contact-submit" class="popup-btn">Senden</button>
+                <button type="button" id="contact-cancel" class="popup-btn secondary">Abbrechen</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <div id="admin-overlay">
     <div class="admin-card">
         <div class="admin-header">
@@ -1355,38 +1376,36 @@ body.countdown-mode .party-band-cake{ filter:drop-shadow(0 4px 12px rgba(0,255,2
 </radialGradient>
 <g id="icon-cake">
     <!-- Teller -->
-    <ellipse cx="32" cy="67" rx="27" ry="4.2" fill="url(#cakePlate)" opacity="0.9"/>
-    <ellipse cx="32" cy="66" rx="24" ry="3" fill="#f5f0e6"/>
+    <ellipse cx="32" cy="66" rx="26" ry="4" fill="url(#cakePlate)" opacity="0.9"/>
+    <ellipse cx="32" cy="65" rx="23" ry="2.8" fill="#f5f0e6"/>
 
-    <!-- UNTERE SCHICHT (breit, orange) – sitzt direkt auf dem Teller -->
-    <path d="M9 51 L9 60 Q9 63 13 63 L51 63 Q55 63 55 60 L55 51 Z" fill="url(#cakeBase)"/>
-    <ellipse cx="32" cy="51" rx="23" ry="3.5" fill="#ffd080"/>
-    <path d="M12 54 Q17 57 22 54 Q27 51 32 54 Q37 57 42 54 Q47 51 52 54" fill="none" stroke="#fff8e8" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+    <!-- Untere Schicht – Boden bei y=63, Deckel bei y=49 -->
+    <path d="M10 49 L10 59 Q10 63 14 63 L50 63 Q54 63 54 59 L54 49 Z" fill="url(#cakeBase)"/>
+    <ellipse cx="32" cy="49" rx="22" ry="3.2" fill="#ffd080"/>
+    <path d="M13 53 Q18 56 23 53 Q28 50 32 53 Q36 56 41 53 Q46 50 51 53" fill="none" stroke="#fff8e8" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
 
-    <!-- MITTLERE SCHICHT (rosa) – sitzt direkt auf der unteren (kein Spalt) -->
-    <path d="M15 37 L15 51 Q15 53 18 53 L46 53 Q49 53 49 51 L49 37 Z" fill="url(#cakeMid)"/>
-    <ellipse cx="32" cy="37" rx="17" ry="3" fill="#ffc8dc"/>
-    <circle cx="24" cy="44" r="1.5" fill="#fff"/>
-    <circle cx="32" cy="46" r="1.5" fill="#fff"/>
-    <circle cx="40" cy="44" r="1.5" fill="#fff"/>
+    <!-- Mittlere Schicht – Boden bei y=49 (kein Spalt), Deckel bei y=35 -->
+    <path d="M16 35 L16 49 Q16 51 19 51 L45 51 Q48 51 48 49 L48 35 Z" fill="url(#cakeMid)"/>
+    <ellipse cx="32" cy="35" rx="16" ry="2.8" fill="#ffc8dc"/>
+    <circle cx="24" cy="42" r="1.4" fill="#fff"/>
+    <circle cx="32" cy="44" r="1.4" fill="#fff"/>
+    <circle cx="40" cy="42" r="1.4" fill="#fff"/>
 
-    <!-- OBERE SCHICHT (gelb) – sitzt direkt auf der mittleren (kein Spalt) -->
-    <path d="M21 23 L21 37 Q21 39 24 39 L40 39 Q43 39 43 37 L43 23 Z" fill="url(#cakeTop)"/>
-    <ellipse cx="32" cy="23" rx="11" ry="2.8" fill="#fff6d0"/>
-    <path d="M24 26 Q28 29 32 26 Q36 23 40 26" fill="none" stroke="#e8a040" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/>
+    <!-- Obere Schicht – Boden bei y=35 (kein Spalt), Deckel bei y=22 -->
+    <path d="M22 22 L22 35 Q22 37 25 37 L39 37 Q42 37 42 35 L42 22 Z" fill="url(#cakeTop)"/>
+    <ellipse cx="32" cy="22" rx="10" ry="2.5" fill="#fff6d0"/>
+    <path d="M24 25 Q28 28 32 25 Q36 22 40 25" fill="none" stroke="#e8a040" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/>
 
-    <!-- Kirsche oben -->
-    <circle cx="32" cy="16" r="3.4" fill="#e83050"/>
-    <circle cx="31" cy="15" r="1.2" fill="#ff6b80" opacity="0.7"/>
-    <path d="M32 13 Q34.5 8 37.5 9" fill="none" stroke="#2e7d32" stroke-width="1.4" stroke-linecap="round"/>
-
-    <!-- Kerzen links + rechts -->
-    <rect x="24.8" y="10" width="2.4" height="10" rx="0.9" fill="#7fd8ff"/>
-    <rect x="36.8" y="11" width="2.4" height="9" rx="0.9" fill="#ff9fbf"/>
-    <ellipse cx="26" cy="8" rx="2.1" ry="3.2" fill="url(#flameGrad)"/>
-    <ellipse cx="38" cy="9" rx="2.1" ry="3.2" fill="url(#flameGrad)"/>
-    <circle cx="26" cy="7.3" r="0.9" fill="#fff8e0" opacity="0.9"/>
-    <circle cx="38" cy="8.3" r="0.9" fill="#fff8e0" opacity="0.9"/>
+    <!-- Kirsche + Kerzen -->
+    <circle cx="32" cy="15" r="3.2" fill="#e83050"/>
+    <circle cx="31" cy="14" r="1.1" fill="#ff6b80" opacity="0.7"/>
+    <path d="M32 12 Q34 7 37 8" fill="none" stroke="#2e7d32" stroke-width="1.3" stroke-linecap="round"/>
+    <rect x="25.5" y="9" width="2.2" height="9" rx="0.8" fill="#7fd8ff"/>
+    <rect x="36.3" y="10" width="2.2" height="8" rx="0.8" fill="#ff9fbf"/>
+    <ellipse cx="26.6" cy="7" rx="2" ry="3" fill="url(#flameGrad)"/>
+    <ellipse cx="37.4" cy="8" rx="2" ry="3" fill="url(#flameGrad)"/>
+    <circle cx="26.6" cy="6.5" r="0.8" fill="#fff8e0" opacity="0.9"/>
+    <circle cx="37.4" cy="7.5" r="0.8" fill="#fff8e0" opacity="0.9"/>
 </g>
 
 <!-- ═══ THEMATISCHE PROJEKT-ICONS ═══ -->
@@ -1415,6 +1434,7 @@ body.countdown-mode .party-band-cake{ filter:drop-shadow(0 4px 12px rgba(0,255,2
 <g id="icon-youtube"><rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="M10.5 9.5l5 2.5-5 2.5Z" fill="currentColor" stroke="none"/></g>
 <g id="icon-twitch"><path d="M5 3 3.5 6.5v13H8V22l3-2.5h4L19.5 15V3Z"/><line x1="12.5" y1="7.5" x2="12.5" y2="12.5"/><line x1="16.5" y1="7.5" x2="16.5" y2="12.5"/></g>
 <g id="icon-discord"><path d="M19.3 5.2A16.6 16.6 0 0 0 15.1 4l-.3.6a14.5 14.5 0 0 1 3.5 1.4 15 15 0 0 0-13.2 0A14.5 14.5 0 0 1 8.6 4.6L8.3 4a16.6 16.6 0 0 0-4.2 1.2C1.7 9.3.9 13.3 1.2 17.2a16.7 16.7 0 0 0 5.1 2.6l.7-1.1a10.8 10.8 0 0 1-1.7-.8l.4-.3a12 12 0 0 0 10.6 0l.4.3c-.5.3-1.1.6-1.7.8l.7 1.1a16.7 16.7 0 0 0 5.1-2.6c.4-4.4-.6-8.3-2.5-12zM8.7 14.6c-.9 0-1.6-.8-1.6-1.8s.7-1.8 1.6-1.8 1.6.8 1.6 1.8-.7 1.8-1.6 1.8zm6.6 0c-.9 0-1.6-.8-1.6-1.8s.7-1.8 1.6-1.8 1.6.8 1.6 1.8-.7 1.8-1.6 1.8z" fill="currentColor" stroke="none"/></g>
+<g id="icon-contact"><path d="M4 5.5h16a1.5 1.5 0 0 1 1.5 1.5v8a1.5 1.5 0 0 1-1.5 1.5H9l-4.5 4v-4H4A1.5 1.5 0 0 1 2.5 15V7A1.5 1.5 0 0 1 4 5.5Z"/><path d="M7.5 10h9M7.5 13h5.5" stroke-linecap="round"/></g>
 </defs>
 </svg>
 
@@ -1478,9 +1498,10 @@ body.countdown-mode .party-band-cake{ filter:drop-shadow(0 4px 12px rgba(0,255,2
     <div id="live-status"></div>
     <div class="socials">
         <a class="social" href="https://github.com/professorfilou" target="_blank" rel="noopener" title="GitHub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><use href="#icon-github"/></svg></a>
+        <a class="social" href="https://discord.gg/9YvFkVbc84" target="_blank" rel="noopener" title="Discord Server"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><use href="#icon-discord"/></svg></a>
         <a class="social" href="https://youtube.com/@professorfilou" target="_blank" rel="noopener" title="YouTube"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><use href="#icon-youtube"/></svg></a>
         <a class="social" href="https://twitch.tv/professorfilou" target="_blank" rel="noopener" title="Twitch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><use href="#icon-twitch"/></svg></a>
-        <a class="social" href="https://discord.gg/9YvFkVbc84" target="_blank" rel="noopener" title="Discord Server"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><use href="#icon-discord"/></svg></a>
+        <button class="social" id="contact-btn" type="button" title="Kontakt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><use href="#icon-contact"/></svg></button>
     </div>
     <div class="projects-title-row">
         <div class="projects-title">My Projects</div>
@@ -2463,6 +2484,79 @@ randomBtn.addEventListener("click", () => {
         randomCooldown = false;
     }, 520);
 });
+</script>
+<script>
+/* ═══════════════ KONTAKT-FORMULAR (Formspree) ═══════════════ */
+const contactBtn = document.getElementById("contact-btn");
+const popupContact = document.getElementById("popup-contact");
+const contactForm = document.getElementById("contact-form");
+const contactCancel = document.getElementById("contact-cancel");
+const contactSubmit = document.getElementById("contact-submit");
+const contactStatus = document.getElementById("contact-status");
+
+if (contactBtn && popupContact) {
+    contactBtn.addEventListener("click", () => {
+        if (typeof isMaintenanceActive !== "undefined" && isMaintenanceActive) return;
+        if (typeof isLockdownActive !== "undefined" && isLockdownActive) return;
+        contactStatus.style.display = "none";
+        contactStatus.textContent = "";
+        contactForm.reset();
+        popupContact.classList.add("open");
+        setTimeout(() => document.getElementById("contact-name")?.focus(), 50);
+    });
+}
+if (contactCancel) {
+    contactCancel.addEventListener("click", () => popupContact.classList.remove("open"));
+}
+popupContact?.addEventListener("click", (e) => {
+    if (e.target === popupContact) popupContact.classList.remove("open");
+});
+
+if (contactForm) {
+    contactForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        contactSubmit.disabled = true;
+        contactSubmit.textContent = "Wird gesendet …";
+        contactStatus.style.display = "none";
+
+        const data = {
+            name: document.getElementById("contact-name").value.trim(),
+            email: document.getElementById("contact-email").value.trim(),
+            message: document.getElementById("contact-message").value.trim()
+        };
+
+        try {
+            const res = await fetch("https://formspree.io/f/xeedwrzj", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (res.ok) {
+                contactStatus.style.display = "block";
+                contactStatus.style.color = "var(--cyan)";
+                contactStatus.textContent = "Danke! Deine Nachricht wurde gesendet.";
+                contactForm.reset();
+                setTimeout(() => popupContact.classList.remove("open"), 2200);
+            } else {
+                const err = await res.json().catch(() => ({}));
+                contactStatus.style.display = "block";
+                contactStatus.style.color = "#ff6b80";
+                contactStatus.textContent = err.error || "Fehler beim Senden. Bitte später nochmal versuchen.";
+            }
+        } catch (err) {
+            contactStatus.style.display = "block";
+            contactStatus.style.color = "#ff6b80";
+            contactStatus.textContent = "Netzwerkfehler. Bitte prüfe deine Verbindung.";
+        } finally {
+            contactSubmit.disabled = false;
+            contactSubmit.textContent = "Senden";
+        }
+    });
+}
 </script>
 <script>
 /* ═══════════════ CANVAS BACKGROUND ═══════════════ */
