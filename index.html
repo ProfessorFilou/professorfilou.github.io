@@ -289,6 +289,20 @@ body.maintenance-active .cursor-toggle-wrap{
 }
 .project-btn.rainbow-chat .pb-icon{ color:var(--text); }
 
+/* ═══ SchoolOS NEU Highlight ═══ */
+.project-btn.schoolos-new{
+    border-color:rgba(255,200,40,0.55);
+    background:linear-gradient(145deg, rgba(255,200,40,0.10), rgba(255,160,20,0.06));
+    box-shadow:0 0 22px rgba(255,190,40,0.22), 0 0 0 1px rgba(255,200,40,0.12) inset;
+}
+.project-btn.schoolos-new .pb-icon{ color:#ffd56a; filter:drop-shadow(0 0 6px rgba(255,200,40,0.45)); }
+.project-btn.schoolos-new:hover{
+    border-color:rgba(255,210,60,0.75);
+    color:#ffe08a;
+    box-shadow:0 10px 28px rgba(255,190,40,0.28), 0 0 0 1px rgba(255,200,40,0.18) inset;
+}
+.project-btn.schoolos-new:hover .pb-icon{ color:#ffe08a; filter:drop-shadow(0 0 10px rgba(255,200,40,0.7)); }
+
 @property --holo-angle{ syntax:'<angle>'; initial-value:0deg; inherits:false; }
 .project-btn.top-glow{
     border-color:transparent;
@@ -344,6 +358,13 @@ body.maintenance-active .cursor-toggle-wrap{
 .rank-badge.rank-1{ background:linear-gradient(135deg,#ffd700,#ffaa00); box-shadow:0 0 8px rgba(255,200,0,0.5); }
 .rank-badge.rank-2{ background:linear-gradient(135deg,#e0e0e0,#a8a8a8); box-shadow:0 0 6px rgba(200,200,200,0.4); }
 .rank-badge.rank-3{ background:linear-gradient(135deg,#e8a060,#c07030); box-shadow:0 0 6px rgba(200,120,50,0.4); }
+.rank-badge.neu{
+    background:linear-gradient(135deg,#ffe566,#ffb800);
+    box-shadow:0 0 10px rgba(255,190,40,0.65);
+    color:#1a1200;
+    font-size:9px;
+    letter-spacing:0.4px;
+}
 
 .click-count{
     position:absolute;
@@ -359,6 +380,8 @@ body.maintenance-active .cursor-toggle-wrap{
 }
 .project-btn:hover .click-count{ color:rgba(0,255,204,0.55); }
 .project-btn.top-glow .click-count{ color:rgba(255,255,255,0.32); }
+.project-btn.schoolos-new .click-count{ color:rgba(255,210,80,0.45); }
+.project-btn.schoolos-new:hover .click-count{ color:rgba(255,220,100,0.75); }
 
 .footer-links{
     margin-top:40px;
@@ -813,6 +836,9 @@ body.maintenance-active .cursor-toggle-wrap{
 .admin-btn.soft{ border-color:rgba(0,255,204,0.3); color:var(--cyan); }
 .admin-btn.soft:hover{ background:rgba(0,255,204,0.08); border-color:rgba(0,255,204,0.5); }
 .admin-btn.soft.active{ border-color:var(--cyan); background:rgba(0,255,204,0.1); box-shadow:0 0 14px rgba(0,255,204,0.2); }
+.admin-btn.gold{ border-color:rgba(255,200,40,0.5); color:#ffd56a; }
+.admin-btn.gold:hover{ background:rgba(255,200,40,0.1); border-color:rgba(255,210,60,0.7); }
+.admin-btn.gold.active{ border-color:#ffd56a; background:rgba(255,200,40,0.14); box-shadow:0 0 16px rgba(255,190,40,0.3); color:#ffe08a; }
 .admin-input{
     width:100%;
     padding:10px 12px;
@@ -1275,6 +1301,11 @@ body.countdown-mode .party-band-cake{ filter:drop-shadow(0 4px 12px rgba(0,255,2
                 <p class="admin-hint">Am gesetzten Datum (jährlich) starten automatisch Kuchen &amp; Konfetti. Banner-Texte überschreiben die Defaults.</p>
             </div>
             <div class="admin-section">
+                <div class="admin-section-title">Projekte</div>
+                <button id="toggle-schoolos-new" class="admin-btn gold">SchoolOS NEU: AUS</button>
+                <p class="admin-hint">Schaltet den gelben Highlight + „NEU“-Badge für SchoolOS an/aus.</p>
+            </div>
+            <div class="admin-section">
                 <div class="admin-section-title">Aktionen</div>
                 <button id="admin-confetti" class="admin-btn soft">Konfetti auslösen</button>
                 <button id="admin-toggle-bulb" class="admin-btn soft">Licht umschalten</button>
@@ -1626,6 +1657,7 @@ const db = getDatabase(app);
 const maintenanceRef = ref(db, "live_features/maintenance_mode");
 const lockdownRef = ref(db, "live_features/lockdown_mode");
 const passwordRef = ref(db, "admin_settings/password");
+const schoolosNewRef = ref(db, "live_features/schoolos_new");
 const mOverlay = document.getElementById("maintenance-overlay");
 const lOverlay = document.getElementById("lockdown-overlay");
 const adminOverlay = document.getElementById("admin-overlay");
@@ -1633,6 +1665,7 @@ const footerBtn = document.getElementById("secret-footer");
 const lockdownTrigger = document.getElementById("lockdown-panel-trigger");
 const toggleMBtn = document.getElementById("toggle-maintenance");
 const toggleLBtn = document.getElementById("toggle-lockdown");
+const toggleSchoolosNewBtn = document.getElementById("toggle-schoolos-new");
 const popupSetup = document.getElementById("popup-setup");
 const setupPwInput = document.getElementById("setup-pw-input");
 const setupPwSave = document.getElementById("setup-pw-save");
@@ -1642,9 +1675,11 @@ const authPwConfirm = document.getElementById("auth-pw-confirm");
 const authPwCancel = document.getElementById("auth-pw-cancel");
 let isMaintenanceActive = false;
 let isLockdownActive = false;
+let isSchoolosNew = false;
 let footerClicks = 0;
 let clickTimeout;
 let serverPassword = null;
+let lastProjectStats = {};
 
 onValue(maintenanceRef, (snap) => {
     isMaintenanceActive = snap.val() === true;
@@ -1656,6 +1691,11 @@ onValue(lockdownRef, (snap) => {
     isLockdownActive = snap.val() === true;
     if (isLockdownActive) { lOverlay.classList.add("active"); } else { lOverlay.classList.remove("active"); }
     updateAdminButtonsUI();
+});
+onValue(schoolosNewRef, (snap) => {
+    isSchoolosNew = snap.val() === true;
+    updateAdminButtonsUI();
+    renderProjects(lastProjectStats);
 });
 
 function fetchPassword() {
@@ -1707,12 +1747,15 @@ setupPwInput.addEventListener("keypress", (e) => { if (e.key === "Enter") setupP
 authPwCancel.addEventListener("click", () => { popupAuth.classList.remove("open"); authPwInput.value = ""; });
 toggleMBtn.addEventListener("click", () => { set(maintenanceRef, !isMaintenanceActive); });
 toggleLBtn.addEventListener("click", () => { set(lockdownRef, !isLockdownActive); });
+toggleSchoolosNewBtn.addEventListener("click", () => { set(schoolosNewRef, !isSchoolosNew); });
 document.getElementById("close-admin").addEventListener("click", () => { adminOverlay.classList.remove("open"); });
 function updateAdminButtonsUI() {
     if (isMaintenanceActive) { toggleMBtn.textContent = "Wartung: AN"; toggleMBtn.className = "admin-btn active"; }
     else { toggleMBtn.textContent = "Wartung: AUS"; toggleMBtn.className = "admin-btn"; }
     if (isLockdownActive) { toggleLBtn.textContent = "Seite gesperrt: AN"; toggleLBtn.className = "admin-btn danger active"; }
     else { toggleLBtn.textContent = "Seite gesperrt: AUS"; toggleLBtn.className = "admin-btn danger"; }
+    if (isSchoolosNew) { toggleSchoolosNewBtn.textContent = "SchoolOS NEU: AN"; toggleSchoolosNewBtn.className = "admin-btn gold active"; }
+    else { toggleSchoolosNewBtn.textContent = "SchoolOS NEU: AUS"; toggleSchoolosNewBtn.className = "admin-btn gold"; }
 }
 
 /* ═══════════════ ADMIN EXTRA FEATURES ═══════════════ */
@@ -2464,6 +2507,7 @@ onValue(lastClickedRef, (snap) => { lastClickedData = snap.exists() ? snap.val()
 setInterval(updateLastVisitedUI, 30000);
 
 function renderProjects(stats) {
+    lastProjectStats = stats || {};
     const withCounts = PROJECTS.map(p => ({ ...p, clicks: sumLast7Days(stats[p.id]) }));
     withCounts.sort((a, b) => b.clicks - a.clicks);
 
@@ -2499,7 +2543,17 @@ function renderProjects(stats) {
             a.appendChild(countEl);
         }
         if (p.special === "rainbow") { a.classList.add("rainbow-chat"); }
-        if (index < 3) {
+
+        // SchoolOS NEU Highlight
+        if (p.id === "schoolos" && isSchoolosNew) {
+            a.classList.add("schoolos-new");
+            const neuBadge = document.createElement("span");
+            neuBadge.className = "rank-badge neu";
+            neuBadge.textContent = "NEU";
+            a.appendChild(neuBadge);
+        }
+
+        if (index < 3 && !(p.id === "schoolos" && isSchoolosNew)) {
             a.classList.add("top-glow");
             const badge = document.createElement("span");
             badge.className = "rank-badge rank-" + (index + 1);
@@ -2553,7 +2607,7 @@ if (contactBtn && popupContact) {
     });
 }
 if (contactCancel) {
-    contactCancel.addEventListener("click", () => popupContact.classList.remove("open");
+    contactCancel.addEventListener("click", () => popupContact.classList.remove("open"));
 }
 popupContact?.addEventListener("click", (e) => {
     if (e.target === popupContact) popupContact.classList.remove("open");
