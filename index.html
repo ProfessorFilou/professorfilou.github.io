@@ -1444,6 +1444,10 @@ body.countdown-mode .party-band-countdown .cd-sep{ color:var(--cyan); }
 body.countdown-mode .party-band-cake{ filter:drop-shadow(0 4px 12px rgba(0,255,204,0.4)); }
 
 /* ═══ IMPROVED PLANT TOAST ═══ */
+
+#plant-toast .pt-row{ gap:0; }
+#plant-toast .pt-copy{ flex:1; }
+#plant-toast .pt-icon-svg{ display:none !important; }
 #plant-toast .pt-icon-svg{
     width:28px; height:28px; flex-shrink:0;
     color:var(--cyan);
@@ -1691,12 +1695,11 @@ body.countdown-mode .party-band-cake{ filter:drop-shadow(0 4px 12px rgba(0,255,2
 </div>
 <div id="plant-toast">
     <div class="pt-row">
-        <span class="pt-icon-svg" id="pt-icon-wrap">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c-4-2-7-6-7-10a7 7 0 0 1 14 0c0 4-3 8-7 10Z"/><path d="M12 12v10"/><path d="M9 8c1.5-2 4.5-2 6 0"/></svg>
-        </span>
         <div class="pt-copy">
             <strong id="pt-num">1×</strong>
             <div class="tsub" id="pt-sub">heute gegossen</div>
+            <div class="pt-stage" id="pt-stage"></div>
+            <div class="pt-next" id="pt-next"></div>
         </div>
     </div>
     <div class="pt-bar"><div class="pt-bar-fill" id="pt-bar-fill"></div></div>
@@ -3133,30 +3136,41 @@ function setWaterLevel(n) {
 function drainWaterLevel() {
     if (!siteWaterEl) return;
     clearTimeout(waterDrainTimer);
+    // ggf. alte Step-Timeouts killen
+    if (siteWaterEl._stepTimers) {
+        siteWaterEl._stepTimers.forEach(clearTimeout);
+    }
+    siteWaterEl._stepTimers = [];
     siteWaterEl.classList.remove("draining");
     siteWaterEl.classList.add("filling");
-    // 1) Von 0 auf voll steigen
-    siteWaterEl.style.transition = "height 0.9s cubic-bezier(0.25,1,0.5,1), opacity 0.5s ease";
     siteWaterEl.style.opacity = "0.95";
     siteWaterEl.style.height = "0vh";
-    requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-            siteWaterEl.style.height = "32vh";
-        });
+    siteWaterEl.style.transition = "height 0.55s cubic-bezier(0.25,1,0.5,1), opacity 0.4s ease";
+
+    // Wellen steigen in Stufen, dann ablaufen
+    const steps = [7, 14, 21, 28, 32]; // vh
+    const stepMs = 480;
+    steps.forEach((vh, i) => {
+        const t = setTimeout(() => {
+            if (!siteWaterEl) return;
+            siteWaterEl.style.height = vh + "vh";
+        }, 80 + i * stepMs);
+        siteWaterEl._stepTimers.push(t);
     });
-    // 2) Kurz halten, dann ablaufen
+
+    const holdAfter = 80 + steps.length * stepMs + 700;
     waterDrainTimer = setTimeout(() => {
         siteWaterEl.classList.remove("filling");
         siteWaterEl.classList.add("draining");
-        siteWaterEl.style.transition = "height 1.8s cubic-bezier(0.4,0,0.2,1), opacity 1.6s ease";
+        siteWaterEl.style.transition = "height 2s cubic-bezier(0.4,0,0.2,1), opacity 1.7s ease";
         siteWaterEl.style.height = "0vh";
         siteWaterEl.style.opacity = "0";
         waterDrainTimer = setTimeout(() => {
             siteWaterEl.classList.remove("draining");
             siteWaterEl.style.height = "0vh";
             siteWaterEl.style.opacity = "0";
-        }, 1900);
-    }, 1100);
+        }, 2100);
+    }, holdAfter);
 }
 
 function applyGrowth(n) {
@@ -3194,11 +3208,10 @@ function playDrown() {
         }, { once: true });
     });
     if (everClicked && toast) {
-        if (ptNum) ptNum.textContent = "💧";
+        if (ptNum) ptNum.textContent = getPersonalWaters() + "×";
         if (ptSub) ptSub.textContent = "zu viel Wasser – Neustart";
         if (ptStage) ptStage.textContent = "Zurück zum Samen";
-        if (ptNext) ptNext.textContent = "Gemeinsam wieder aufbauen";
-        if (ptYou) ptYou.textContent = "Du: " + getPersonalWaters() + "× heute";
+        if (ptNext) ptNext.textContent = "Wellen laufen ab …";
         if (ptBarFill) ptBarFill.style.width = "0%";
         toast.classList.remove("show");
         void toast.offsetWidth;
@@ -3213,23 +3226,18 @@ function showToast(n) {
     const next = getNextStage(n);
     const you = getPersonalWaters();
     const streak = getStreak();
-    if (ptNum) ptNum.textContent = n + "×";
-    if (ptSub) ptSub.textContent = "heute gegossen (alle)";
-    if (ptStage) ptStage.textContent = stage.emoji + " " + stage.name + (stage.tip ? " · " + stage.tip : "");
+    // Nur eigene Gießungen – kein Gesamtzähler
+    if (ptNum) ptNum.textContent = you + "×";
+    if (ptSub) ptSub.textContent = "heute gegossen";
+    if (ptStage) ptStage.textContent = stage.emoji + " " + stage.name;
     if (ptNext) {
-        ptNext.textContent = next
-            ? "Noch " + (next.min - n) + " bis " + next.name
-            : (n >= 90 ? "Voll erblüht – bei 100 Reset" : "");
-    }
-    if (ptYou) {
-        ptYou.textContent = "Du: " + you + "× heute" + (streak > 1 ? " · 🔥 " + streak + " Tage Streak" : "");
+        let line = next ? "Noch " + (next.min - n) + " bis " + next.name : (n >= 90 ? "Voll erblüht" : "");
+        if (streak > 1) line = (line ? line + " · " : "") + "🔥 " + streak + " Tage";
+        ptNext.textContent = line;
     }
     if (ptBarFill) {
-        // Progress innerhalb aktueller Stufe bzw. bis 100
-        const nextMin = next ? next.min : 100;
-        const prevMin = stage.min;
-        const span = Math.max(1, nextMin - prevMin);
-        const pct = Math.min(100, Math.max(4, ((n - prevMin) / span) * 100));
+        // Balken = persönlicher Fortschritt des Tages (weich, max 20 Gießungen = voll)
+        const pct = Math.min(100, Math.max(6, (you / 20) * 100));
         ptBarFill.style.width = pct + "%";
     }
     clearTimeout(toastTimer);
