@@ -1160,6 +1160,20 @@ body.maintenance-active .cursor-toggle-wrap{
 .ds-games-list{
     display:flex; flex-wrap:wrap; gap:6px;
 }
+.ds-game-ico{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:16px; height:16px; margin-right:6px; flex-shrink:0; vertical-align:middle;
+}
+.ds-game-logo{
+    width:14px; height:14px; object-fit:contain; display:block; border-radius:3px;
+}
+.ds-game-logo-svg{
+    width:14px; height:14px; display:none; color:#aab4ff;
+}
+.ds-game-ico.fallback .ds-game-logo-svg{ display:block; }
+.ds-game-ico:not(.fallback) .ds-game-logo-svg{ display:none; }
+.ds-game-ico:not(.fallback) .ds-game-logo{ display:block; }
+
 .ds-game-chip{
     font-size:11.5px; font-weight:600;
     padding:4px 10px; border-radius:999px;
@@ -3785,12 +3799,90 @@ function memberAvatarUrl(m) {
     if (m.avatar && m.id) return `https://cdn.discordapp.com/avatars/${m.id}/${m.avatar}.png?size=64`;
     return null;
 }
+/** Bots aus Widget-Liste filtern (Carl, Dyno, eigene Bots, …) */
+function isDiscordBotMember(m) {
+    if (!m) return true;
+    if (m.bot === true) return true;
+    const raw = String(m.username || m.nick || m.name || "").toLowerCase().trim();
+    if (!raw) return true;
+    // bekannte / typische Bots
+    const botNames = [
+        "carl-bot", "carl", "carl.gg", "carl bot",
+        "dyno", "mee6", "mee6bot", "ticket tool", "ticket-tool",
+        "statbot", "arcane", "groovy", "rythm", "hydra",
+        "filou-bot", "filoubot", "probot", "dank memer",
+        "captcha.bot", "wick", "prism", "spongebot"
+    ];
+    if (botNames.some(b => raw === b || raw.includes(b))) return true;
+    // endet auf "bot" / enthält "bot" als Wort
+    if (/(^|[\s._-])bot($|[\s._-])/i.test(raw) || /bot$/i.test(raw)) return true;
+    return false;
+}
+
+function filterHumanMembers(list) {
+    return (list || []).filter(m => !isDiscordBotMember(m));
+}
+
+/** Logo-URL für bekannte Spiele/Apps – sonst null (SVG-Fallback) */
+function gameLogoUrl(name) {
+    const n = String(name || "").toLowerCase().trim();
+    const map = [
+        [/minecraft|hypixel|lunar client|badlion|modrinth|fabric|forge|quilt/, "https://cdn.simpleicons.org/minecraft/62B47A"],
+        [/roblox/, "https://cdn.simpleicons.org/roblox/FFFFFF"],
+        [/fortnite/, "https://cdn.simpleicons.org/fortnite/FFFFFF"],
+        [/valorant/, "https://cdn.simpleicons.org/valorant/FF4655"],
+        [/counter-strike|\bcs2\b|cs:go|csgo/, "https://cdn.simpleicons.org/counterstrike/FFFFFF"],
+        [/league of legends|\blol\b/, "https://cdn.simpleicons.org/leagueoflegends/C89B3C"],
+        [/dota/, "https://cdn.simpleicons.org/dota2/BF2E1A"],
+        [/overwatch/, "https://cdn.simpleicons.org/overwatch/FA9C1E"],
+        [/apex legends|\bapex\b/, "https://cdn.simpleicons.org/apexlegends/DA292A"],
+        [/call of duty|warzone|\bcod\b/, "https://cdn.simpleicons.org/callofduty/FFFFFF"],
+        [/rocket league/, "https://cdn.simpleicons.org/rocketleague/FFFFFF"],
+        [/gta|grand theft auto/, "https://cdn.simpleicons.org/grandtheftauto/FFFFFF"],
+        [/rust\b/, "https://cdn.simpleicons.org/rust/000000"],
+        [/terraria/, "https://cdn.simpleicons.org/terraria/1A6A2F"],
+        [/stardew/, "https://cdn.simpleicons.org/stardewvalley/FFFFFF"],
+        [/among us/, "https://cdn.simpleicons.org/amongus/FFFFFF"],
+        [/spotify/, "https://cdn.simpleicons.org/spotify/1DB954"],
+        [/youtube/, "https://cdn.simpleicons.org/youtube/FF0000"],
+        [/discord/, "https://cdn.simpleicons.org/discord/5865F2"],
+        [/visual studio code|vs code|vscode/, "https://cdn.simpleicons.org/visualstudiocode/007ACC"],
+        [/visual studio/, "https://cdn.simpleicons.org/visualstudio/5C2D91"],
+        [/intellij|jetbrains/, "https://cdn.simpleicons.org/intellijidea/000000"],
+        [/github/, "https://cdn.simpleicons.org/github/FFFFFF"],
+        [/chrome/, "https://cdn.simpleicons.org/googlechrome/4285F4"],
+        [/firefox/, "https://cdn.simpleicons.org/firefox/FF7139"],
+        [/steam/, "https://cdn.simpleicons.org/steam/FFFFFF"],
+        [/epic games|epicgames/, "https://cdn.simpleicons.org/epicgames/FFFFFF"],
+        [/twitch/, "https://cdn.simpleicons.org/twitch/9146FF"],
+        [/ea fc|fifa/, "https://cdn.simpleicons.org/ea/000000"]
+    ];
+    for (const [re, url] of map) {
+        if (re.test(n)) return url;
+    }
+    return null;
+}
+
+const GAMEPAD_SVG = `<svg class="ds-game-logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="20" height="11" rx="3"/><path d="M8 12h2M9 11v2"/><path d="M15.5 12.5h.01M17.5 11.5h.01"/><path d="M6 7l1.5-2h9L18 7"/></svg>`;
+
+function gameIconHtml(name) {
+    const url = gameLogoUrl(name);
+    if (url) {
+        return `<span class="ds-game-ico"><img class="ds-game-logo" src="${url}" alt="" loading="lazy" width="14" height="14" referrerpolicy="no-referrer" onerror="this.remove();this.parentNode.classList.add('fallback')">${GAMEPAD_SVG}</span>`;
+    }
+    return `<span class="ds-game-ico fallback">${GAMEPAD_SVG}</span>`;
+}
+
+
 function collectActiveGames(widgetMembers) {
     const counts = new Map();
-    (widgetMembers || []).forEach(m => {
+    filterHumanMembers(widgetMembers).forEach(m => {
         const g = (m.game && (m.game.name || m.game)) || m.game_name || null;
-        const name = g ? String(g).trim() : "";
+        let name = g ? String(g).trim() : "";
         if (!name) return;
+        // Bot-Aktivitäten / Carl etc. nicht als Spiel zeigen
+        const low = name.toLowerCase();
+        if (/carl\.gg|carl-bot|dyno|mee6|server monitoring|watching/.test(low)) return;
         counts.set(name, (counts.get(name) || 0) + 1);
     });
     return [...counts.entries()]
@@ -3799,23 +3891,24 @@ function collectActiveGames(widgetMembers) {
 }
 
 function renderMemberListHtml(widgetMembers) {
-    if (!widgetMembers || !widgetMembers.length) {
+    const humans = filterHumanMembers(widgetMembers);
+    if (!humans.length) {
         const invite = discordCfg.invite || "9YvFkVbc84";
         return `<div class="ds-panel-empty">Keine Online-Liste verfügbar.<br>
             In Discord: <b>Server-Einstellungen → Widget</b> aktivieren.<br>
             <a href="https://discord.gg/${encodeURIComponent(invite)}" target="_blank" rel="noopener">Server öffnen</a></div>`;
     }
-    // Spiele anonym aggregieren – ohne Namen wer spielt
+    // Spiele anonym – nur Typ-Icon + Name, ohne wer spielt
     const games = collectActiveGames(widgetMembers);
     const gamesHtml = games.length
         ? `<div class="ds-games">
             <div class="ds-games-label">Wird gespielt</div>
             <div class="ds-games-list">${games.map(g =>
-                `<span class="ds-game-chip" title="${escapeHtml(g.name)}">${escapeHtml(g.name)}${g.n > 1 ? " · " + g.n : ""}</span>`
+                `<span class="ds-game-chip" title="${escapeHtml(g.name)}">${gameIconHtml(g.name)}${escapeHtml(g.name)}${g.n > 1 ? " · " + g.n : ""}</span>`
             ).join("")}</div>
            </div>`
         : "";
-    const rows = widgetMembers.map(m => {
+    const rows = humans.map(m => {
         const name = escapeHtml(m.username || m.nick || m.name || "User");
         const initial = (m.username || m.nick || "?").slice(0, 1).toUpperCase();
         const av = memberAvatarUrl(m);
@@ -3829,7 +3922,7 @@ function renderMemberListHtml(widgetMembers) {
             <span class="ds-status ${statusClass(m.status)}" title="${escapeHtml(m.status || "online")}"></span>
         </div>`;
     }).join("");
-    return `<div class="ds-panel-head">Online jetzt · ${widgetMembers.length}</div>${gamesHtml}${rows}`;
+    return `<div class="ds-panel-head">Online jetzt · ${humans.length}</div>${gamesHtml}${rows}`;
 }
 
 let discordPanelOpen = false;
