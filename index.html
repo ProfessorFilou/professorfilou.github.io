@@ -3702,11 +3702,12 @@ function updateDiscordAdminUI() {
     if (o && document.activeElement !== o) o.value = discordCfg.onlineExact != null ? discordCfg.onlineExact : "";
 }
 
-async function fetchJsonViaProxies(url, timeoutMs = 5000) {
+async function fetchJsonViaProxies(url, timeoutMs = 6000) {
     const proxies = [
         url,
         "https://corsproxy.io/?" + encodeURIComponent(url),
-        "https://api.allorigins.win/raw?url=" + encodeURIComponent(url)
+        "https://api.allorigins.win/raw?url=" + encodeURIComponent(url),
+        "https://corsproxy.org/?" + encodeURIComponent(url)
     ];
     for (const u of proxies) {
         try {
@@ -3715,10 +3716,14 @@ async function fetchJsonViaProxies(url, timeoutMs = 5000) {
             const res = await fetch(u, { signal: ctrl.signal, cache: "no-store" });
             clearTimeout(to);
             if (!res.ok) continue;
-            const data = await res.json();
-            if (data && !data.message) return data;
-            // Widget disabled etc. → skip
+            let data = await res.json();
+            // allorigins sometimes wraps
+            if (data && data.contents && typeof data.contents === "string") {
+                try { data = JSON.parse(data.contents); } catch (_) {}
+            }
             if (data && data.code === 50004) continue;
+            if (data && data.message && data.code) continue;
+            if (data) return data;
         } catch (_) {}
     }
     return null;
@@ -3769,25 +3774,27 @@ async function fetchDiscordCounts() {
     const invite = discordCfg.invite || "9YvFkVbc84";
     let guildId = discordCfg.guildId || "";
 
-    // 1) Invite-Counts (Mitglieder + Online)
+    // 1) Invite-API = echte Server-Zahlen (Mitglieder + Online)
     const inv = await fetchInviteCounts(invite);
     if (inv?.guildId && !guildId) guildId = inv.guildId;
 
-    // 2) Widget für exakte Online-Liste (wenn aktiviert)
+    // 2) Widget nur für Namensliste (NICHT für Online-Zahl – Widget zeigt oft nur Bots/Teilmenge)
     const widget = guildId ? await fetchWidgetExactOnline(guildId) : null;
+    if (widget?.members) {
+        lastWidgetData = { members: widget.members, name: widget.name || inv?.name };
+    }
 
     let members = inv?.members ?? null;
     let online = inv?.online ?? null;
     let name = inv?.name || widget?.name || "Discord";
-    let source = inv?.source || null;
+    let source = inv?.source || "invite";
 
-    // Widget-Online ist exakt (Liste) → bevorzugen
-    if (widget && typeof widget.online === "number") {
-        online = widget.online;
-        source = "widget+invite";
+    // Widget-Liste merken, aber Online-Zahl vom Invite behalten
+    if (widget?.members?.length) {
+        source = (source || "invite") + "+widgetlist";
     }
 
-    // 3) Manuelle Overrides aus Admin (höchste Priorität)
+    // 3) Manuelle Overrides
     if (discordCfg.membersExact != null && !isNaN(Number(discordCfg.membersExact))) {
         members = Number(discordCfg.membersExact);
         source = (source || "manual") + "+membersExact";
@@ -3797,15 +3804,30 @@ async function fetchDiscordCounts() {
         source = (source || "manual") + "+onlineExact";
     }
 
-    if (members == null && online == null) return null;
+    const memberList = filterHumanMembers(widget?.members || lastWidgetData?.members || []);
 
-    // Bei kleinen Servern: Integer sicherstellen, keine „~“
+    // Invite fehlgeschlagen, aber Widget da → wenigstens Liste/Online-Schätzung
+    if (members == null && online == null) {
+        if (memberList.length || (widget?.members && widget.members.length)) {
+            online = memberList.length || 0;
+            source = "widget-fallback";
+        } else {
+            return null;
+        }
+    }
+
     if (members != null) members = Math.max(0, Math.round(Number(members)));
     if (online != null) online = Math.max(0, Math.round(Number(online)));
-    // Online darf nicht > Mitglieder sein, wenn beides bekannt
     if (members != null && online != null && online > members) online = members;
 
-    return { members, online, name, guildId: guildId || inv?.guildId || null, source };
+    return {
+        members,
+        online,
+        name,
+        guildId: guildId || inv?.guildId || null,
+        source,
+        memberList
+    };
 }
 
 function statusClass(s) {
@@ -3873,23 +3895,25 @@ function applyAvatarLogoColors(imgEl) {
     }
 }
 
-/** Bots aus Widget-Liste filtern (Carl, Dyno, eigene Bots, …) */
+/** Bots aus Widget-Liste filtern (Carl, Ticket Tool, Filou-Bot, …) */
 function isDiscordBotMember(m) {
     if (!m) return true;
     if (m.bot === true) return true;
     const raw = String(m.username || m.nick || m.name || "").toLowerCase().trim();
     if (!raw) return true;
-    // bekannte / typische Bots
     const botNames = [
-        "carl-bot", "carl", "carl.gg", "carl bot",
-        "dyno", "mee6", "mee6bot", "ticket tool", "ticket-tool",
+        "carl-bot", "carl.gg", "carl bot", "carl-bot#",
+        "dyno", "mee6", "ticket tool", "ticket-tool", "tickettool",
         "statbot", "arcane", "groovy", "rythm", "hydra",
         "filou-bot", "filoubot", "probot", "dank memer",
-        "captcha.bot", "wick", "prism", "spongebot"
+        "captcha.bot", "wick", "spongebot", "carl"
     ];
-    if (botNames.some(b => raw === b || raw.includes(b))) return true;
-    // endet auf "bot" / enthält "bot" als Wort
-    if (/(^|[\s._-])bot($|[\s._-])/i.test(raw) || /bot$/i.test(raw)) return true;
+    // exakt oder klarer Bot-Name
+    if (botNames.some(b => raw === b || raw.startsWith(b + " ") || raw.startsWith(b + "-") || raw.startsWith(b + "_"))) return true;
+    if (raw === "carl" || raw.includes("carl.gg")) return true;
+    if (raw.includes("ticket tool") || raw.includes("tickettool")) return true;
+    // endet auf -bot / _bot /bot (Filou-Bot)
+    if (/(^|[\s._-])bot$/i.test(raw) || /-bot$/i.test(raw) || /_bot$/i.test(raw) || /bot$/i.test(raw)) return true;
     return false;
 }
 
@@ -3969,9 +3993,14 @@ function renderMemberListHtml(widgetMembers) {
     const humans = filterHumanMembers(widgetMembers);
     if (!humans.length) {
         const invite = discordCfg.invite || "9YvFkVbc84";
+        const hadAny = Array.isArray(widgetMembers) && widgetMembers.length > 0;
+        if (hadAny) {
+            return `<div class="ds-panel-empty">Gerade nur Bots online im Widget.<br>
+                Menschen erscheinen hier, sobald sie online und sichtbar sind.</div>`;
+        }
         return `<div class="ds-panel-empty">Keine Online-Liste verfügbar.<br>
             In Discord: <b>Server-Einstellungen → Widget</b> aktivieren.<br>
-            <a href="https://discord.gg/${encodeURIComponent(invite)}" target="_blank" rel="noopener">Server öffnen</a></div>`;
+            Zahlen oben kommen weiter von der Invite-API.</div>`;
     }
     // Spiele anonym – nur Typ-Icon + Name, ohne wer spielt
     const games = collectActiveGames(widgetMembers);
