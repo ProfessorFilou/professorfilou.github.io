@@ -1205,6 +1205,31 @@ body.maintenance-active .cursor-toggle-wrap{
     padding:7px 8px; border-radius:11px;
     transition:background 0.15s ease;
 }
+
+.ds-member.is-bot{
+    opacity:0.72;
+}
+.ds-member.is-bot .ds-member-name{
+    color:var(--text-dim); font-weight:500;
+}
+.ds-member.is-bot .ds-avatar,
+.ds-member.is-bot .ds-avatar-fallback{
+    filter:grayscale(0.35) brightness(0.95);
+    box-shadow:0 0 0 2px rgba(255,255,255,0.12);
+}
+.ds-bot-tag{
+    font-size:9px; font-weight:700; letter-spacing:0.6px;
+    text-transform:uppercase;
+    padding:2px 6px; border-radius:6px;
+    background:rgba(88,101,242,0.2);
+    border:1px solid rgba(88,101,242,0.35);
+    color:#aab4ff;
+    flex-shrink:0;
+}
+.ds-section-label{
+    font-size:10px; letter-spacing:0.7px; text-transform:uppercase;
+    color:var(--text-faint); margin:10px 4px 4px; padding:0 4px;
+}
 .ds-member:hover{ background:rgba(255,255,255,0.04); }
 .ds-avatar{
     width:30px; height:30px; border-radius:50%; flex-shrink:0;
@@ -3804,7 +3829,7 @@ async function fetchDiscordCounts() {
         source = (source || "manual") + "+onlineExact";
     }
 
-    const memberList = filterHumanMembers(widget?.members || lastWidgetData?.members || []);
+    const memberList = widget?.members || lastWidgetData?.members || [];
 
     // Invite fehlgeschlagen, aber Widget da → wenigstens Liste/Online-Schätzung
     if (members == null && online == null) {
@@ -3989,21 +4014,40 @@ function collectActiveGames(widgetMembers) {
         .map(([name, n]) => ({ name, n }));
 }
 
+function renderMemberRow(m, isBot) {
+    const rawName = m.username || m.nick || m.name || "User";
+    const name = escapeHtml(rawName);
+    const initial = String(rawName).slice(0, 1).toUpperCase();
+    const av = memberAvatarUrl(m);
+    const col = colorFromName(rawName);
+    const style = `--av-bg:${col.bg};--av-ring:${col.ring};--av-glow:${col.glow}`;
+    const avHtml = av
+        ? `<img class="ds-avatar" src="${escapeHtml(av)}" alt="" loading="lazy" crossorigin="anonymous"
+               onload="applyAvatarLogoColors(this)"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+           <span class="ds-avatar-fallback" style="display:none">${escapeHtml(initial)}</span>`
+        : `<span class="ds-avatar-fallback">${escapeHtml(initial)}</span>`;
+    const botTag = isBot ? `<span class="ds-bot-tag">Bot</span>` : "";
+    return `<div class="ds-member${isBot ? " is-bot" : ""}" style="${style}">
+        ${avHtml}
+        <span class="ds-member-name">${name}</span>
+        ${botTag}
+        <span class="ds-status ${statusClass(m.status)}" title="${escapeHtml(m.status || "online")}"></span>
+    </div>`;
+}
+
 function renderMemberListHtml(widgetMembers) {
-    const humans = filterHumanMembers(widgetMembers);
-    if (!humans.length) {
-        const invite = discordCfg.invite || "9YvFkVbc84";
-        const hadAny = Array.isArray(widgetMembers) && widgetMembers.length > 0;
-        if (hadAny) {
-            return `<div class="ds-panel-empty">Gerade nur Bots online im Widget.<br>
-                Menschen erscheinen hier, sobald sie online und sichtbar sind.</div>`;
-        }
+    const list = Array.isArray(widgetMembers) ? widgetMembers : [];
+    if (!list.length) {
         return `<div class="ds-panel-empty">Keine Online-Liste verfügbar.<br>
-            In Discord: <b>Server-Einstellungen → Widget</b> aktivieren.<br>
-            Zahlen oben kommen weiter von der Invite-API.</div>`;
+            In Discord: <b>Server-Einstellungen → Widget</b> prüfen.<br>
+            Online-/Mitglieder-Zahlen kommen von der Invite-API.</div>`;
     }
-    // Spiele anonym – nur Typ-Icon + Name, ohne wer spielt
-    const games = collectActiveGames(widgetMembers);
+    const humans = list.filter(m => !isDiscordBotMember(m));
+    const bots = list.filter(m => isDiscordBotMember(m));
+
+    // Spiele nur von echten Leuten, anonym
+    const games = collectActiveGames(list);
     const gamesHtml = games.length
         ? `<div class="ds-games">
             <div class="ds-games-label">Wird gespielt</div>
@@ -4012,26 +4056,19 @@ function renderMemberListHtml(widgetMembers) {
             ).join("")}</div>
            </div>`
         : "";
-    const rows = humans.map(m => {
-        const rawName = m.username || m.nick || m.name || "User";
-        const name = escapeHtml(rawName);
-        const initial = String(rawName).slice(0, 1).toUpperCase();
-        const av = memberAvatarUrl(m);
-        const col = colorFromName(rawName);
-        const style = `--av-bg:${col.bg};--av-ring:${col.ring};--av-glow:${col.glow}`;
-        const avHtml = av
-            ? `<img class="ds-avatar" src="${escapeHtml(av)}" alt="" loading="lazy" crossorigin="anonymous"
-                   onload="applyAvatarLogoColors(this)"
-                   onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-               <span class="ds-avatar-fallback" style="display:none">${escapeHtml(initial)}</span>`
-            : `<span class="ds-avatar-fallback">${escapeHtml(initial)}</span>`;
-        return `<div class="ds-member" style="${style}">
-            ${avHtml}
-            <span class="ds-member-name">${name}</span>
-            <span class="ds-status ${statusClass(m.status)}" title="${escapeHtml(m.status || "online")}"></span>
-        </div>`;
-    }).join("");
-    return `<div class="ds-panel-head">Online jetzt · ${humans.length}</div>${gamesHtml}${rows}`;
+
+    let body = "";
+    if (humans.length) {
+        body += `<div class="ds-section-label">Mitglieder · ${humans.length}</div>`;
+        body += humans.map(m => renderMemberRow(m, false)).join("");
+    }
+    if (bots.length) {
+        body += `<div class="ds-section-label">Bots · ${bots.length}</div>`;
+        body += bots.map(m => renderMemberRow(m, true)).join("");
+    }
+
+    const headCount = list.length;
+    return `<div class="ds-panel-head">Im Widget sichtbar · ${headCount}</div>${gamesHtml}${body}`;
 }
 
 let discordPanelOpen = false;
