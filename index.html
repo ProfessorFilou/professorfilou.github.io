@@ -1162,13 +1162,26 @@ body.maintenance-active .cursor-toggle-wrap{
 }
 .ds-game-ico{
     display:inline-flex; align-items:center; justify-content:center;
-    width:16px; height:16px; margin-right:6px; flex-shrink:0; vertical-align:middle;
+    width:18px; height:18px; margin-right:7px; flex-shrink:0; vertical-align:middle;
+}
+.ds-game-ico:not(.fallback){
+    border-radius:50%;
+    background:rgba(255,255,255,0.1);
+    box-shadow:0 0 0 1px rgba(255,255,255,0.14);
+    padding:2px;
+    box-sizing:border-box;
 }
 .ds-game-logo{
-    width:14px; height:14px; object-fit:contain; display:block; border-radius:3px;
+    width:100%; height:100%; object-fit:contain; display:block;
+    border-radius:50%;
 }
 .ds-game-logo-svg{
     width:14px; height:14px; display:none; color:#aab4ff;
+}
+.ds-game-ico.fallback{
+    border-radius:50%;
+    background:rgba(88,101,242,0.2);
+    box-shadow:0 0 0 1px rgba(88,101,242,0.25);
 }
 .ds-game-ico.fallback .ds-game-logo-svg{ display:block; }
 .ds-game-ico:not(.fallback) .ds-game-logo-svg{ display:none; }
@@ -1194,15 +1207,22 @@ body.maintenance-active .cursor-toggle-wrap{
 }
 .ds-member:hover{ background:rgba(255,255,255,0.04); }
 .ds-avatar{
-    width:28px; height:28px; border-radius:50%; flex-shrink:0;
-    background:#2b2d31; object-fit:cover;
-    box-shadow:0 0 0 2px rgba(88,101,242,0.25);
+    width:30px; height:30px; border-radius:50%; flex-shrink:0;
+    object-fit:cover;
+    background:linear-gradient(145deg, #3d2b8c 0%, #5865f2 45%, #00c2ff 100%);
+    box-shadow:
+        0 0 0 2px rgba(120,140,255,0.35),
+        0 0 12px rgba(88,101,242,0.25);
 }
 .ds-avatar-fallback{
-    width:28px; height:28px; border-radius:50%; flex-shrink:0;
-    background:linear-gradient(135deg,#5865f2,#7289da);
+    width:30px; height:30px; border-radius:50%; flex-shrink:0;
+    background:linear-gradient(145deg, #7b5cff 0%, #5865f2 40%, #2fd8ff 100%);
     display:flex; align-items:center; justify-content:center;
-    font-size:11px; font-weight:700; color:#fff;
+    font-size:12px; font-weight:700; color:#fff;
+    text-shadow:0 1px 2px rgba(0,0,0,0.35);
+    box-shadow:
+        0 0 0 2px rgba(180,200,255,0.25),
+        0 0 14px rgba(88,101,242,0.35);
 }
 .ds-member-name{
     flex:1; min-width:0; font-size:13px; font-weight:600; color:var(--text);
@@ -3799,6 +3819,60 @@ function memberAvatarUrl(m) {
     if (m.avatar && m.id) return `https://cdn.discordapp.com/avatars/${m.id}/${m.avatar}.png?size=64`;
     return null;
 }
+
+/** Farbe aus Name – stabil pro Person, wenn kein Bild */
+function colorFromName(name) {
+    const s = String(name || "user");
+    let hash = 0;
+    for (let i = 0; i < s.length; i++) hash = ((hash << 5) - hash) + s.charCodeAt(i) | 0;
+    const h = Math.abs(hash) % 360;
+    const h2 = (h + 28 + (Math.abs(hash) % 20)) % 360;
+    return {
+        bg: `linear-gradient(145deg, hsl(${h} 72% 48%), hsl(${h2} 78% 58%))`,
+        ring: `hsla(${h}, 80%, 70%, 0.45)`,
+        glow: `hsla(${h}, 90%, 55%, 0.3)`
+    };
+}
+
+/** Dominante Farbe aus Avatar-Bild → Ring/Glow passend zum Logo */
+function applyAvatarLogoColors(imgEl) {
+    if (!imgEl || !imgEl.complete || !imgEl.naturalWidth) return;
+    try {
+        const c = document.createElement("canvas");
+        const size = 24;
+        c.width = size; c.height = size;
+        const ctx = c.getContext("2d", { willReadFrequently: true });
+        if (!ctx) return;
+        ctx.drawImage(imgEl, 0, 0, size, size);
+        const data = ctx.getImageData(0, 0, size, size).data;
+        let r = 0, g = 0, b = 0, n = 0;
+        for (let i = 0; i < data.length; i += 16) { // sample every 4th pixel
+            const a = data[i + 3];
+            if (a < 120) continue;
+            r += data[i]; g += data[i + 1]; b += data[i + 2];
+            n++;
+        }
+        if (n < 4) return;
+        r = Math.round(r / n); g = Math.round(g / n); b = Math.round(b / n);
+        // etwas sättigen
+        const max = Math.max(r, g, b), min = Math.min(r, g, b);
+        if (max > min) {
+            const boost = 1.15;
+            r = Math.min(255, Math.round(min + (r - min) * boost));
+            g = Math.min(255, Math.round(min + (g - min) * boost));
+            b = Math.min(255, Math.round(min + (b - min) * boost));
+        }
+        const wrap = imgEl.closest(".ds-member") || imgEl.parentElement;
+        if (!wrap) return;
+        wrap.style.setProperty("--av-ring", `rgba(${r},${g},${b},0.55)`);
+        wrap.style.setProperty("--av-glow", `rgba(${r},${g},${b},0.35)`);
+        wrap.style.setProperty("--av-bg", `linear-gradient(145deg, rgb(${Math.max(0,r-30)},${Math.max(0,g-30)},${Math.max(0,b-30)}), rgb(${r},${g},${b}))`);
+        imgEl.style.boxShadow = `0 0 0 2px rgba(${r},${g},${b},0.55), 0 0 12px rgba(${r},${g},${b},0.35)`;
+    } catch (_) {
+        // CORS / tainted canvas → Name-Farbe bleibt
+    }
+}
+
 /** Bots aus Widget-Liste filtern (Carl, Dyno, eigene Bots, …) */
 function isDiscordBotMember(m) {
     if (!m) return true;
@@ -3827,7 +3901,8 @@ function filterHumanMembers(list) {
 function gameLogoUrl(name) {
     const n = String(name || "").toLowerCase().trim();
     const map = [
-        [/minecraft|hypixel|lunar client|badlion|modrinth|fabric|forge|quilt/, "https://cdn.simpleicons.org/minecraft/62B47A"],
+        [/modrinth/, "https://cdn.simpleicons.org/modrinth/00AF5C"],
+        [/minecraft|hypixel|lunar client|badlion|fabric|forge|quilt/, "https://cdn.simpleicons.org/minecraft/62B47A"],
         [/roblox/, "https://cdn.simpleicons.org/roblox/FFFFFF"],
         [/fortnite/, "https://cdn.simpleicons.org/fortnite/FFFFFF"],
         [/valorant/, "https://cdn.simpleicons.org/valorant/FF4655"],
@@ -3868,7 +3943,7 @@ const GAMEPAD_SVG = `<svg class="ds-game-logo-svg" viewBox="0 0 24 24" fill="non
 function gameIconHtml(name) {
     const url = gameLogoUrl(name);
     if (url) {
-        return `<span class="ds-game-ico"><img class="ds-game-logo" src="${url}" alt="" loading="lazy" width="14" height="14" referrerpolicy="no-referrer" onerror="this.remove();this.parentNode.classList.add('fallback')">${GAMEPAD_SVG}</span>`;
+        return `<span class="ds-game-ico"><img class="ds-game-logo" src="${url}" alt="" loading="lazy" width="16" height="16" referrerpolicy="no-referrer" onerror="this.remove();this.parentNode.classList.add('fallback')">${GAMEPAD_SVG}</span>`;
     }
     return `<span class="ds-game-ico fallback">${GAMEPAD_SVG}</span>`;
 }
@@ -3909,14 +3984,19 @@ function renderMemberListHtml(widgetMembers) {
            </div>`
         : "";
     const rows = humans.map(m => {
-        const name = escapeHtml(m.username || m.nick || m.name || "User");
-        const initial = (m.username || m.nick || "?").slice(0, 1).toUpperCase();
+        const rawName = m.username || m.nick || m.name || "User";
+        const name = escapeHtml(rawName);
+        const initial = String(rawName).slice(0, 1).toUpperCase();
         const av = memberAvatarUrl(m);
+        const col = colorFromName(rawName);
+        const style = `--av-bg:${col.bg};--av-ring:${col.ring};--av-glow:${col.glow}`;
         const avHtml = av
-            ? `<img class="ds-avatar" src="${escapeHtml(av)}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            ? `<img class="ds-avatar" src="${escapeHtml(av)}" alt="" loading="lazy" crossorigin="anonymous"
+                   onload="applyAvatarLogoColors(this)"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
                <span class="ds-avatar-fallback" style="display:none">${escapeHtml(initial)}</span>`
             : `<span class="ds-avatar-fallback">${escapeHtml(initial)}</span>`;
-        return `<div class="ds-member">
+        return `<div class="ds-member" style="${style}">
             ${avHtml}
             <span class="ds-member-name">${name}</span>
             <span class="ds-status ${statusClass(m.status)}" title="${escapeHtml(m.status || "online")}"></span>
