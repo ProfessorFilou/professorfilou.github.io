@@ -9,12 +9,14 @@
 <meta property="og:description" content="ProfessorFilou - Home - Tritt jetzt unserem Discord Server bei oder erkunde die Welt der Websiten! :D">
 <meta property="og:url" content="https://professorfilou.de">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://professorfilou.de/ProfessorFilouLOGO.jpg">
+<meta property="og:image" content="https://professorfilou.de/ProfessorFilouLOGO.jpg?v=2">
 <meta property="og:locale" content="de_DE">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ProfessorFilou">
 <meta name="twitter:description" content="ProfessorFilou - Home - Tritt jetzt unserem Discord Server bei oder erkunde die Welt der Websiten! :D">
-<link rel="icon" type="image/jpeg" href="ProfessorFilouLOGO.jpg">
+<link rel="icon" type="image/jpeg" href="ProfessorFilouLOGO.jpg?v=2">
+<link rel="shortcut icon" type="image/jpeg" href="ProfessorFilouLOGO.jpg?v=2">
+<link rel="apple-touch-icon" href="ProfessorFilouLOGO.jpg?v=2">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -654,16 +656,18 @@ body.maintenance-active .cursor-toggle-wrap{
 .pt-copy strong{ color:var(--cyan); font-size:14.5px; font-weight:700; letter-spacing:0.2px; }
 .pt-copy .tsub{ color:var(--text-dim); font-size:12px; margin-top:2px; }
 .pt-bar{
-    margin-top:11px; height:6px; border-radius:99px;
-    background:rgba(255,255,255,0.07);
+    margin-top:11px; height:7px; border-radius:99px;
+    background:rgba(255,255,255,0.08);
     overflow:hidden;
-    box-shadow:0 0 0 1px rgba(255,255,255,0.04) inset;
+    box-shadow:0 0 0 1px rgba(255,255,255,0.05) inset;
+    width:100%;
 }
 .pt-bar-fill{
-    height:100%; width:0%; border-radius:99px;
-    background:linear-gradient(90deg, var(--cyan), var(--blue), var(--pink));
-    box-shadow:0 0 10px rgba(0,255,204,0.45);
-    transition:width 0.7s cubic-bezier(0.25,1,0.5,1);
+    display:block; height:100%; width:0%; min-height:7px; border-radius:99px;
+    background:linear-gradient(90deg, #00ffcc, #2fd8ff, #ff6bcb);
+    box-shadow:0 0 12px rgba(0,255,204,0.5);
+    transition:width 0.65s cubic-bezier(0.25,1,0.5,1);
+    will-change:width;
 }
 @media(max-width:600px){
     #plant-toast{
@@ -1141,6 +1145,29 @@ body.maintenance-active .cursor-toggle-wrap{
 @keyframes dsPanelIn{
     from{ opacity:0; transform:translateY(-6px) scale(0.98); }
     to{ opacity:1; transform:translateY(0) scale(1); }
+}
+
+.ds-games{
+    margin:0 4px 10px; padding:8px 10px;
+    background:rgba(88,101,242,0.08);
+    border:1px solid rgba(88,101,242,0.2);
+    border-radius:12px;
+}
+.ds-games-label{
+    font-size:10px; letter-spacing:0.7px; text-transform:uppercase;
+    color:var(--text-faint); margin-bottom:6px;
+}
+.ds-games-list{
+    display:flex; flex-wrap:wrap; gap:6px;
+}
+.ds-game-chip{
+    font-size:11.5px; font-weight:600;
+    padding:4px 10px; border-radius:999px;
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.1);
+    color:#c5caff;
+    max-width:100%;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 .ds-panel-head{
     font-size:10px; letter-spacing:0.8px; text-transform:uppercase;
@@ -3058,27 +3085,23 @@ function getStreak() {
 }
 
 function updateStageLabels(n) {
-    const stage = getPlantStage(n);
+    // Stufen-Text unter der Pflanze bewusst aus (Strauch/Baum etc.)
     const labels = [
         document.getElementById("plant-stage-desktop"),
         document.getElementById("plant-stage-mobile")
     ];
     labels.forEach(el => {
         if (!el) return;
-        el.textContent = stage.emoji + " " + stage.name;
-        el.classList.toggle("hot", n >= 30 && n < 90);
-        el.classList.toggle("bloom", n >= 90);
+        el.textContent = "";
+        el.classList.remove("hot", "bloom");
+        el.style.display = "none";
     });
     [hitDesktop, hitMobile].forEach(el => {
         if (!el) return;
         el.classList.toggle("stage-glow", n >= 30 && n < 90);
         el.classList.toggle("stage-bloom", n >= 90);
     });
-    // Stage-Wechsel Feedback
-    if (lastStageName && lastStageName !== stage.name && everClicked) {
-        // kurzer Extra-Toast-Impuls über showToast
-    }
-    lastStageName = stage.name;
+    lastStageName = getPlantStage(n).name;
 }
 
 onValue(plantRef, snap => {
@@ -3222,29 +3245,35 @@ function playDrown() {
 }
 function showToast(n) {
     if (!toast) return;
-    const stage = getPlantStage(n);
-    const next = getNextStage(n);
-    const you = getPersonalWaters();
+    const you = Math.max(0, getPersonalWaters());
     const streak = getStreak();
-    // Nur eigene Gießungen – kein Gesamtzähler
+    // Nur eigene Gießungen – kein Gesamt, keine Stufen-Namen
     if (ptNum) ptNum.textContent = you + "×";
     if (ptSub) ptSub.textContent = "heute gegossen";
-    if (ptStage) ptStage.textContent = stage.emoji + " " + stage.name;
-    if (ptNext) {
-        let line = next ? "Noch " + (next.min - n) + " bis " + next.name : (n >= 90 ? "Voll erblüht" : "");
-        if (streak > 1) line = (line ? line + " · " : "") + "🔥 " + streak + " Tage";
-        ptNext.textContent = line;
-    }
+    if (ptStage) ptStage.textContent = "";
+    if (ptNext) ptNext.textContent = streak > 1 ? ("🔥 " + streak + " Tage Streak") : "";
     if (ptBarFill) {
-        // Balken = persönlicher Fortschritt des Tages (weich, max 20 Gießungen = voll)
-        const pct = Math.min(100, Math.max(6, (you / 20) * 100));
-        ptBarFill.style.width = pct + "%";
+        // Balken: 1 Gießung ≈ 8%, ab 12× voll – sauber animiert
+        const pct = Math.min(100, you * 8);
+        ptBarFill.style.transition = "none";
+        ptBarFill.style.width = "0%";
+        // Toast erst zeigen, dann Balken füllen (sonst transition tot)
+        clearTimeout(toastTimer);
+        toast.classList.add("show");
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                ptBarFill.style.transition = "width 0.65s cubic-bezier(0.25,1,0.5,1)";
+                ptBarFill.style.width = pct + "%";
+            });
+        });
+    } else {
+        toast.classList.add("show");
     }
     clearTimeout(toastTimer);
-    toast.classList.remove("show");
-    void toast.offsetWidth;
-    toast.classList.add("show");
-    toastTimer = setTimeout(() => toast.classList.remove("show"), 3400);
+    toastTimer = setTimeout(() => {
+        toast.classList.remove("show");
+        if (ptBarFill) ptBarFill.style.width = "0%";
+    }, 3400);
 }
 function spawnDrop(anchor) {
     if (!anchor) return;
@@ -3756,6 +3785,19 @@ function memberAvatarUrl(m) {
     if (m.avatar && m.id) return `https://cdn.discordapp.com/avatars/${m.id}/${m.avatar}.png?size=64`;
     return null;
 }
+function collectActiveGames(widgetMembers) {
+    const counts = new Map();
+    (widgetMembers || []).forEach(m => {
+        const g = (m.game && (m.game.name || m.game)) || m.game_name || null;
+        const name = g ? String(g).trim() : "";
+        if (!name) return;
+        counts.set(name, (counts.get(name) || 0) + 1);
+    });
+    return [...counts.entries()]
+        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+        .map(([name, n]) => ({ name, n }));
+}
+
 function renderMemberListHtml(widgetMembers) {
     if (!widgetMembers || !widgetMembers.length) {
         const invite = discordCfg.invite || "9YvFkVbc84";
@@ -3763,6 +3805,16 @@ function renderMemberListHtml(widgetMembers) {
             In Discord: <b>Server-Einstellungen → Widget</b> aktivieren.<br>
             <a href="https://discord.gg/${encodeURIComponent(invite)}" target="_blank" rel="noopener">Server öffnen</a></div>`;
     }
+    // Spiele anonym aggregieren – ohne Namen wer spielt
+    const games = collectActiveGames(widgetMembers);
+    const gamesHtml = games.length
+        ? `<div class="ds-games">
+            <div class="ds-games-label">Wird gespielt</div>
+            <div class="ds-games-list">${games.map(g =>
+                `<span class="ds-game-chip" title="${escapeHtml(g.name)}">${escapeHtml(g.name)}${g.n > 1 ? " · " + g.n : ""}</span>`
+            ).join("")}</div>
+           </div>`
+        : "";
     const rows = widgetMembers.map(m => {
         const name = escapeHtml(m.username || m.nick || m.name || "User");
         const initial = (m.username || m.nick || "?").slice(0, 1).toUpperCase();
@@ -3777,7 +3829,7 @@ function renderMemberListHtml(widgetMembers) {
             <span class="ds-status ${statusClass(m.status)}" title="${escapeHtml(m.status || "online")}"></span>
         </div>`;
     }).join("");
-    return `<div class="ds-panel-head">Online jetzt · ${widgetMembers.length}</div>${rows}`;
+    return `<div class="ds-panel-head">Online jetzt · ${widgetMembers.length}</div>${gamesHtml}${rows}`;
 }
 
 let discordPanelOpen = false;
