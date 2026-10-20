@@ -1174,8 +1174,6 @@ body.maintenance-active .cursor-toggle-wrap{
 .ds-game-logo{
     width:100%; height:100%; object-fit:contain; display:block;
     border-radius:50%;
-    image-rendering:auto;
-    background:rgba(255,255,255,0.06);
 }
 .ds-game-logo-svg{
     width:14px; height:14px; display:none; color:#aab4ff;
@@ -1687,31 +1685,20 @@ body.countdown-mode .party-band-cake{ filter:drop-shadow(0 4px 12px rgba(0,255,2
                 <p class="admin-hint">Am gesetzten Datum (jährlich) starten automatisch Kuchen &amp; Konfetti. Banner-Texte überschreiben die Defaults.</p>
             </div>
             <div class="admin-section">
-                <div class="admin-section-title">Buttons / Projekte</div>
-                <p class="admin-hint">Tippe auf einen Eintrag zum Bearbeiten. ↑↓ = Reihenfolge.</p>
+                <div class="admin-section-title">Projekte verwalten</div>
+                <button id="toggle-schoolos-new" class="admin-btn gold">SchoolOS NEU: AUS</button>
+                <p class="admin-hint">NEU-Badge für SchoolOS (Legacy). Besser: Flag „NEU“ pro Projekt unten.</p>
                 <div class="admin-proj-list" id="admin-proj-list"></div>
                 <div class="admin-add-box">
-                    <div class="admin-section-title" style="margin-bottom:4px;">Neu</div>
-                    <input type="text" id="admin-new-label" class="admin-input" placeholder="Name *" maxlength="32">
-                    <input type="text" id="admin-new-href" class="admin-input" placeholder="Link https://… *" maxlength="200">
+                    <div class="admin-section-title" style="margin-bottom:4px;">Neues Projekt</div>
+                    <input type="text" id="admin-new-label" class="admin-input" placeholder="Name (Label)" maxlength="32">
+                    <input type="text" id="admin-new-href" class="admin-input" placeholder="https://…" maxlength="200">
+                    <input type="text" id="admin-new-id" class="admin-input" placeholder="ID (optional, z.B. mytool)" maxlength="32">
+                    <select id="admin-new-icon" class="admin-input"></select>
                     <div class="admin-row">
-                        <select id="admin-new-icon" class="admin-input" title="Icon"></select>
-                        <button id="admin-proj-add" class="admin-btn soft">+ Hinzufügen</button>
+                        <button id="admin-proj-add" class="admin-btn soft">Hinzufügen</button>
+                        <button id="admin-proj-seed" class="admin-btn soft">Defaults laden</button>
                     </div>
-                    <button id="admin-proj-seed" class="admin-btn soft" style="margin-top:6px;">Defaults laden</button>
-                </div>
-            </div>
-            <div class="admin-section">
-                <div class="admin-section-title">Discord-Rollen</div>
-                <p class="admin-hint">Widget liefert keine Rollen – Username → Badge hier zuordnen.</p>
-                <div class="admin-role-list" id="admin-role-list"></div>
-                <div class="admin-row" style="margin-top:8px;">
-                    <input type="text" id="admin-role-user" class="admin-input" placeholder="Discord-Username" maxlength="32">
-                    <input type="text" id="admin-role-label" class="admin-input" placeholder="Rolle z.B. Admin" maxlength="20">
-                </div>
-                <div class="admin-row">
-                    <input type="color" id="admin-role-color" value="#5865f2" title="Farbe" style="width:48px;height:36px;border:none;background:transparent;cursor:pointer;">
-                    <button id="admin-role-add" class="admin-btn soft">Rolle speichern</button>
                 </div>
             </div>
             <div class="admin-section">
@@ -2470,25 +2457,14 @@ async function fetchText(url, ms = 4000) {
     }
 }
 
-async function checkTwitchLive(opts = {}) {
+async function checkTwitchLive() {
     const user = twitchUser();
-    const light = !!opts.light;
-    // Immer zuerst nur 1 Call: live ja/nein
+    // Uptime zuerst (schnell) – Timeout 4s
     const uptimeRaw = await fetchText("https://decapi.me/twitch/uptime/" + user, 4000);
-    if (uptimeRaw === null) return null;
+    if (uptimeRaw === null) return null; // Netzwerk/Timeout
     if (!uptimeRaw || /offline/i.test(uptimeRaw)) return { live: false };
 
     let title = "", game = "", viewers = null;
-    if (light) {
-        if (autoCfg.showViewers) {
-            const v = await fetchText("https://decapi.me/twitch/viewercount/" + user, 3000);
-            if (v) {
-                const n = parseInt(String(v).replace(/[^\d]/g, ""), 10);
-                if (!isNaN(n)) viewers = n;
-            }
-        }
-        return { live: true, uptime: uptimeRaw, title, game, viewers, light: true };
-    }
     const tasks = [
         fetchText("https://decapi.me/twitch/title/" + user, 3500),
         fetchText("https://decapi.me/twitch/game/" + user, 3500)
@@ -2542,143 +2518,48 @@ async function runAutoStatusCheck(force) {
     if (autoCheckRunning && !force) return;
     autoCheckRunning = true;
     try {
-        // Firebase-Cache frisch? → keine DecAPI-Calls (alle Besucher teilen einen Stand)
-        const fb = twitchLiveCache;
-        const age = fb && fb.ts ? (Date.now() - fb.ts) : Infinity;
-        const minAge = (fb && fb.mode === "live") ? TWITCH_LIVE_TTL_MS : TWITCH_OFFLINE_TTL_MS;
-        if (!force && age < minAge) {
-            applyTwitchLivePayload(fb);
-            return;
-        }
-
-        // Stampede-Schutz: zufällige Wartezeit, dann Cache nochmal prüfen
-        if (!force) {
-            await new Promise(r => setTimeout(r, 500 + Math.random() * 12000));
-            const age2 = twitchLiveCache && twitchLiveCache.ts ? (Date.now() - twitchLiveCache.ts) : Infinity;
-            if (age2 < minAge) {
-                applyTwitchLivePayload(twitchLiveCache);
-                return;
-            }
-        }
-
-        // Leichter Refresh wenn schon live bekannt (weniger Calls)
-        const wasLive = (twitchLiveCache && twitchLiveCache.mode === "live") || autoStatusMode === "live";
-        const light = wasLive && !force && age < TWITCH_FULL_REFRESH_MS;
-        const twitch = await checkTwitchLive({ light });
+        // 1) Twitch sofort – UI updaten, BEVOR YouTube fertig ist
+        const twitch = await checkTwitchLive();
 
         if (twitch && twitch.live) {
-            // Light-Update: Title/Game aus altem Cache mergen
-            let data = { ...twitch };
-            if (twitch.light && twitchLiveCache && twitchLiveCache.data) {
-                data.title = data.title || twitchLiveCache.data.title || "";
-                data.game = data.game || twitchLiveCache.data.game || "";
-                if (data.viewers == null && typeof twitchLiveCache.data.viewers === "number") {
-                    data.viewers = twitchLiveCache.data.viewers;
-                }
-            }
-            setLiveStatusUI(buildLiveHtml(data), "live");
-            const payload = { mode: "live", data, ts: Date.now(), user: twitchUser() };
-            saveStatusCache(payload);
-            pushTwitchLiveCache(payload);
+            setLiveStatusUI(buildLiveHtml(twitch), "live");
+            saveStatusCache({ mode: "live", data: twitch });
             return;
         }
 
         if (twitch && twitch.live === false) {
+            // Offline sofort anzeigen (nicht auf YT warten)
             if (autoCfg.showOffline) {
                 setLiveStatusUI(buildOfflineHtml(), "offline");
-                const payload = { mode: "offline", ts: Date.now(), user: twitchUser() };
-                saveStatusCache(payload);
-                pushTwitchLiveCache(payload);
+                saveStatusCache({ mode: "offline" });
             } else if (autoStatusMode === "live") {
                 setLiveStatusUI("", null);
-                pushTwitchLiveCache({ mode: "off", ts: Date.now(), user: twitchUser() });
             }
 
-            // YouTube seltener: nur wenn offline und Cache YT älter als 5 Min
+            // YouTube im Hintergrund – nur upgraden wenn neues Video
             if (autoCfg.showYoutube) {
-                const ytAge = (twitchLiveCache && twitchLiveCache.mode === "yt" && twitchLiveCache.ts)
-                    ? (Date.now() - twitchLiveCache.ts) : Infinity;
-                if (force || ytAge > 5 * 60 * 1000) {
-                    const yt = await checkLatestYoutube();
-                    if (yt && !manualStatusActive && autoCfg.enabled) {
-                        setLiveStatusUI(buildYtHtml(yt), "yt");
-                        const payload = { mode: "yt", yt, ts: Date.now(), user: twitchUser() };
-                        saveStatusCache(payload);
-                        pushTwitchLiveCache(payload);
-                    }
+                const yt = await checkLatestYoutube();
+                if (yt && !manualStatusActive && autoCfg.enabled) {
+                    setLiveStatusUI(buildYtHtml(yt), "yt");
+                    saveStatusCache({ mode: "yt", yt });
                 }
             }
             return;
         }
 
+        // null = Fehler/Timeout → Cache/Offline behalten, nichts löschen
         if (!autoStatusMode) showStatusImmediately();
     } finally {
         autoCheckRunning = false;
     }
 }
 
-const TWITCH_LIVE_TTL_MS = 2 * 60 * 1000;      // 2 Min: geteilter Live-Stand ohne neuen API-Call
-const TWITCH_OFFLINE_TTL_MS = 3 * 60 * 1000;   // 3 Min offline
-const TWITCH_FULL_REFRESH_MS = 6 * 60 * 1000;  // Title/Game nur alle 6 Min voll neu
-const TWITCH_POLL_MS = 2.5 * 60 * 1000;        // Client-Intervall
-const twitchLiveRef = ref(db, "live_features/twitch_live");
-let twitchLiveCache = null;
-let lastTwitchPushTs = 0;
-
-function applyTwitchLivePayload(fb) {
-    if (!fb || manualStatusActive || !autoCfg.enabled) return;
-    if (fb.user && fb.user !== twitchUser()) return;
-    if (fb.mode === "live" && fb.data) {
-        setLiveStatusUI(buildLiveHtml(fb.data), "live");
-    } else if (fb.mode === "offline" && autoCfg.showOffline) {
-        setLiveStatusUI(buildOfflineHtml(), "offline");
-    } else if (fb.mode === "yt" && fb.yt && autoCfg.showYoutube) {
-        setLiveStatusUI(buildYtHtml(fb.yt), "yt");
-    } else if (fb.mode === "off") {
-        setLiveStatusUI("", null);
-    }
-}
-
-function pushTwitchLiveCache(payload) {
-    const now = Date.now();
-    if (now - lastTwitchPushTs < 20000) return; // max. alle 20s schreiben
-    lastTwitchPushTs = now;
-    const body = {
-        mode: payload.mode || "offline",
-        ts: now,
-        user: twitchUser(),
-        data: payload.data || null,
-        yt: payload.yt || null
-    };
-    set(twitchLiveRef, body).catch(() => {});
-    twitchLiveCache = body;
-}
-
-onValue(twitchLiveRef, (snap) => {
-    if (!snap.exists()) return;
-    const v = snap.val();
-    if (!v || typeof v !== "object") return;
-    twitchLiveCache = {
-        mode: v.mode || "offline",
-        ts: v.ts || 0,
-        user: v.user || null,
-        data: v.data || null,
-        yt: v.yt || null
-    };
-    if (!manualStatusActive && autoCfg.enabled) applyTwitchLivePayload(twitchLiveCache);
-});
-
-// Sofort Cache, dann gedrosselt prüfen – kein API-Sturm
+// Sofort anzeigen (Cache/Offline), dann direkt prüfen – kein 20s-Warten
 showStatusImmediately();
 runAutoStatusCheck();
-if (autoCheckTimer) clearInterval(autoCheckTimer);
-autoCheckTimer = setInterval(() => runAutoStatusCheck(), TWITCH_POLL_MS);
+autoCheckTimer = setInterval(() => runAutoStatusCheck(), 90000);
 document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") {
-        // nur wenn Cache alt
-        const age = twitchLiveCache && twitchLiveCache.ts ? (Date.now() - twitchLiveCache.ts) : Infinity;
-        if (age > TWITCH_LIVE_TTL_MS) runAutoStatusCheck();
-    }
+    if (document.visibilityState === "visible") runAutoStatusCheck();
 });
 
 /* ── Confetti: diagonal from left & right (not from top) ── */
@@ -3706,47 +3587,30 @@ function renderProjects(stats) {
 function renderAdminProjectList() {
     const box = document.getElementById("admin-proj-list");
     if (!box) return;
-    const openId = box.querySelector(".admin-proj-item.open")?.dataset?.id || null;
     box.innerHTML = "";
     const sorted = [...PROJECTS].sort((a, b) => (a.order - b.order) || a.label.localeCompare(b.label));
     sorted.forEach((p) => {
         const item = document.createElement("div");
-        item.className = "admin-proj-item" + (openId === p.id ? " open" : "");
+        item.className = "admin-proj-item";
         item.dataset.id = p.id;
-        const iconOpts = PROJECT_ICONS.map(ic =>
-            `<option value="${ic}" ${ic === p.icon ? "selected" : ""}>${ic.replace("icon-", "")}</option>`
-        ).join("");
-        const chips = [
-            p.neu ? '<span class="sum-chip neu">NEU</span>' : "",
-            p.pinned ? '<span class="sum-chip pin">PIN</span>' : "",
-            p.special === "rainbow" ? '<span class="sum-chip">RGB</span>' : ""
-        ].join("");
+        const iconOpts = PROJECT_ICONS.map(ic => `<option value="${ic}" ${ic === p.icon ? "selected" : ""}>${ic.replace("icon-", "")}</option>`).join("");
         item.innerHTML = `
-            <div class="api-summary" data-act="toggle">
-                <span class="sum-label">${String(p.label).replace(/</g, "&lt;")}</span>
-                <span class="sum-chips">${chips}</span>
-                <span class="api-order">
-                    <button type="button" data-act="up" title="Hoch">↑</button>
-                    <button type="button" data-act="down" title="Runter">↓</button>
-                </span>
+            <div style="font-size:10px;color:var(--text-faint);margin-bottom:4px;">ID: ${p.id}</div>
+            <div class="api-row">
+                <input type="text" data-f="label" value="${String(p.label).replace(/"/g, "&quot;")}" maxlength="40" placeholder="Label">
+                <input type="text" data-f="href" value="${String(p.href).replace(/"/g, "&quot;")}" maxlength="300" placeholder="URL">
             </div>
-            <div class="api-detail">
-                <div class="api-row">
-                    <input type="text" data-f="label" value="${String(p.label).replace(/"/g, "&quot;")}" maxlength="40" placeholder="Name">
-                    <input type="text" data-f="href" value="${String(p.href).replace(/"/g, "&quot;")}" maxlength="300" placeholder="Link">
-                </div>
-                <div class="api-row">
-                    <select data-f="icon">${iconOpts}</select>
-                </div>
-                <div class="api-flags">
-                    <label><input type="checkbox" data-f="neu" ${p.neu ? "checked" : ""}> NEU</label>
-                    <label><input type="checkbox" data-f="pinned" ${p.pinned ? "checked" : ""}> Pin</label>
-                    <label><input type="checkbox" data-f="rainbow" ${p.special === "rainbow" ? "checked" : ""}> Rainbow</label>
-                </div>
-                <div class="api-actions">
-                    <button type="button" class="save" data-act="save">Speichern</button>
-                    <button type="button" class="del" data-act="del">Löschen</button>
-                </div>
+            <div class="api-row">
+                <select data-f="icon">${iconOpts}</select>
+            </div>
+            <div class="api-flags">
+                <label><input type="checkbox" data-f="neu" ${p.neu ? "checked" : ""}> NEU</label>
+                <label><input type="checkbox" data-f="pinned" ${p.pinned ? "checked" : ""}> Pin</label>
+                <label><input type="checkbox" data-f="rainbow" ${p.special === "rainbow" ? "checked" : ""}> Rainbow</label>
+            </div>
+            <div class="api-actions">
+                <button type="button" class="save" data-act="save">Speichern</button>
+                <button type="button" class="del" data-act="del">Löschen</button>
             </div>`;
         box.appendChild(item);
     });
@@ -3780,44 +3644,18 @@ renderProjects({});
 
 // Admin project actions (event delegation)
 document.getElementById("admin-proj-list")?.addEventListener("click", async (e) => {
-    // Zeile aufklappen
-    const sum = e.target.closest("[data-act='toggle']");
-    if (sum && !e.target.closest("button")) {
-        const item = sum.closest(".admin-proj-item");
-        if (!item) return;
-        const was = item.classList.contains("open");
-        document.querySelectorAll(".admin-proj-item.open").forEach(el => el.classList.remove("open"));
-        if (!was) item.classList.add("open");
-        return;
-    }
     const btn = e.target.closest("button[data-act]");
     if (!btn) return;
     const item = btn.closest(".admin-proj-item");
     if (!item) return;
     const id = item.dataset.id;
-    const act = btn.dataset.act;
-    if (act === "up" || act === "down") {
-        e.stopPropagation();
-        const sorted = [...PROJECTS].sort((a, b) => (a.order - b.order) || a.label.localeCompare(b.label));
-        const i = sorted.findIndex(p => p.id === id);
-        if (i < 0) return;
-        const j = act === "up" ? i - 1 : i + 1;
-        if (j < 0 || j >= sorted.length) return;
-        const t = sorted[i];
-        sorted[i] = sorted[j];
-        sorted[j] = t;
-        sorted.forEach((p, idx) => { p.order = idx; });
-        await persistProjects(sorted);
-        return;
-    }
-    if (act === "del") {
-        if (!confirm("Projekt „" + id + "“ wirklich löschen?")) return;
+    if (btn.dataset.act === "del") {
+        if (!confirm(`Projekt „${id}“ wirklich löschen?`)) return;
         const next = PROJECTS.filter(p => p.id !== id);
-        next.forEach((p, i) => { p.order = i; });
         await persistProjects(next);
         return;
     }
-    if (act === "save") {
+    if (btn.dataset.act === "save") {
         const label = item.querySelector('[data-f="label"]')?.value.trim();
         const href = item.querySelector('[data-f="href"]')?.value.trim();
         const icon = item.querySelector('[data-f="icon"]')?.value;
@@ -3838,15 +3676,16 @@ document.getElementById("admin-proj-list")?.addEventListener("click", async (e) 
 document.getElementById("admin-proj-add")?.addEventListener("click", async () => {
     const label = document.getElementById("admin-new-label")?.value.trim();
     const href = document.getElementById("admin-new-href")?.value.trim();
-    let id = slugifyId(label);
-    if (PROJECTS.some(p => p.id === id)) id = id + Date.now().toString(36).slice(-3);
+    let id = document.getElementById("admin-new-id")?.value.trim() || slugifyId(label);
+    id = slugifyId(id);
     const icon = document.getElementById("admin-new-icon")?.value || "icon-probuilder";
-    if (!label || !href) return alert("Name und Link reichen – beide Pflicht.");
-    const maxOrder = PROJECTS.reduce((m, p) => Math.max(m, p.order || 0), -1);
-    const next = [...PROJECTS, { id, label, href, icon, special: null, neu: true, pinned: false, order: maxOrder + 1 }];
+    if (!label || !href) return alert("Name und Link sind Pflicht.");
+    if (PROJECTS.some(p => p.id === id)) return alert("ID existiert schon – andere ID wählen.");
+    const next = [...PROJECTS, { id, label, href, icon, special: null, neu: true, pinned: false, order: PROJECTS.length }];
     await persistProjects(next);
-    if (document.getElementById("admin-new-label")) document.getElementById("admin-new-label").value = "";
-    if (document.getElementById("admin-new-href")) document.getElementById("admin-new-href").value = "";
+    document.getElementById("admin-new-label").value = "";
+    document.getElementById("admin-new-href").value = "";
+    document.getElementById("admin-new-id").value = "";
 });
 
 document.getElementById("admin-proj-seed")?.addEventListener("click", async () => {
@@ -3860,94 +3699,6 @@ document.getElementById("admin-proj-seed")?.addEventListener("click", async () =
     if (!sel) return;
     sel.innerHTML = PROJECT_ICONS.map(ic => `<option value="${ic}">${ic.replace("icon-", "")}</option>`).join("");
 })();
-
-
-/* ═══════════════ DISCORD ROLLEN (Admin-Map) ═══════════════ */
-const discordRolesRef = ref(db, "live_features/discord_roles");
-/** @type {Record<string, { label: string, color: string }>} */
-let discordRolesMap = {};
-
-function roleKey(name) {
-    return String(name || "").toLowerCase().trim();
-}
-
-function getMemberRole(m) {
-    const keys = [
-        roleKey(m.username),
-        roleKey(m.nick),
-        roleKey(m.name),
-        m.id ? String(m.id) : null
-    ].filter(Boolean);
-    for (const k of keys) {
-        if (discordRolesMap[k]) return discordRolesMap[k];
-    }
-    return null;
-}
-
-function renderAdminRoleList() {
-    const box = document.getElementById("admin-role-list");
-    if (!box) return;
-    const entries = Object.entries(discordRolesMap).sort((a, b) => a[0].localeCompare(b[0]));
-    if (!entries.length) {
-        box.innerHTML = '<p class="admin-hint" style="margin:0">Noch keine Rollen – z.B. Username „professorfilou“ → Owner</p>';
-        return;
-    }
-    box.innerHTML = entries.map(([user, r]) => `
-        <div class="admin-role-item" data-user="${user.replace(/"/g, "")}">
-            <span style="font-size:12px;font-weight:600;min-width:90px">${user.replace(/</g, "&lt;")}</span>
-            <span class="ds-role-tag" style="background:${r.color}22;border-color:${r.color}66;color:${r.color}">${String(r.label || "").replace(/</g, "&lt;")}</span>
-            <button type="button" class="del" data-act="role-del">Entfernen</button>
-        </div>
-    `).join("");
-}
-
-onValue(discordRolesRef, (snap) => {
-    const v = snap.exists() && typeof snap.val() === "object" ? snap.val() : {};
-    discordRolesMap = {};
-    Object.keys(v).forEach(k => {
-        const row = v[k];
-        if (!row || typeof row !== "object") return;
-        const label = String(row.label || "").trim().slice(0, 20);
-        const color = String(row.color || "#5865f2").slice(0, 20);
-        if (!label) return;
-        discordRolesMap[roleKey(k)] = { label, color };
-    });
-    renderAdminRoleList();
-    // Liste neu zeichnen falls Panel offen
-    if (typeof lastWidgetData !== "undefined" && lastWidgetData?.members && typeof renderDiscordBadge === "function" && lastDiscordInfo) {
-        const panel = document.getElementById("ds-panel");
-        if (panel && discordPanelOpen) {
-            panel.innerHTML = renderMemberListHtml(lastWidgetData.members);
-        }
-    }
-});
-
-document.getElementById("admin-role-add")?.addEventListener("click", () => {
-    const user = roleKey(document.getElementById("admin-role-user")?.value);
-    const label = (document.getElementById("admin-role-label")?.value || "").trim().slice(0, 20);
-    const color = document.getElementById("admin-role-color")?.value || "#5865f2";
-    if (!user || !label) return alert("Username und Rollenname nötig.");
-    const next = { ...discordRolesMap, [user]: { label, color } };
-    // store as object
-    const toSave = {};
-    Object.entries(next).forEach(([k, r]) => { toSave[k] = { label: r.label, color: r.color }; });
-    set(discordRolesRef, toSave);
-    if (document.getElementById("admin-role-user")) document.getElementById("admin-role-user").value = "";
-    if (document.getElementById("admin-role-label")) document.getElementById("admin-role-label").value = "";
-});
-
-document.getElementById("admin-role-list")?.addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-act='role-del']");
-    if (!btn) return;
-    const row = btn.closest(".admin-role-item");
-    const user = row?.dataset?.user;
-    if (!user) return;
-    const next = { ...discordRolesMap };
-    delete next[user];
-    const toSave = {};
-    Object.entries(next).forEach(([k, r]) => { toSave[k] = { label: r.label, color: r.color }; });
-    set(discordRolesRef, toSave);
-});
 
 /* ═══════════════ DISCORD ONLINE BADGE ═══════════════ */
 const discordCfgRef = ref(db, "live_features/discord");
@@ -4198,48 +3949,37 @@ function filterHumanMembers(list) {
 /** Logo-URL für bekannte Spiele/Apps – sonst null (SVG-Fallback) */
 function gameLogoUrl(name) {
     const n = String(name || "").toLowerCase().trim();
-    // Echte Favicons der Seiten (korrektes Minecraft-/Roblox-Logo etc.)
-    const fav = (domain) =>
-        "https://www.google.com/s2/favicons?domain=" + encodeURIComponent(domain) + "&sz=64";
-    // simple-icons Fallback (jsDelivr) für Marken ohne gutes Favicon
-    const si = (slug) =>
-        "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/" + slug + ".svg";
     const map = [
-        [/modrinth/, fav("modrinth.com")],
-        [/minecraft|hypixel|lunar client|badlion|fabric|forge|quilt|prism launcher|curseforge/, fav("minecraft.net")],
-        [/roblox|bloxstrap/, fav("roblox.com")],
-        [/fortnite|epic games launcher/, fav("fortnite.com")],
-        [/valorant/, fav("playvalorant.com")],
-        [/counter-strike|\bcs2\b|cs:go|\bcsgo\b/, fav("counter-strike.net")],
-        [/league of legends|\blol\b|riot client/, fav("leagueoflegends.com")],
-        [/dota/, fav("dota2.com")],
-        [/overwatch/, fav("overwatch.blizzard.com")],
-        [/apex legends|\bapex\b/, fav("ea.com")],
-        [/call of duty|warzone|\bcod\b/, fav("callofduty.com")],
-        [/rocket league/, fav("rocketleague.com")],
-        [/gta|grand theft auto|rockstar/, fav("rockstargames.com")],
-        [/\brust\b/, fav("rust.facepunch.com")],
-        [/terraria/, fav("terraria.org")],
-        [/stardew/, fav("stardewvalley.net")],
-        [/among us/, fav("innersloth.com")],
-        [/spotify/, fav("spotify.com")],
-        [/youtube music/, fav("music.youtube.com")],
-        [/youtube/, fav("youtube.com")],
-        [/discord/, fav("discord.com")],
-        [/visual studio code|vs code|\bvscode\b/, fav("code.visualstudio.com")],
-        [/visual studio/, fav("visualstudio.microsoft.com")],
-        [/intellij|jetbrains/, fav("jetbrains.com")],
-        [/github/, fav("github.com")],
-        [/chrome/, fav("google.com")],
-        [/firefox/, fav("mozilla.org")],
-        [/steam|steamos/, fav("store.steampowered.com")],
-        [/epic games|epicgames/, fav("epicgames.com")],
-        [/twitch/, fav("twitch.tv")],
-        [/ea fc|\bfifa\b/, fav("ea.com")],
-        [/osu!|\bosu\b/, fav("osu.ppy.sh")],
-        [/genshin|honkai|zenless/, fav("hoyoverse.com")],
-        [/notepad\+\+|notepad/, si("notepadplusplus")],
-        [/prism launcher/, fav("prismlauncher.org")]
+        [/modrinth/, "https://cdn.simpleicons.org/modrinth/00AF5C"],
+        [/minecraft|hypixel|lunar client|badlion|fabric|forge|quilt/, "https://cdn.simpleicons.org/minecraft/62B47A"],
+        [/roblox/, "https://cdn.simpleicons.org/roblox/FFFFFF"],
+        [/fortnite/, "https://cdn.simpleicons.org/fortnite/FFFFFF"],
+        [/valorant/, "https://cdn.simpleicons.org/valorant/FF4655"],
+        [/counter-strike|\bcs2\b|cs:go|csgo/, "https://cdn.simpleicons.org/counterstrike/FFFFFF"],
+        [/league of legends|\blol\b/, "https://cdn.simpleicons.org/leagueoflegends/C89B3C"],
+        [/dota/, "https://cdn.simpleicons.org/dota2/BF2E1A"],
+        [/overwatch/, "https://cdn.simpleicons.org/overwatch/FA9C1E"],
+        [/apex legends|\bapex\b/, "https://cdn.simpleicons.org/apexlegends/DA292A"],
+        [/call of duty|warzone|\bcod\b/, "https://cdn.simpleicons.org/callofduty/FFFFFF"],
+        [/rocket league/, "https://cdn.simpleicons.org/rocketleague/FFFFFF"],
+        [/gta|grand theft auto/, "https://cdn.simpleicons.org/grandtheftauto/FFFFFF"],
+        [/rust\b/, "https://cdn.simpleicons.org/rust/000000"],
+        [/terraria/, "https://cdn.simpleicons.org/terraria/1A6A2F"],
+        [/stardew/, "https://cdn.simpleicons.org/stardewvalley/FFFFFF"],
+        [/among us/, "https://cdn.simpleicons.org/amongus/FFFFFF"],
+        [/spotify/, "https://cdn.simpleicons.org/spotify/1DB954"],
+        [/youtube/, "https://cdn.simpleicons.org/youtube/FF0000"],
+        [/discord/, "https://cdn.simpleicons.org/discord/5865F2"],
+        [/visual studio code|vs code|vscode/, "https://cdn.simpleicons.org/visualstudiocode/007ACC"],
+        [/visual studio/, "https://cdn.simpleicons.org/visualstudio/5C2D91"],
+        [/intellij|jetbrains/, "https://cdn.simpleicons.org/intellijidea/000000"],
+        [/github/, "https://cdn.simpleicons.org/github/FFFFFF"],
+        [/chrome/, "https://cdn.simpleicons.org/googlechrome/4285F4"],
+        [/firefox/, "https://cdn.simpleicons.org/firefox/FF7139"],
+        [/steam/, "https://cdn.simpleicons.org/steam/FFFFFF"],
+        [/epic games|epicgames/, "https://cdn.simpleicons.org/epicgames/FFFFFF"],
+        [/twitch/, "https://cdn.simpleicons.org/twitch/9146FF"],
+        [/ea fc|fifa/, "https://cdn.simpleicons.org/ea/000000"]
     ];
     for (const [re, url] of map) {
         if (re.test(n)) return url;
@@ -4288,14 +4028,10 @@ function renderMemberRow(m, isBot) {
            <span class="ds-avatar-fallback" style="display:none">${escapeHtml(initial)}</span>`
         : `<span class="ds-avatar-fallback">${escapeHtml(initial)}</span>`;
     const botTag = isBot ? `<span class="ds-bot-tag">Bot</span>` : "";
-    const role = !isBot ? getMemberRole(m) : null;
-    const roleTag = role
-        ? `<span class="ds-role-tag" style="background:${escapeHtml(role.color)}22;border-color:${escapeHtml(role.color)}66;color:${escapeHtml(role.color)}" title="Server-Rolle">${escapeHtml(role.label)}</span>`
-        : "";
     return `<div class="ds-member${isBot ? " is-bot" : ""}" style="${style}">
         ${avHtml}
         <span class="ds-member-name">${name}</span>
-        ${roleTag}${botTag}
+        ${botTag}
         <span class="ds-status ${statusClass(m.status)}" title="${escapeHtml(m.status || "online")}"></span>
     </div>`;
 }
