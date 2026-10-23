@@ -20,28 +20,73 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://*.firebasedatabase.app wss://*.firebasedatabase.app https://*.googleapis.com https://decapi.me https://api.allorigins.win https://corsproxy.io https://corsproxy.org https://discord.com https://formspree.io; object-src 'none'; base-uri 'self'; form-action https://formspree.io; frame-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <script>
-/* ═══ SICHERHEIT: Frame-Schutz + DevTools-Abschreckung ═══
-   Hinweis: Clientseitig ist das nur eine Hürde, kein echter Schutz. Echte Sicherheit = Firebase Rules/Auth. */
+/* ═══ SICHERHEIT: Frame-Schutz + steuerbarer Guard (Admin-Panel) ═══ */
 (function () {
-    var DEVTOOLS_GUARD = true;   // auf false setzen, um die DevTools-Sperre abzuschalten
     try { if (window.top !== window.self) { document.documentElement.style.display = "none"; window.top.location = window.self.location; } }
     catch (e) { document.documentElement.style.display = "none"; }
-    if (!DEVTOOLS_GUARD) return;
-    document.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+    var G = window.PF_GUARD = {
+        enabled: true, ctx: true, keys: true, detect: true, toast: true, select: false,
+        message: "Netter Versuch! 😉 Hier gibt's nichts zu sehen."
+    };
+    window.PF_ADMIN = false;
+    try { var c = JSON.parse(localStorage.getItem("pf_guard_cfg") || "null"); if (c) Object.assign(G, c); } catch (e) {}
+    var toastEl = null, toastT = null, lastWarn = 0;
+    window.pfGuardWarn = function () {
+        if (!G.enabled || !G.toast || window.PF_ADMIN) return;
+        var now = Date.now(); if (now - lastWarn < 1500) return; lastWarn = now;
+        if (!toastEl) {
+            toastEl = document.createElement("div");
+            toastEl.id = "guard-toast";
+            (document.body || document.documentElement).appendChild(toastEl);
+        }
+        toastEl.textContent = G.message || "";
+        toastEl.classList.add("show");
+        clearTimeout(toastT);
+        toastT = setTimeout(function () { toastEl.classList.remove("show"); }, 3500);
+    };
+    window.pfGuardConsole = function () {
+        try {
+            console.clear();
+            console.log("%cStopp!", "color:#ff5566;font-size:42px;font-weight:700");
+            console.log("%c" + (G.message || ""), "font-size:15px");
+        } catch (e) {}
+    };
+    window.pfGuardApplySelect = function () {
+        if (document.body) document.body.classList.toggle("guard-noselect", !!(G.enabled && G.select));
+    };
+    function isField(t) { return t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName); }
+    /* 1) Rechtsklick */
+    document.addEventListener("contextmenu", function (e) {
+        if (!G.enabled || !G.ctx || window.PF_ADMIN || isField(e.target)) return;
+        e.preventDefault(); window.pfGuardWarn();
+    });
+    /* 2) Tastenkürzel */
     document.addEventListener("keydown", function (e) {
-        var k = (e.key || "").toLowerCase();
-        var ctrl = e.ctrlKey || e.metaKey;
+        if (!G.enabled || !G.keys || window.PF_ADMIN) return;
+        var k = (e.key || "").toLowerCase(), ctrl = e.ctrlKey || e.metaKey;
         if (e.key === "F12" ||
             (ctrl && e.shiftKey && (k === "i" || k === "j" || k === "c" || k === "k")) ||
             (ctrl && (k === "u" || k === "s")) ||
             (e.metaKey && e.altKey && (k === "i" || k === "j" || k === "u" || k === "c"))) {
-            e.preventDefault(); e.stopPropagation(); return false;
+            e.preventDefault(); e.stopPropagation(); window.pfGuardWarn(); return false;
         }
     }, true);
-    try {
-        console.log("%cStopp!", "color:#ff5566;font-size:42px;font-weight:700");
-        console.log("%cHier nichts einfügen, was dir jemand gegeben hat. Damit lässt sich dein Konto/diese Seite manipulieren.", "font-size:15px");
-    } catch (e) {}
+    /* 5) Kopieren / Ausschneiden / Ziehen */
+    ["copy", "cut", "dragstart"].forEach(function (ev) {
+        document.addEventListener(ev, function (e) {
+            if (!G.enabled || !G.select || window.PF_ADMIN || isField(e.target)) return;
+            e.preventDefault(); window.pfGuardWarn();
+        });
+    });
+    /* 3) DevTools-Erkennung */
+    var wasOpen = false;
+    setInterval(function () {
+        if (!G.enabled || !G.detect || window.PF_ADMIN) { wasOpen = false; return; }
+        var open = (window.outerWidth - window.innerWidth > 170) || (window.outerHeight - window.innerHeight > 170);
+        if (open) { window.pfGuardWarn(); if (!wasOpen) window.pfGuardConsole(); }
+        wasOpen = open;
+    }, 1000);
+    document.addEventListener("DOMContentLoaded", function () { window.pfGuardApplySelect(); window.pfGuardConsole(); });
 })();
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1572,6 +1617,24 @@ body.countdown-mode .party-band-cake{ filter:drop-shadow(0 4px 12px rgba(0,255,2
 @media (prefers-reduced-motion: reduce){
     .orb, h1, .top-glow::before, .top-glow::after, .floating-cake, .party-band-inner::before, .party-band-cake, .party-spark{ animation:none !important; }
 }
+
+/* ═══ GUARD TOAST ═══ */
+#guard-toast{
+    position:fixed; z-index:130000; left:50%; top:22px;
+    transform:translateX(-50%) translateY(-14px) scale(0.95);
+    max-width:min(420px, 92vw);
+    padding:13px 20px; border-radius:16px; text-align:center;
+    font-size:14px; font-weight:600; line-height:1.4; color:#ff8a99;
+    background:linear-gradient(160deg, rgba(28,10,16,0.96), rgba(14,8,14,0.96));
+    border:1px solid rgba(255,85,102,0.45);
+    box-shadow:0 14px 40px rgba(0,0,0,0.5), 0 0 28px rgba(255,85,102,0.2);
+    backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    opacity:0; pointer-events:none;
+    transition:opacity 0.3s ease, transform 0.3s cubic-bezier(0.25,1,0.5,1);
+}
+#guard-toast.show{ opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
+body.guard-noselect{ -webkit-user-select:none; user-select:none; }
+body.guard-noselect input, body.guard-noselect textarea{ -webkit-user-select:text; user-select:text; }
 </style>
 </head>
 <body>
@@ -1741,6 +1804,18 @@ body.countdown-mode .party-band-cake{ filter:drop-shadow(0 4px 12px rgba(0,255,2
                     <button id="admin-discord-save" class="admin-btn soft">Speichern</button>
                 </div>
                 <p class="admin-hint" id="admin-discord-hint">Unter 20: Auto-Zahlen sind i. d. R. exakt. Optional manuell setzen. Für Online-Widget: Discord → Server-Einstellungen → Widget aktivieren.</p>
+            </div>
+            <div class="admin-section">
+                <div class="admin-section-title">Schutz / DevTools-Nachricht</div>
+                <button id="toggle-guard" class="admin-btn soft">Guard: AN</button>
+                <input type="text" id="admin-guard-msg" class="admin-input" placeholder="Deine Nachricht an Neugierige" maxlength="120">
+                <button id="admin-guard-msg-save" class="admin-btn soft">Nachricht speichern</button>
+                <button id="toggle-guard-ctx" class="admin-btn soft">1 · Rechtsklick sperren: AN</button>
+                <button id="toggle-guard-keys" class="admin-btn soft">2 · Tastenkürzel sperren: AN</button>
+                <button id="toggle-guard-detect" class="admin-btn soft">3 · DevTools erkennen: AN</button>
+                <button id="toggle-guard-toast" class="admin-btn soft">4 · Nachricht anzeigen: AN</button>
+                <button id="toggle-guard-select" class="admin-btn soft">5 · Kopieren/Auswählen sperren: AUS</button>
+                <p class="admin-hint" id="admin-guard-hint">Nur eine Hürde, kein echter Schutz. Echte Sicherheit = Firebase Rules.</p>
             </div>
             <div class="admin-section">
                 <div class="admin-section-title">Aktionen</div>
@@ -2217,12 +2292,14 @@ document.addEventListener("visibilitychange", () => {
 
 function openAdminPanel() {
     adminUnlocked = true;
+    window.PF_ADMIN = true;
     adminOverlay.classList.add("open");
     bumpAdminIdle();
 }
 
 function closeAdminPanel() {
     adminUnlocked = false;
+    window.PF_ADMIN = false;
     clearTimeout(adminIdleTimer);
     adminOverlay.classList.remove("open");
 }
@@ -2406,6 +2483,61 @@ document.getElementById("admin-status-clear").addEventListener("click", () => {
     set(statusRef, null); adminStatusInput.value = "";
 });
 adminStatusInput.addEventListener("keypress", (e) => { if (e.key === "Enter") document.getElementById("admin-status-save").click(); });
+
+/* ═══════════════ GUARD (DevTools-Schutz, live steuerbar) ═══════════════ */
+const guardRef = ref(db, "live_features/guard");
+const GUARD_DEFAULT = {
+    enabled: true, ctx: true, keys: true, detect: true, toast: true, select: false,
+    message: "Netter Versuch! 😉 Hier gibt's nichts zu sehen."
+};
+const GUARD_BTNS = [
+    ["toggle-guard",        "enabled", "Guard"],
+    ["toggle-guard-ctx",    "ctx",     "1 · Rechtsklick sperren"],
+    ["toggle-guard-keys",   "keys",    "2 · Tastenkürzel sperren"],
+    ["toggle-guard-detect", "detect",  "3 · DevTools erkennen"],
+    ["toggle-guard-toast",  "toast",   "4 · Nachricht anzeigen"],
+    ["toggle-guard-select", "select",  "5 · Kopieren/Auswählen sperren"]
+];
+function updateGuardAdminUI() {
+    const G = window.PF_GUARD;
+    GUARD_BTNS.forEach(([id, key, label]) => {
+        const b = document.getElementById(id);
+        if (!b) return;
+        b.textContent = label + ": " + (G[key] ? "AN" : "AUS");
+        b.className = G[key] ? "admin-btn soft active" : "admin-btn soft";
+    });
+    const inp = document.getElementById("admin-guard-msg");
+    if (inp && document.activeElement !== inp) inp.value = G.message || "";
+}
+onValue(guardRef, (snap) => {
+    const v = snap.exists() && typeof snap.val() === "object" ? snap.val() : {};
+    const next = {
+        enabled: v.enabled !== false,
+        ctx: v.ctx !== false,
+        keys: v.keys !== false,
+        detect: v.detect !== false,
+        toast: v.toast !== false,
+        select: v.select === true,
+        message: (v.message && String(v.message).slice(0, 120)) || GUARD_DEFAULT.message
+    };
+    Object.assign(window.PF_GUARD, next);
+    try { localStorage.setItem("pf_guard_cfg", JSON.stringify(next)); } catch (_) {}
+    window.pfGuardApplySelect();
+    updateGuardAdminUI();
+});
+function saveGuardPatch(patch) {
+    if (!adminUnlocked) return;
+    set(guardRef, { ...window.PF_GUARD, ...patch });
+}
+GUARD_BTNS.forEach(([id, key]) => {
+    document.getElementById(id)?.addEventListener("click", () => saveGuardPatch({ [key]: !window.PF_GUARD[key] }));
+});
+document.getElementById("admin-guard-msg-save")?.addEventListener("click", () => {
+    const m = document.getElementById("admin-guard-msg").value.trim().slice(0, 120);
+    saveGuardPatch({ message: m || GUARD_DEFAULT.message });
+    const hint = document.getElementById("admin-guard-hint");
+    if (hint) { const p = hint.textContent; hint.textContent = "Gespeichert ✓"; setTimeout(() => { hint.textContent = p; }, 1500); }
+});
 
 /* ═══════════════ AUTO STATUS BOT (Twitch Live + neues YouTube) ═══════════════ */
 const autoStatusCfgRef = ref(db, "live_features/auto_status");
