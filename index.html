@@ -38,27 +38,9 @@
             e.preventDefault(); e.stopPropagation(); return false;
         }
     }, true);
-    var coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
-    var shield = null;
-    function showShield(on) {
-        if (!shield) {
-            shield = document.createElement("div");
-            shield.style.cssText = "position:fixed;inset:0;z-index:2147483647;background:#04050a;color:#ff5566;display:none;align-items:center;justify-content:center;font:600 18px/1.5 system-ui,sans-serif;text-align:center;padding:24px";
-            shield.textContent = "Entwicklertools erkannt. Bitte schließen und die Seite neu laden.";
-            document.documentElement.appendChild(shield);
-        }
-        shield.style.display = on ? "flex" : "none";
-    }
-    function check() {
-        if (coarse) return;
-        var open = (window.outerWidth - window.innerWidth > 200) || (window.outerHeight - window.innerHeight > 200);
-        showShield(open);
-    }
-    setInterval(check, 800);
-    window.addEventListener("resize", check);
     try {
         console.log("%cStopp!", "color:#ff5566;font-size:42px;font-weight:700");
-        console.log("%cWas soll das den werden...?", "font-size:15px");
+        console.log("%cHier nichts einfügen, was dir jemand gegeben hat. Damit lässt sich dein Konto/diese Seite manipulieren.", "font-size:15px");
     } catch (e) {}
 })();
 </script>
