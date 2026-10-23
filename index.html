@@ -17,6 +17,51 @@
 <link rel="icon" type="image/jpeg" href="ProfessorFilouLOGO.jpg?v=2">
 <link rel="shortcut icon" type="image/jpeg" href="ProfessorFilouLOGO.jpg?v=2">
 <link rel="apple-touch-icon" href="ProfessorFilouLOGO.jpg?v=2">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://*.firebasedatabase.app wss://*.firebasedatabase.app https://*.googleapis.com https://decapi.me https://api.allorigins.win https://corsproxy.io https://corsproxy.org https://discord.com https://formspree.io; object-src 'none'; base-uri 'self'; form-action https://formspree.io; frame-src 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<script>
+/* ═══ SICHERHEIT: Frame-Schutz + DevTools-Abschreckung ═══
+   Hinweis: Clientseitig ist das nur eine Hürde, kein echter Schutz. Echte Sicherheit = Firebase Rules/Auth. */
+(function () {
+    var DEVTOOLS_GUARD = true;   // auf false setzen, um die DevTools-Sperre abzuschalten
+    try { if (window.top !== window.self) { document.documentElement.style.display = "none"; window.top.location = window.self.location; } }
+    catch (e) { document.documentElement.style.display = "none"; }
+    if (!DEVTOOLS_GUARD) return;
+    document.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+    document.addEventListener("keydown", function (e) {
+        var k = (e.key || "").toLowerCase();
+        var ctrl = e.ctrlKey || e.metaKey;
+        if (e.key === "F12" ||
+            (ctrl && e.shiftKey && (k === "i" || k === "j" || k === "c" || k === "k")) ||
+            (ctrl && (k === "u" || k === "s")) ||
+            (e.metaKey && e.altKey && (k === "i" || k === "j" || k === "u" || k === "c"))) {
+            e.preventDefault(); e.stopPropagation(); return false;
+        }
+    }, true);
+    var coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+    var shield = null;
+    function showShield(on) {
+        if (!shield) {
+            shield = document.createElement("div");
+            shield.style.cssText = "position:fixed;inset:0;z-index:2147483647;background:#04050a;color:#ff5566;display:none;align-items:center;justify-content:center;font:600 18px/1.5 system-ui,sans-serif;text-align:center;padding:24px";
+            shield.textContent = "Entwicklertools erkannt. Bitte schließen und die Seite neu laden.";
+            document.documentElement.appendChild(shield);
+        }
+        shield.style.display = on ? "flex" : "none";
+    }
+    function check() {
+        if (coarse) return;
+        var open = (window.outerWidth - window.innerWidth > 200) || (window.outerHeight - window.innerHeight > 200);
+        showShield(open);
+    }
+    setInterval(check, 800);
+    window.addEventListener("resize", check);
+    try {
+        console.log("%cStopp!", "color:#ff5566;font-size:42px;font-weight:700");
+        console.log("%cHier nichts einfügen, was dir jemand gegeben hat. Damit lässt sich dein Konto/diese Seite manipulieren.", "font-size:15px");
+    } catch (e) {}
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -2116,19 +2161,87 @@ let authBusy = false;
 /** Fester Site-Salt (kein Geheimnis) – verhindert gleiche Hashes über Sites hinweg */
 const PW_SALT = "ProfessorFilou.de|admin-v1|2026";
 
-async function hashPassword(plain) {
-    const data = new TextEncoder().encode(PW_SALT + "\0" + String(plain));
-    const buf = await crypto.subtle.digest("SHA-256", data);
+const PW_MIN_LEN = 12;
+const PBKDF2_ITER = 250000;
+
+function bufToHex(buf) {
     return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
 }
+
+/** Altes Format (nur noch zum Einloggen mit bestehendem Hash) */
+async function hashPasswordLegacy(plain) {
+    const data = new TextEncoder().encode(PW_SALT + "\0" + String(plain));
+    return bufToHex(await crypto.subtle.digest("SHA-256", data));
+}
+
+/** PBKDF2-SHA256, 250.000 Runden – ~64 Hex-Zeichen, Brute Force wird extrem teuer */
+async function hashPassword(plain) {
+    const enc = new TextEncoder();
+    const keyMat = await crypto.subtle.importKey("raw", enc.encode(String(plain)), "PBKDF2", false, ["deriveBits"]);
+    const bits = await crypto.subtle.deriveBits(
+        { name: "PBKDF2", hash: "SHA-256", salt: enc.encode(PW_SALT + "|pbkdf2"), iterations: PBKDF2_ITER },
+        keyMat, 256
+    );
+    return bufToHex(bits);
+}
+
+function constTimeEq(a, b) {
+    a = String(a); b = String(b);
+    let diff = a.length ^ b.length;
+    const n = Math.max(a.length, b.length);
+    for (let i = 0; i < n; i++) diff |= (a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0);
+    return diff === 0;
+}
+
+/* ── Login-Sperre: steigende Wartezeit nach Fehlversuchen (pro Browser) ── */
+const LOGIN_FAIL_KEY = "pf_login_fail_v1";
+function getLoginState() {
+    try {
+        const s = JSON.parse(localStorage.getItem(LOGIN_FAIL_KEY) || "null");
+        if (s && typeof s.n === "number") return s;
+    } catch (_) {}
+    return { n: 0, until: 0 };
+}
+function setLoginState(s) { try { localStorage.setItem(LOGIN_FAIL_KEY, JSON.stringify(s)); } catch (_) {} }
+function loginLockedMs() { return Math.max(0, getLoginState().until - Date.now()); }
+function registerLoginFail() {
+    const s = getLoginState();
+    s.n += 1;
+    if (s.n >= 4) {
+        const wait = Math.min(30 * 60 * 1000, 15000 * Math.pow(2, s.n - 4));
+        s.until = Date.now() + wait;
+    }
+    setLoginState(s);
+}
+function resetLoginFails() { setLoginState({ n: 0, until: 0 }); }
+
+/* ── Auto-Lock: Panel schließt sich nach Inaktivität ── */
+const ADMIN_IDLE_MS = 10 * 60 * 1000;
+let adminIdleTimer = null;
+function bumpAdminIdle() {
+    if (!adminUnlocked) return;
+    clearTimeout(adminIdleTimer);
+    adminIdleTimer = setTimeout(() => closeAdminPanel(), ADMIN_IDLE_MS);
+}
+["click", "keydown", "mousemove", "touchstart"].forEach(ev =>
+    adminOverlay.addEventListener(ev, bumpAdminIdle, { passive: true })
+);
+document.addEventListener("visibilitychange", () => {
+    if (document.hidden && adminUnlocked) {
+        clearTimeout(adminIdleTimer);
+        adminIdleTimer = setTimeout(() => closeAdminPanel(), 2 * 60 * 1000);
+    } else bumpAdminIdle();
+});
 
 function openAdminPanel() {
     adminUnlocked = true;
     adminOverlay.classList.add("open");
+    bumpAdminIdle();
 }
 
 function closeAdminPanel() {
     adminUnlocked = false;
+    clearTimeout(adminIdleTimer);
     adminOverlay.classList.remove("open");
 }
 
@@ -2148,14 +2261,17 @@ async function hasStoredPassword() {
 async function verifyAndUnlock(plain) {
     const input = String(plain || "").trim();
     if (!input) return false;
+    if (loginLockedMs() > 0) return false;
     const inputHash = await hashPassword(input);
 
-    // 1) Neuer Hash-Pfad
+    // 1) Hash-Pfad (PBKDF2; alter SHA-256-Hash wird weiter akzeptiert, damit du nicht ausgesperrt bist)
     try {
         const snap = await get(passwordHashRef);
         if (snap.exists() && typeof snap.val() === "string") {
-            const ok = snap.val() === inputHash;
-            // Timing-unscharf: immer gleiche Arbeit
+            const stored = snap.val();
+            let ok = constTimeEq(stored, inputHash);
+            if (!ok) ok = constTimeEq(stored, await hashPasswordLegacy(input));
+            if (ok) resetLoginFails(); else registerLoginFail();
             return ok;
         }
     } catch (_) {}
@@ -2238,7 +2354,7 @@ setupPwSave.addEventListener("click", async () => {
     if (authBusy) return;
     const newPw = setupPwInput.value.trim();
     if (!newPw) return alert("Bitte Passwort eingeben!");
-    if (newPw.length < 8) return alert("Mindestens 8 Zeichen, bitte.");
+    if (newPw.length < PW_MIN_LEN) return alert("Mindestens " + PW_MIN_LEN + " Zeichen, bitte.");
     authBusy = true;
     try {
         await saveNewPassword(newPw);
@@ -2263,7 +2379,10 @@ authPwConfirm.addEventListener("click", async () => {
             popupAuth.classList.remove("open");
             openAdminPanel();
         } else {
-            alert("Falsches Passwort!");
+            const lockMs = loginLockedMs();
+            alert(lockMs > 0
+                ? "Zu viele Fehlversuche. Bitte " + Math.ceil(lockMs / 1000) + " Sek. warten."
+                : "Falsches Passwort!");
             authPwInput.focus();
         }
     } catch (_) {
@@ -2381,7 +2500,7 @@ function buildLiveHtml(data) {
     const metaBits = [];
     if (viewersHtml) metaBits.push(viewersHtml);
     if (data.game) metaBits.push(escapeHtml(data.game));
-    if (data.uptime) metaBits.push(formatUptimeDe(data.uptime));
+    if (data.uptime) metaBits.push(escapeHtml(formatUptimeDe(data.uptime)));
     const meta = metaBits.length ? `<span class="ls-meta">${metaBits.join(" · ")}</span>` : "";
     return `<span class="ls-dot"></span>${ICON_TWITCH}<span class="ls-body"><span class="ls-label">LIVE auf Twitch</span><span class="ls-title">${title}</span>${meta}</span>`;
 }
@@ -2433,7 +2552,7 @@ onValue(statusRef, (snap) => {
     const txt = snap.exists() ? String(snap.val() || "").trim() : "";
     if (txt) {
         manualStatusActive = true;
-        liveStatusEl.innerHTML = '<span class="ls-dot"></span><span class="ls-body">' + txt.replace(/</g, "&lt;") + "</span>";
+        liveStatusEl.innerHTML = '<span class="ls-dot"></span><span class="ls-body">' + escapeHtml(txt) + "</span>";
         liveStatusEl.classList.add("show");
         liveStatusEl.classList.remove("ls-live", "ls-yt", "ls-offline");
         if (adminStatusInput) adminStatusInput.value = txt;
@@ -2734,14 +2853,14 @@ document.getElementById("admin-change-pw").addEventListener("click", async () =>
     const np = prompt("Neues Admin-Passwort eingeben:");
     if (np === null) return;
     const trimmed = np.trim();
-    if (trimmed.length < 8) return alert("Mindestens 8 Zeichen.");
+    if (trimmed.length < PW_MIN_LEN) return alert("Mindestens " + PW_MIN_LEN + " Zeichen.");
     const confirmPw = prompt("Passwort wiederholen:");
     if (confirmPw !== trimmed) return alert("Passwörter stimmen nicht überein.");
     try {
         await saveNewPassword(trimmed);
         alert("Passwort gespeichert (nur als Hash).");
     } catch (_) {
-        alert("Speichern fehlgeschlagen.");
+        alert("Speichern fehlgeschlagen. Der Hash darf nur einmal geschrieben werden: Lösche in der Firebase Console admin_settings/password_hash und setze das Passwort beim nächsten Login neu.");
     }
 });
 
@@ -3587,7 +3706,7 @@ function updateLastVisitedUI() {
     if (!lastClickedData || !lastClickedData.label || !lastClickedData.ts) {
         lastVisitedEl.classList.remove("show"); lastVisitedEl.innerHTML = ""; return;
     }
-    lastVisitedEl.innerHTML = 'Zuletzt: <b>' + lastClickedData.label + '</b> <span class="lv-time">· ' + formatRelativeTime(lastClickedData.ts) + '</span>';
+    lastVisitedEl.innerHTML = 'Zuletzt: <b>' + escapeHtml(String(lastClickedData.label).slice(0, 40)) + '</b> <span class="lv-time">· ' + formatRelativeTime(lastClickedData.ts) + '</span>';
     lastVisitedEl.classList.add("show");
 }
 onValue(lastClickedRef, (snap) => { lastClickedData = snap.exists() ? snap.val() : null; updateLastVisitedUI(); });
@@ -3600,7 +3719,7 @@ function normalizeProjects(raw) {
     else if (typeof raw === "object") arr = Object.values(raw);
     else return null;
     return arr
-        .filter(p => p && p.id && p.label && p.href)
+        .filter(p => p && p.id && p.label && p.href && /^https?:\/\//i.test(String(p.href)))
         .map((p, i) => ({
             id: String(p.id).slice(0, 40),
             label: String(p.label).slice(0, 40),
@@ -3701,10 +3820,10 @@ function renderAdminProjectList() {
         item.dataset.id = p.id;
         const iconOpts = PROJECT_ICONS.map(ic => `<option value="${ic}" ${ic === p.icon ? "selected" : ""}>${ic.replace("icon-", "")}</option>`).join("");
         item.innerHTML = `
-            <div style="font-size:10px;color:var(--text-faint);margin-bottom:4px;">ID: ${p.id}</div>
+            <div style="font-size:10px;color:var(--text-faint);margin-bottom:4px;">ID: ${escapeHtml(p.id)}</div>
             <div class="api-row">
-                <input type="text" data-f="label" value="${String(p.label).replace(/"/g, "&quot;")}" maxlength="40" placeholder="Label">
-                <input type="text" data-f="href" value="${String(p.href).replace(/"/g, "&quot;")}" maxlength="300" placeholder="URL">
+                <input type="text" data-f="label" value="${escapeHtml(p.label)}" maxlength="40" placeholder="Label">
+                <input type="text" data-f="href" value="${escapeHtml(p.href)}" maxlength="300" placeholder="URL">
             </div>
             <div class="api-row">
                 <select data-f="icon">${iconOpts}</select>
