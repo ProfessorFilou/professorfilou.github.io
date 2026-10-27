@@ -5046,21 +5046,6 @@ mk('rect',{x:56,y:4,width:8,height:18,rx:2,fill:'#fff6d0',stroke:'#e8c070','stro
 mk('rect',{x:57.5,y:2,width:5,height:4,rx:1,fill:'#ffd56a'},candleG);
 const flame=mk('ellipse',{cx:60,cy:-2,rx:4,ry:6,fill:'#ff9f43'},candleG);
 mk('ellipse',{cx:60,cy:-1,rx:2,ry:3.2,fill:'#ffe27a'},candleG);
-/* Sonnenbrille (bei sunny) */
-const shadesG=mk('g',{opacity:0},root);
-// frame bridge
-mk('path',{d:'M38 52 H82',stroke:'#1a1a22','stroke-width':'3.2','stroke-linecap':'round'},shadesG);
-// left lens
-mk('rect',{x:28,y:44,width:22,height:16,rx:5,fill:'#0a1628',stroke:'#1a1a22','stroke-width':'2.5',opacity:'0.92'},shadesG);
-mk('rect',{x:30,y:46,width:10,height:5,rx:2,fill:'#7ec8ff',opacity:'0.25'},shadesG); // highlight
-// right lens
-mk('rect',{x:70,y:44,width:22,height:16,rx:5,fill:'#0a1628',stroke:'#1a1a22','stroke-width':'2.5',opacity:'0.92'},shadesG);
-mk('rect',{x:72,y:46,width:10,height:5,rx:2,fill:'#7ec8ff',opacity:'0.25'},shadesG);
-// arms
-mk('path',{d:'M28 50 Q18 52 14 58',stroke:'#1a1a22','stroke-width':'2.4','stroke-linecap':'round',fill:'none'},shadesG);
-mk('path',{d:'M92 50 Q102 52 106 58',stroke:'#1a1a22','stroke-width':'2.4','stroke-linecap':'round',fill:'none'},shadesG);
-const shadesW=new Sp(0,14,.85);
-
 const FXK=['sparkle','heart','tear','zzz','bang','anger','bolt','sun','sweat','snow','swirl','rain','confetti'],fW={},fg={};
 FXK.forEach(k=>{fW[k]=new Sp(0,12,.8);fg[k]=mk('g',{opacity:0},root)});
 const STAR='M0-6L1.6-1.6L6 0L1.6 1.6L0 6L-1.6 1.6L-6 0L-1.6-1.6Z',HEART='M0 4C-8-2-5-8 0-4C5-8 8-2 0 4Z',DROP='M0-7C5 0 6 4 0 7C-6 4-5 0 0-7Z';
@@ -5241,10 +5226,6 @@ function frame(now){
  const cw=clamp(P.candle.x,0,1);
  candleG.setAttribute('opacity',cw);
  if(cw>.01){const flicker=1+Math.sin(t*18)*.08+Math.sin(t*27)*.05;flame.setAttribute('transform',`translate(60 ${-2}) scale(${flicker}) translate(-60 2)`)}
- /* Sonnenbrille bei Sonne */
- shadesW.t = (cur==='sunny' || wx==='sunny') ? 1 : 0;
- shadesW.step(dt);
- shadesG.setAttribute('opacity', clamp(shadesW.x,0,1).toFixed(3));
  drawFx(t);
  requestAnimationFrame(frame)}
 const act=()=>{lastAct=performance.now();if(cur==='sleepy'&&napping){napping=false;setState('surprised',700)}};
@@ -5284,16 +5265,8 @@ function onPointerUp(){
   dragging=false;
   const dist = Math.hypot(P.dx.t, P.dy.t);
   P.dx.t=0; P.dy.t=0;
-  if(dragMoved && dist > 22){
-    /* Weit gezogen → taumeln */
-    act();
-    setState('dizzy', 1800);
-    playOnce(CLIPS.R);
-    P.sq.x = -0.18;
-    P.lift.v = 90;
-  } else if(dragMoved && dist > 12){
-    setState('annoyed',1100); playOnce(CLIPS.SHAKE); P.sq.x=-.12;
-  } else if(!dragMoved) onClick();
+  if(dragMoved && dist > 12){ setState('annoyed',1100); playOnce(CLIPS.SHAKE); P.sq.x=-.12; }
+  else if(!dragMoved) onClick();
   dragStart=null;
 }
 svg.addEventListener('pointerdown', onPointerDown);
