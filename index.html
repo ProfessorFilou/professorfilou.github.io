@@ -1730,9 +1730,234 @@ body.lights-snow .orb-2{ opacity:0.32; background:radial-gradient(circle, #7fd4f
 
 /* Hacker-Bot Hilfsklassen (SVG wird per JS gesteuert) */
 #bot.hacker-on{ filter:drop-shadow(0 0 10px rgba(0,255,100,0.45)); }
+
+/* ===== WEIHNACHTS-THEME START ===== */
+:root{
+    --gold:#d8b875;
+    --gold-light:#f6e6bd;
+    --gold-deep:#a87f43;
+}
+body.xmas-theme{
+    --cyan: #d8b875;
+}
+body.xmas-theme .orb-1{ background:radial-gradient(circle,#b98a45,transparent 70%); }
+body.xmas-theme .orb-2{ background:radial-gradient(circle,#2c8c72,transparent 70%); }
+body.xmas-theme .orb-3{ background:radial-gradient(circle,#c4666b,transparent 70%); }
+
+body.xmas-theme .project-btn:hover{
+    border-color:rgba(216,184,117,.65);
+    color:#f6e6bd;
+    box-shadow:0 10px 28px rgba(216,184,117,.2);
+}
+body.xmas-theme .project-btn:hover .pb-icon{
+    color:#f6e6bd;
+    filter:drop-shadow(0 0 8px rgba(216,184,117,.6));
+}
+body.xmas-theme .project-btn.top-glow::before{
+    background:conic-gradient(from var(--holo-angle),#c4666b,#f6e6bd,#2c8c72,#d8b875,#c4666b);
+}
+body.xmas-theme .project-btn.top-glow::after{
+    background:conic-gradient(from var(--holo-angle), rgba(196,102,107,0.3), rgba(246,230,189,0.22), rgba(44,140,114,0.3), rgba(216,184,117,0.22), rgba(196,102,107,0.3));
+}
+body.xmas-theme .line{ background:linear-gradient(90deg,transparent,#d8b875,transparent); }
+
+body.xmas-theme h1#word > span{
+    background:linear-gradient(110deg,#a87f43 10%,#fbeab8 35%,#d8b875 55%,#fff1c9 78%,#a87f43);
+    background-size:300% 100%;
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    animation:holoShift 6s ease-in-out infinite;
+    filter:drop-shadow(0 0 18px rgba(216,184,117,.45));
+}
+body.xmas-theme .social:hover{
+    border-color:rgba(216,184,117,.5);
+    color:#f6e6bd;
+    box-shadow:0 8px 24px rgba(216,184,117,.14);
+}
+body.xmas-theme .random-btn{ color:var(--gold); }
+body.xmas-theme .random-btn:hover{
+    border-color:var(--gold);
+    box-shadow:0 0 14px rgba(216,184,117,.3);
+    background:rgba(216,184,117,.08);
+}
+body.xmas-theme .footer-link:hover{ color:var(--gold-light); }
+body.xmas-theme .cursor-toggle.active{
+    border-color:rgba(216,184,117,.5);
+    background:rgba(216,184,117,.08);
+    color:var(--gold);
+    box-shadow:0 0 12px rgba(216,184,117,.18);
+}
+body.xmas-theme .cursor-toggle.active .ct-dot{ background:var(--gold); box-shadow:0 0 6px var(--gold); }
+body.xmas-theme .last-visited b{ color:var(--gold-light); }
+body.xmas-theme #bot:focus-visible{ outline-color:var(--gold); }
+
+/* Snow canvas */
+#xm-snow{
+    position:fixed; inset:0; pointer-events:none; z-index:45;
+    display:none;
+}
+body.xmas-theme #xm-snow{ display:block; }
+
+/* Garland under title */
+#xm-garland{
+    position:absolute; left:50%; transform:translateX(-50%);
+    bottom:-28px;
+    width:min(96vw,760px); height:70px;
+    overflow:visible; pointer-events:none; z-index:3;
+    display:none;
+}
+body.xmas-theme #xm-garland{ display:block; }
+#xm-garland .wire{ fill:none; stroke:#252b27; stroke-width:2.2; stroke-linecap:round; }
+#xm-garland .bulb{ animation:xmTwinkle 2.6s ease-in-out infinite; }
+@keyframes xmTwinkle{
+    0%,100%{ opacity:1; }
+    45%{ opacity:.35; }
+    70%{ opacity:.85; }
+}
+@media (prefers-reduced-motion: reduce){
+    #xm-garland .bulb{ animation:none !important; }
+}
+
+/* Gift stack bottom-left */
+#xm-gift{
+    position:fixed; left:8px; bottom:6px;
+    z-index:-1; pointer-events:none;
+    transform:rotate(-8deg);
+    opacity:0; transition:opacity .6s ease;
+}
+body.xmas-theme #xm-gift{ opacity:1; }
+#xm-gift svg{ display:block; filter:drop-shadow(0 4px 10px rgba(0,0,0,.4)); }
+@media (max-width:700px){
+    #xm-gift{ transform:rotate(-6deg) scale(.72); left:4px; bottom:4px; opacity:.55; }
+}
+@media (max-width:420px){
+    #xm-gift{ display:none; }
+}
+
+/* Hanging baubles */
+.xm-bauble{
+    position:fixed; top:-6px; pointer-events:none; z-index:40;
+    transform-origin:50% 0%;
+    animation:xmSwing 4.8s ease-in-out infinite;
+    display:none;
+}
+body.xmas-theme .xm-bauble{ display:block; }
+.xm-bauble .bb-string{ stroke:#3a3a3a; stroke-width:1.4; }
+.xm-bauble .bb-body{
+    fill:url(#xmGoldGrad);
+}
+@keyframes xmSwing{
+    0%,100%{ transform:rotate(-5deg); }
+    50%{ transform:rotate(6deg); }
+}
+@media (prefers-reduced-motion: reduce){
+    .xm-bauble{ animation:none !important; }
+}
+
+/* Twinkling stars */
+.xm-star{
+    position:fixed; pointer-events:none; z-index:42;
+    color:#f6e6bd; font-size:11px; line-height:1;
+    opacity:0; animation:xmStarTwinkle 3.8s ease-in-out infinite;
+    text-shadow:0 0 8px rgba(246,230,189,.7);
+    display:none;
+}
+body.xmas-theme .xm-star{ display:block; }
+@keyframes xmStarTwinkle{
+    0%,100%{ opacity:0; transform:scale(.6); }
+    40%{ opacity:.9; transform:scale(1); }
+    70%{ opacity:.35; transform:scale(.85); }
+}
+@media (prefers-reduced-motion: reduce){
+    .xm-star{ animation:none !important; opacity:.4; }
+}
+
+/* Countdown glass */
+#xm-countdown{
+    margin-top:10px;
+    display:none;
+    font-size:12.5px;
+    letter-spacing:.3px;
+    color:var(--text-dim);
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(216,184,117,.22);
+    border-radius:999px;
+    padding:5px 14px;
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+}
+body.xmas-theme #xm-countdown{ display:inline-flex; align-items:center; gap:6px; }
+#xm-countdown b{ color:var(--gold-light); font-weight:600; }
+
+/* Hat only when theme active */
+body:not(.xmas-theme) #xm-hat{ display:none !important; }
+
+/* Soften plant / presence accents a bit under xmas */
+body.xmas-theme .plant-hit:hover{ filter:drop-shadow(0 6px 18px rgba(216,184,117,.18)); }
+body.xmas-theme #plant-toast{ border-color:rgba(216,184,117,.28); }
+body.xmas-theme .pt-copy strong{ color:var(--gold-light); }
+body.xmas-theme .pt-bar-fill{ background:linear-gradient(90deg,#d8b875,#f6e6bd,#c4666b); box-shadow:0 0 12px rgba(216,184,117,.45); }
+
+/* ===== WEIHNACHTS-THEME ENDE ===== */
+
 </style>
 </head>
 <body>
+
+<!-- ===== WEIHNACHTS-THEME DOM ===== -->
+<canvas id="xm-snow" aria-hidden="true"></canvas>
+<div id="xm-gift" aria-hidden="true">
+  <svg viewBox="0 0 110 100" width="110" height="100" style="overflow:visible">
+    <!-- small green package -->
+    <g transform="translate(4,28) rotate(-12)">
+      <ellipse cx="22" cy="48" rx="18" ry="3.5" fill="#000" opacity=".3"/>
+      <rect x="6" y="18" width="32" height="28" rx="3" fill="#1f4a44"/>
+      <rect x="6" y="28" width="32" height="5" fill="#ecd8a6"/>
+      <rect x="18" y="18" width="6" height="28" fill="#ecd8a6"/>
+      <rect x="3" y="10" width="38" height="10" rx="2.5" fill="#2a5e56"/>
+      <rect x="18" y="10" width="6" height="10" fill="#ecd8a6"/>
+    </g>
+    <!-- blue package -->
+    <g transform="translate(58,34) rotate(8)">
+      <ellipse cx="18" cy="42" rx="16" ry="3" fill="#000" opacity=".28"/>
+      <rect x="4" y="14" width="28" height="26" rx="3" fill="#2f3b5c"/>
+      <rect x="4" y="24" width="28" height="5" fill="#d4bf86"/>
+      <rect x="15" y="14" width="6" height="26" fill="#d4bf86"/>
+      <rect x="1" y="7" width="34" height="9" rx="2.5" fill="#3d4a6e"/>
+      <rect x="15" y="7" width="6" height="9" fill="#d4bf86"/>
+    </g>
+    <!-- main red gift -->
+    <g transform="translate(22,8) rotate(-5)">
+      <ellipse cx="40" cy="80" rx="30" ry="4" fill="#000" opacity=".35"/>
+      <rect x="12" y="38" width="56" height="40" rx="4" fill="#7a2f38"/>
+      <rect x="12" y="54" width="56" height="8" fill="#e0c27f"/>
+      <rect x="35" y="38" width="10" height="40" fill="#e0c27f"/>
+      <rect x="8" y="27" width="64" height="15" rx="4" fill="#a94c50"/>
+      <rect x="35" y="27" width="10" height="15" fill="#e0c27f"/>
+      <path d="M40 27C31 7 12 14 27 27Z" fill="#e0c27f" stroke="rgba(0,0,0,.18)" stroke-width=".8"/>
+      <path d="M40 27C49 7 68 14 53 27Z" fill="#e0c27f" stroke="rgba(0,0,0,.18)" stroke-width=".8"/>
+      <circle cx="40" cy="26" r="4.2" fill="#e0c27f"/>
+    </g>
+  </svg>
+</div>
+<svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+  <defs>
+    <radialGradient id="xmGoldGrad" cx="32%" cy="28%" r="70%">
+      <stop offset="0%" stop-color="#fff5d4"/>
+      <stop offset="28%" stop-color="#d9b46d"/>
+      <stop offset="65%" stop-color="#7c5a2c"/>
+      <stop offset="100%" stop-color="#2a2012"/>
+    </radialGradient>
+    <radialGradient id="xmRedGrad" cx="32%" cy="28%" r="70%">
+      <stop offset="0%" stop-color="#ffd4d4"/>
+      <stop offset="30%" stop-color="#c4666b"/>
+      <stop offset="70%" stop-color="#7a2f38"/>
+      <stop offset="100%" stop-color="#2a1012"/>
+    </radialGradient>
+  </defs>
+</svg>
+
 <canvas id="bg"></canvas>
 <div class="orb-field">
     <div class="orb orb-1"></div>
@@ -1915,6 +2140,7 @@ body.lights-snow .orb-2{ opacity:0.32; background:radial-gradient(circle, #7fd4f
                 <div class="admin-section-title">Bot / Effekte</div>
                 <button id="admin-bot-hacker" class="admin-btn soft">Hacker-Modus (3–5s)</button>
                 <button id="admin-lights-snow" class="admin-btn soft">Lichterkette + Schnee: AUS</button>
+                <button id="admin-xmas-theme" class="admin-btn gold">Weihnachts-Theme: AN</button>
                 <div class="admin-row" style="margin-top:8px;">
                     <button id="admin-bot-happy" class="admin-btn soft">😊 Glücklich</button>
                     <button id="admin-bot-love" class="admin-btn soft">❤️ Verliebt</button>
@@ -2213,6 +2439,7 @@ body.lights-snow .orb-2{ opacity:0.32; background:radial-gradient(circle, #7fd4f
     </div>
     <div class="line"></div>
     <div class="text">❤️ Minecraft</div>
+    <div id="xm-countdown" aria-live="polite"><span>🎄</span> <span id="xm-days">Noch … Tage bis Weihnachten</span></div>
     <div id="live-status"></div>
     <div class="socials">
         <a class="social" href="https://github.com/professorfilou" target="_blank" rel="noopener" title="GitHub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><use href="#icon-github"/></svg></a>
@@ -5109,7 +5336,7 @@ function setState(name,ms){const m=ST[name];if(!m)return;clearTimeout(timer);tim
  FXK.forEach(k=>fW[k].t=m.fx===k?1:0);
  nextClip();
  if(ms>0)timer=setTimeout(()=>{timer=0;setState(base)},ms);else if(ms===undefined)base=name}
-const h1=svg.closest('h1'),STOPS=[[0,[0,255,204]],[.4,[47,216,255]],[.75,[139,123,255]],[1,[255,107,203]]];
+const h1=svg.closest('h1'),STOPS=[[0,[168,127,67]],[.35,[251,234,184]],[.55,[216,184,117]],[.78,[255,241,201]],[1,[168,127,67]]];
 const gradOn=()=>!!h1&&getComputedStyle(h1).backgroundImage.indexOf('gradient')>-1;
 function siteRGB(){
   if(!h1)return STOPS[0][1];
@@ -5577,4 +5804,241 @@ requestAnimationFrame(frame);
 </script>
 
 </body>
+
+<script>
+/* ===== WEIHNACHTS-THEME START (JS) ===== */
+(function () {
+  "use strict";
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* Default ON */
+  document.body.classList.add("xmas-theme");
+
+  /* ── Firebase toggle (live_features/xmas_theme) ── */
+  let xmasOn = true;
+  const adminXmasBtn = document.getElementById("admin-xmas-theme");
+  function applyXmas(on) {
+    xmasOn = !!on;
+    document.body.classList.toggle("xmas-theme", xmasOn);
+    if (adminXmasBtn) {
+      adminXmasBtn.textContent = xmasOn ? "Weihnachts-Theme: AN" : "Weihnachts-Theme: AUS";
+      adminXmasBtn.className = xmasOn ? "admin-btn gold active" : "admin-btn gold";
+    }
+    // rebuild garland visibility is CSS-driven
+  }
+  try {
+    if (typeof ref === "function" && typeof db !== "undefined") {
+      const xmasRef = ref(db, "live_features/xmas_theme");
+      onValue(xmasRef, (snap) => {
+        // null / undefined => default true (theme on)
+        const v = snap.val();
+        applyXmas(v === null || v === undefined ? true : !!v);
+      });
+      if (adminXmasBtn) {
+        adminXmasBtn.addEventListener("click", () => {
+          set(xmasRef, !xmasOn);
+        });
+      }
+    } else if (adminXmasBtn) {
+      adminXmasBtn.addEventListener("click", () => applyXmas(!xmasOn));
+    }
+  } catch (e) {
+    console.warn("xmas firebase toggle:", e);
+    if (adminXmasBtn) adminXmasBtn.addEventListener("click", () => applyXmas(!xmasOn));
+  }
+
+  /* ── Countdown ── */
+  function updateCountdown() {
+    const el = document.getElementById("xm-days");
+    if (!el) return;
+    const now = new Date();
+    const y = now.getFullYear();
+    let target = new Date(y, 11, 24); // 24.12.
+    if (now > target) target = new Date(y + 1, 11, 24);
+    const days = Math.ceil((target - now) / 86400000);
+    if (days <= 0) el.textContent = "Frohe Weihnachten! 🎄";
+    else if (days === 1) el.textContent = "Noch 1 Tag bis Weihnachten";
+    else el.textContent = "Noch " + days + " Tage bis Weihnachten";
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 60000);
+
+  /* ── Garland under title ── */
+  function ensureGarland() {
+    const hc = document.querySelector(".header-container");
+    if (!hc || document.getElementById("xm-garland")) return;
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.id = "xm-garland";
+    svg.setAttribute("aria-hidden", "true");
+    hc.appendChild(svg);
+    buildGarland();
+  }
+  function buildGarland() {
+    const svg = document.getElementById("xm-garland");
+    if (!svg) return;
+    const W = Math.max(280, svg.getBoundingClientRect().width || Math.min(innerWidth * 0.96, 760));
+    svg.setAttribute("viewBox", "0 0 " + W + " 70");
+    svg.innerHTML = "";
+    const NS = "http://www.w3.org/2000/svg";
+    const seg = W / 3, sag = 26;
+    let d = "M0,4";
+    for (let i = 0; i < 3; i++) d += " Q" + ((i + 0.5) * seg) + "," + (sag * 2 + 4) + " " + ((i + 1) * seg) + ",4";
+    const wire = document.createElementNS(NS, "path");
+    wire.setAttribute("d", d);
+    wire.setAttribute("class", "wire");
+    svg.appendChild(wire);
+    const L = wire.getTotalLength();
+    const cols = ["#ffd98a", "#ff7b7b", "#8fe3c4", "#ffe9b8", "#a9c4ff"];
+    for (let p = 22, k = 0; p < L - 10; p += 44, k++) {
+      const pt = wire.getPointAtLength(p);
+      const c = cols[k % 5];
+      const g = document.createElementNS(NS, "g");
+      g.setAttribute("transform", "translate(" + pt.x + "," + pt.y + ")");
+      g.innerHTML =
+        '<rect x="-2.5" y="0" width="5" height="6" rx="1" fill="#2b302c"/>' +
+        '<ellipse class="bulb" cx="0" cy="12" rx="4.6" ry="7.2" fill="' + c + '"' +
+        ' style="animation-delay:' + ((k * 0.37) % 2.6).toFixed(2) + 's;filter:drop-shadow(0 0 7px ' + c + ')"/>';
+      svg.appendChild(g);
+    }
+  }
+  ensureGarland();
+  addEventListener("resize", () => { buildGarland(); });
+
+  /* ── Santa hat on Filou-Bot ── */
+  function addHat() {
+    const bot = document.getElementById("bot");
+    if (!bot) return;
+    // root group is the first <g> child created by the bot script
+    const root = [...bot.children].find((e) => e.tagName && e.tagName.toLowerCase() === "g");
+    if (!root || root.querySelector("#xm-hat")) return;
+    const NS = "http://www.w3.org/2000/svg";
+    const hat = document.createElementNS(NS, "g");
+    hat.id = "xm-hat";
+    // sit on top of the head (y≈14), slightly tilted
+    hat.setAttribute("transform", "translate(58, 18) rotate(-12)");
+    hat.innerHTML =
+      '<path d="M-30 4 C-28 -24 -4 -42 26 -38 C17 -28 22 -10 32 4 Z" fill="#d62839"/>' +
+      '<path d="M-30 4 C-28 -24 -4 -42 26 -38 C6 -24 -8 -8 -16 4 Z" fill="#e5384a" opacity=".7"/>' +
+      '<rect x="-37" y="-3" width="76" height="15" rx="7.5" fill="#fff"/>' +
+      '<circle cx="27" cy="-38" r="8.5" fill="#fff"/>';
+    root.appendChild(hat);
+  }
+  // Bot script runs later; retry a few times
+  addHat();
+  setTimeout(addHat, 200);
+  setTimeout(addHat, 800);
+  setTimeout(addHat, 1800);
+
+  /* ── Snow canvas ── */
+  const snowC = document.getElementById("xm-snow");
+  if (snowC) {
+    const sx = snowC.getContext("2d");
+    let flakes = [], wind = 0, mx = innerWidth / 2;
+    function initSnow() {
+      snowC.width = innerWidth;
+      snowC.height = innerHeight;
+      const n = reduce ? Math.min(40, Math.floor(innerWidth / 22)) : Math.min(150, Math.floor(innerWidth / 9));
+      flakes = Array.from({ length: n }, () => {
+        const z = Math.random();
+        return {
+          x: Math.random() * innerWidth,
+          y: Math.random() * innerHeight,
+          z,
+          r: 0.6 + z * 2.6,
+          sp: 0.25 + z * 1.1,
+          dr: (Math.random() - 0.5) * 0.5,
+          ph: Math.random() * 7,
+          op: 0.2 + z * 0.6
+        };
+      });
+    }
+    function drawSnow(t) {
+      requestAnimationFrame(drawSnow);
+      if (document.hidden || !document.body.classList.contains("xmas-theme")) return;
+      sx.clearRect(0, 0, innerWidth, innerHeight);
+      wind += ((mx / innerWidth - 0.5) * 1.6 + Math.sin(t / 3500) * 0.7 - wind) * 0.02;
+      flakes.forEach((f) => {
+        sx.globalAlpha = f.op;
+        if (f.z > 0.75) {
+          const g = sx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r * 2);
+          g.addColorStop(0, "rgba(255,255,250,1)");
+          g.addColorStop(1, "rgba(255,255,250,0)");
+          sx.fillStyle = g;
+          sx.beginPath();
+          sx.arc(f.x, f.y, f.r * 2, 0, 7);
+          sx.fill();
+        } else {
+          sx.fillStyle = "#eeebde";
+          sx.beginPath();
+          sx.arc(f.x, f.y, f.r, 0, 7);
+          sx.fill();
+        }
+        f.y += f.sp;
+        f.x += f.dr + Math.sin(t / 900 + f.ph) * 0.35 + wind * f.z * 1.4;
+        if (f.y > innerHeight + 8) {
+          f.y = -8;
+          f.x = Math.random() * innerWidth;
+        }
+        if (f.x > innerWidth + 8) f.x = -8;
+        if (f.x < -8) f.x = innerWidth + 8;
+      });
+      sx.globalAlpha = 1;
+    }
+    addEventListener("mousemove", (e) => (mx = e.clientX));
+    addEventListener("resize", initSnow);
+    initSnow();
+    requestAnimationFrame(drawSnow);
+  }
+
+  /* ── Baubles (top edge, avoid presence & bulb) ── */
+  function placeBaubles() {
+    if (document.querySelector(".xm-bauble")) return;
+    const positions = [
+      { left: "18%", delay: "0s", scale: 1, red: false },
+      { left: "32%", delay: "0.8s", scale: 0.85, red: true },
+      { left: "68%", delay: "0.3s", scale: 0.95, red: false },
+      { left: "82%", delay: "1.1s", scale: 0.78, red: true }
+    ];
+    positions.forEach((p, i) => {
+      const el = document.createElement("div");
+      el.className = "xm-bauble";
+      el.style.left = p.left;
+      el.style.animationDelay = p.delay;
+      el.style.transform = "scale(" + p.scale + ")";
+      el.innerHTML =
+        '<svg width="28" height="48" viewBox="0 0 28 48" overflow="visible">' +
+        '<line class="bb-string" x1="14" y1="0" x2="14" y2="12"/>' +
+        '<circle cx="14" cy="12" r="2.2" fill="#c9a66b"/>' +
+        '<circle class="bb-body" cx="14" cy="30" r="13" fill="url(#' + (p.red ? "xmRedGrad" : "xmGoldGrad") + ')"/>' +
+        '<ellipse cx="10" cy="24" rx="4" ry="3" fill="rgba(255,255,255,.22)"/>' +
+        "</svg>";
+      document.body.appendChild(el);
+    });
+  }
+  placeBaubles();
+
+  /* ── Twinkling stars ── */
+  function placeStars() {
+    if (document.querySelector(".xm-star")) return;
+    const n = reduce ? 6 : 14;
+    for (let i = 0; i < n; i++) {
+      const s = document.createElement("div");
+      s.className = "xm-star";
+      s.textContent = "✦";
+      s.style.left = 8 + Math.random() * 84 + "%";
+      s.style.top = 8 + Math.random() * 55 + "%";
+      s.style.fontSize = 8 + Math.random() * 10 + "px";
+      s.style.animationDelay = (Math.random() * 3.8).toFixed(2) + "s";
+      s.style.animationDuration = 2.8 + Math.random() * 2.4 + "s";
+      document.body.appendChild(s);
+    }
+  }
+  placeStars();
+
+  /* Respect reduced motion globally for new animations is already in CSS */
+
+})();
+/* ===== WEIHNACHTS-THEME ENDE ===== */
+</script>
+
 </html>
